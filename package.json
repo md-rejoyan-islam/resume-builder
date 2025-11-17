@@ -1,0 +1,24 @@
+{
+  "name": "resume-builder",
+  "version": "1.0.0",
+  "description": "",
+  "main": "",
+  "scripts": {
+    "format": "pnpm --filter ./server format",
+    "format:fix": "pnpm --filter ./server format:fix",
+    "lint": "pnpm --filter ./server lint",
+    "lint:fix": "pnpm --filter ./server lint:fix",
+    "prepare": "husky && husky install",
+    "build": "pnpm --filter ./server build && pnpm --filter ./client build",
+    "install": "pnpm --filter ./server install && pnpm --filter ./client install",
+    "start": "pnpm --filter ./server start & pnpm --filter ./client start",
+    "dev": "pnpm --filter ./server dev & pnpm --filter ./client dev"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@10.18.3",
+  "devDependencies": {
+    "husky": "^8.0.0"
+  }
+}
