@@ -8,6 +8,7 @@ import {
 } from '../../utils/cache';
 import { isValidMongoId } from '../../utils/is-valid-mongo-id';
 import { hashPassword } from '../../utils/password';
+import { TenantService } from '../tenant/tenant.service';
 import UserModel from './user.model';
 import { GetUsersQuery } from './user.validation';
 
@@ -170,6 +171,8 @@ export class UserService {
     if (!isValidMongoId(id)) throw createError.BadRequest('Invalid user id');
     const user = await UserModel.findByIdAndDelete(id).select('_id').lean();
     if (!user) throw createError.NotFound('User not found');
+    // delete tenant
+    await TenantService.remove(id);
     await deleteCache(generateCacheKey({ resource: `${USER_RESOURCE}:${id}` }));
     await deleteCache(generateCacheKey({ resource: USER_RESOURCE }));
     return { _id: user._id };

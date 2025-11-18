@@ -11,6 +11,7 @@ import { generateRandomPin } from '../../utils/generate-random-pin';
 import generateToken, { verifyToken } from '../../utils/generate-token';
 import { removeImage } from '../../utils/image-utils';
 import { comparePassword, hashPassword } from '../../utils/password';
+import { TenantService } from '../tenant/tenant.service';
 import UserModel from '../user/user.model';
 import { RegisterInput } from './auth.validation';
 
@@ -19,12 +20,14 @@ export class AuthService {
     const exists = await UserModel.findOne({ email: payload.email }).lean();
     if (exists) throw createError.Conflict('Email already exists');
     const user = await UserModel.create({ ...payload });
+    // tenant add
+    await TenantService.create({ name: payload.first_name });
+
     return { _id: user._id };
   }
 
   static async login(email: string, password: string) {
     const cacheKey = generateCacheKey({ resource: `auth:login:${email}` });
-    // do not return cached on login for security, but demonstrate setting on success for throttling if needed
 
     const user = await UserModel.findOne({ email })
       .select('+password +refresh_token role email first_name last_name avatar')
