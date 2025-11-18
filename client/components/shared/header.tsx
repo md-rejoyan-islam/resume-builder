@@ -2,6 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Menu, X } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 import Navlink from "./navlink";
@@ -25,9 +26,13 @@ function Header() {
           href="/"
           className="flex items-center gap-2 hover:opacity-80 transition cursor-pointer"
         >
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-linear-to-br from-blue-600 to-purple-600">
-            <span className="text-sm font-bold text-white">DB</span>
-          </div>
+          <Image
+            src={"/logo.png"}
+            alt="Logo"
+            width={40}
+            height={40}
+            className="bg-white rounded-full"
+          />
           <span className="text-lg font-bold">DocBuilder</span>
         </Link>
 

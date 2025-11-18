@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import Image from "next/image";
 
 export function HeroSection() {
   return (
@@ -47,9 +48,11 @@ export function HeroSection() {
           </div>
 
           <div className="relative h-96 lg:h-full">
-            <div className="absolute inset-0 bg-gradient-to-br from-blue-100 to-purple-100 dark:from-blue-900/20 dark:to-purple-900/20 rounded-2xl transform -skew-y-3" />
-            <div className="relative h-full bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-700 rounded-2xl shadow-2xl overflow-hidden">
-              <img
+            <div className="absolute inset-0 bg-linear-to-br from-blue-100 to-purple-100 dark:from-blue-900/20 dark:to-purple-900/20 rounded-2xl transform -skew-y-3" />
+            <div className="relative h-full bg-linear-to-br from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-700 rounded-2xl shadow-2xl overflow-hidden">
+              <Image
+                width={600}
+                height={400}
                 src="/resume-template-mockup.jpg"
                 alt="DocBuilder Product"
                 className="w-full h-full object-cover"
