@@ -61,18 +61,39 @@ export default function SignInForm() {
       <div>
         <div className="flex items-center justify-between mb-2">
           <label className="block text-sm font-medium">Password</label>
-          <Link
-            href="/forgot-password"
-            className="text-sm text-primary hover:underline"
-          >
-            Forgot?
-          </Link>
         </div>
         <PasswordField
           error={!!errors.password}
           errorMessage={errors.password?.message}
           props={{ ...register("password") }}
         />
+      </div>
+
+      <div>
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <div className="flex items-center">
+            <input
+              id="remember-me"
+              name="remember-me"
+              type="checkbox"
+              className="h-4 w-4 shrink-0 text-blue-600 focus:ring-blue-500 border-slate-300 rounded "
+            />
+            <label
+              htmlFor="remember-me"
+              className="ml-3 block text-sm text-slate-900 dark:text-slate-300"
+            >
+              Remember me
+            </label>
+          </div>
+          <div className="text-sm">
+            <Link
+              href="/forgot-password"
+              className="text-blue-600 hover:underline font-medium"
+            >
+              Forgot your password?
+            </Link>
+          </div>
+        </div>
       </div>
 
       {/* Submit */}

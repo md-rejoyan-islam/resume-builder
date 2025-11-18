@@ -4,7 +4,7 @@ import { FeaturesSection } from "@/components/(with-header)/homepage/features-se
 import { HeroSection } from "@/components/(with-header)/homepage/hero-section";
 import { HowItWorks } from "@/components/(with-header)/homepage/how-it-works";
 import { TemplatesSection } from "@/components/(with-header)/homepage/templates-section";
-import { TestimonialsSection } from "@/components/(with-header)/homepage/testnimonials-section";
+import TestnimonialsSection from "@/components/(with-header)/homepage/testnimonials-section";
 
 export const metadata = {
   title: "Home- Create Professional Documents Effortlessly",
@@ -20,7 +20,7 @@ export default function Home() {
       <HowItWorks />
       <TemplatesSection />
       <FeaturesSection />
-      <TestimonialsSection />
+      <TestnimonialsSection />
       <CTASection />
     </>
   );
