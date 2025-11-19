@@ -1,7 +1,14 @@
 "use client";
 
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
-import { Check } from "lucide-react";
+import clsx from "clsx";
+import { AlertCircle, Check, CheckCircle, Clock } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 
@@ -69,6 +76,45 @@ export default function PricingPage() {
     },
   ];
 
+  const faqs = [
+    {
+      q: "Can I create all document types with any plan?",
+      a: "Yes! All plans include access to resumes, cover letters, disclosure letters, and all other document types.",
+      status: "completed",
+    },
+    {
+      q: "Can I cancel anytime?",
+      a: "Absolutely. Cancel your subscription at any time with no penalties or hidden fees.",
+      status: "pending",
+    },
+    {
+      q: "Do you offer refunds?",
+      a: "Yes, we offer a 30-day money-back guarantee on all plans.",
+      status: "pending",
+    },
+    {
+      q: "Can I upgrade/downgrade?",
+      a: "Change your plan anytime and we'll automatically adjust your billing.",
+      status: "completed",
+    },
+    {
+      q: "Is there a free trial?",
+      a: "Yes! Create up to 3 documents for free before choosing a plan.",
+      status: "pending",
+    },
+  ];
+
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case "completed":
+        return <CheckCircle className="h-5 w-5 text-green-500" />;
+      case "pending":
+        return <Clock className="h-5 w-5 text-orange-500" />;
+      default:
+        return <AlertCircle className="h-5 w-5 text-slate-400" />;
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <main className="py-12 sm:py-16 lg:py-24 px-4 sm:px-6 lg:px-8">
@@ -100,42 +146,38 @@ export default function PricingPage() {
           </div>
 
           {/* FAQ */}
-          <div className="mt-20 max-w-3xl mx-auto">
+          <div className="mt-20   max-w-3xl mx-auto">
             <h2 className="text-2xl font-bold text-center mb-8">
               Frequently Asked Questions
             </h2>
-            <div className="space-y-4">
-              {[
-                {
-                  q: "Can I create all document types with any plan?",
-                  a: "Yes! All plans include access to resumes, cover letters, disclosure letters, and all other document types.",
-                },
-                {
-                  q: "Can I cancel anytime?",
-                  a: "Absolutely. Cancel your subscription at any time with no penalties or hidden fees.",
-                },
-                {
-                  q: "Do you offer refunds?",
-                  a: "Yes, we offer a 30-day money-back guarantee on all plans.",
-                },
-                {
-                  q: "Can I upgrade/downgrade?",
-                  a: "Change your plan anytime and we'll automatically adjust your billing.",
-                },
-                {
-                  q: "Is there a free trial?",
-                  a: "Yes! Create up to 3 documents for free before choosing a plan.",
-                },
-              ].map((faq, idx) => (
-                <details
+            <Accordion type="single" collapsible className="">
+              {faqs.map((faq, idx) => (
+                <AccordionItem
                   key={idx}
-                  className="border border-border rounded-lg p-4 cursor-pointer hover:bg-card/50 transition"
+                  value={`item-${idx}`}
+                  className={clsx(
+                    " dark:border-slate-700 border-gray-200 px-4 overflow-hidden data-[state=open]:bg-gray-50 dark:data-[state=open]:bg-slate-800/50 transition-colors ",
+                    idx === 0 ? "rounded-t-lg border-t" : "",
+                    idx === faqs.length - 1 ? "rounded-b-lg border-b" : "",
+                    idx !== faqs.length - 1
+                      ? "border-l border-r "
+                      : "border-l border-r"
+                  )}
                 >
-                  <summary className="font-semibold">{faq.q}</summary>
-                  <p className="text-foreground/60 mt-2">{faq.a}</p>
-                </details>
+                  <AccordionTrigger className="hover:no-underline  py-4 flex items-center gap-3">
+                    <div className="flex items-center gap-3 flex-1 text-left">
+                      {getStatusIcon(faq.status)}
+                      <span className="font-semibold text-gray-900 dark:text-white">
+                        {faq.q}
+                      </span>
+                    </div>
+                  </AccordionTrigger>
+                  <AccordionContent className="pb-4  text-gray-600 dark:text-gray-400">
+                    {faq.a}
+                  </AccordionContent>
+                </AccordionItem>
               ))}
-            </div>
+            </Accordion>
           </div>
         </div>
       </main>
@@ -244,10 +286,10 @@ function PricingCard({
           </Button>
         </Link>
 
-        <div className="space-y-4">
+        <div className=" gap-4 pb-4">
           {plan.features.map((feature: string, idx: number) => (
             <div key={idx} className="flex gap-3">
-              <Check className="h-5 w-5 text-green-600 dark:text-green-400 flex-shrink-0 mt-0.5" />
+              <Check className="h-5 w-5 text-green-600 dark:text-green-400 shrink-0 mt-0.5" />
               <span className="text-sm text-foreground/80">{feature}</span>
             </div>
           ))}

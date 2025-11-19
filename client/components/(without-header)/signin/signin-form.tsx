@@ -42,67 +42,71 @@ export default function SignInForm() {
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-      {/* Email */}
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+      {/* Email Field */}
       <div>
-        <label className="block text-sm font-medium mb-2">Email Address</label>
-
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          Email Address <span className="text-red-500">*</span>
+        </label>
         <InputField
           error={!!errors.email}
           errorMessage={errors.email?.message}
           icon={
-            <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-foreground/40" />
+            <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 dark:text-gray-500" />
           }
-          props={{ ...register("email") }}
+          props={{
+            ...register("email"),
+            placeholder: "hello@allgnul.com",
+          }}
         />
       </div>
 
-      {/* Password */}
+      {/* Password Field */}
       <div>
-        <div className="flex items-center justify-between mb-2">
-          <label className="block text-sm font-medium">Password</label>
-        </div>
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          Password <span className="text-red-500">*</span>
+        </label>
         <PasswordField
           error={!!errors.password}
           errorMessage={errors.password?.message}
-          props={{ ...register("password") }}
+          props={{
+            ...register("password"),
+            placeholder: "••••••••",
+          }}
         />
       </div>
 
-      <div>
-        <div className="flex flex-wrap items-center justify-between gap-4">
-          <div className="flex items-center">
-            <input
-              id="remember-me"
-              name="remember-me"
-              type="checkbox"
-              className="h-4 w-4 shrink-0 text-blue-600 focus:ring-blue-500 border-slate-300 rounded "
-            />
-            <label
-              htmlFor="remember-me"
-              className="ml-3 block text-sm text-slate-900 dark:text-slate-300"
-            >
-              Remember me
-            </label>
-          </div>
-          <div className="text-sm">
-            <Link
-              href="/forgot-password"
-              className="text-blue-600 hover:underline font-medium"
-            >
-              Forgot your password?
-            </Link>
-          </div>
+      {/* Keep logged in & Forgot password */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center">
+          <input
+            id="remember-me"
+            name="remember-me"
+            type="checkbox"
+            className="h-4 w-4 shrink-0 text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-slate-600 rounded cursor-pointer"
+          />
+          <label
+            htmlFor="remember-me"
+            className="ml-2 block text-sm text-gray-700 dark:text-gray-300 cursor-pointer"
+          >
+            Keep me logged in
+          </label>
         </div>
+        <Link
+          href="/forgot-password"
+          className="text-sm text-blue-600 dark:text-blue-400 hover:underline font-medium"
+        >
+          Forgot password?
+        </Link>
       </div>
 
-      {/* Submit */}
+      {/* Submit Button */}
       <Button
         type="submit"
-        className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+        className="w-full h-11 border-blue-800 border text-lg uppercase ring-offset-1 ring-ring bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700 text-white font-semibold py-2.5 rounded-lg transition-colors"
         disabled={isLoading}
       >
-        {isLoading ? "Signing in..." : "Sign In"}
+        {isLoading ? "Signing in..." : "Login"}
       </Button>
     </form>
   );

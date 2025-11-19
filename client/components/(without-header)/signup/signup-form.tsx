@@ -70,91 +70,83 @@ export default function SignUpForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
       {/* First Name */}
       <div>
-        <label className="block text-sm font-medium mb-2">First Name</label>
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          First Name <span className="text-red-500">*</span>
+        </label>
         <InputField
           error={!!errors.first_name}
           errorMessage={errors.first_name?.message}
           icon={
-            <User className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-foreground/40" />
+            <User className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 dark:text-gray-500" />
           }
-          props={{ ...registerField("first_name") }}
+          props={{
+            ...registerField("first_name"),
+            placeholder: "John",
+          }}
         />
       </div>
 
       {/* Last Name */}
       <div>
-        <label className="block text-sm font-medium mb-2">Last Name</label>
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          Last Name <span className="text-red-500">*</span>
+        </label>
         <InputField
           error={!!errors.last_name}
           errorMessage={errors.last_name?.message}
           icon={
-            <User className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-foreground/40" />
+            <User className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 dark:text-gray-500" />
           }
-          props={{ ...registerField("last_name") }}
+          props={{
+            ...registerField("last_name"),
+            placeholder: "Doe",
+          }}
         />
       </div>
 
       {/* Email */}
       <div>
-        <label className="block text-sm font-medium mb-2">Email Address</label>
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          Email Address <span className="text-red-500">*</span>
+        </label>
         <InputField
           error={!!errors.email}
           errorMessage={errors.email?.message}
           icon={
-            <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-foreground/40" />
+            <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 dark:text-gray-500" />
           }
-          props={{ ...registerField("email") }}
-        />
-      </div>
-
-      {/* Phone */}
-      <div>
-        <label className="block text-sm font-medium mb-2">
-          Phone (Optional)
-        </label>
-        <InputField
-          error={!!errors.phone}
-          errorMessage={errors.phone?.message}
-          icon={
-            <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-foreground/40" />
-          }
-          props={{ ...registerField("phone") }}
+          props={{
+            ...registerField("email"),
+            placeholder: "hello@example.com",
+          }}
         />
       </div>
 
       {/* Password */}
       <div>
-        <label className="block text-sm font-medium mb-2">Password</label>
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          Password <span className="text-red-500">*</span>
+        </label>
         <PasswordField
           error={!!errors.password}
           errorMessage={errors.password?.message}
-          props={{ ...registerField("password") }}
+          props={{
+            ...registerField("password"),
+            placeholder: "••••••••",
+          }}
         />
-
-        <p className="text-xs text-foreground/60 mt-1">
+        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
           At least 6 characters recommended
         </p>
       </div>
 
-      {/* Confirm Password */}
-      <div>
-        <label className="block text-sm font-medium mb-2">
-          Confirm Password
-        </label>
-        <PasswordField
-          error={!!errors.confirmPassword}
-          errorMessage={errors.confirmPassword?.message}
-          props={{ ...registerField("confirmPassword") }}
-        />
-      </div>
-
-      {/* Submit */}
+      {/* Submit Button */}
       <Button
         type="submit"
-        className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+        className="w-full h-11 border-blue-800 border text-lg uppercase ring-offset-1 ring-ring bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700 text-white font-semibold py-2.5 rounded-lg transition-colors"
         disabled={isLoading}
       >
         {isLoading ? "Creating account..." : "Sign Up"}
