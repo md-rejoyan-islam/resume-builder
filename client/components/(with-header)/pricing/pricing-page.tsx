@@ -8,7 +8,13 @@ import {
 } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
 import clsx from "clsx";
-import { AlertCircle, Check, CheckCircle, Clock } from "lucide-react";
+import {
+  AlertCircle,
+  Check,
+  CheckCircle,
+  Clock,
+  CornerLeftDown,
+} from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 
@@ -116,7 +122,7 @@ export default function PricingPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen ">
       <main className="py-12 sm:py-16 lg:py-24 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
           {/* Header */}
@@ -193,7 +199,7 @@ function BillingToggle({
   setIsYearly: (value: boolean) => void;
 }) {
   return (
-    <div className="flex items-center gap-4">
+    <div className="flex items-center gap-4 relative">
       <span
         className={`text-sm font-medium ${
           !isYearly ? "text-foreground" : "text-foreground/60"
@@ -213,13 +219,21 @@ function BillingToggle({
           }`}
         />
       </button>
-      <span
-        className={`text-sm font-medium ${
-          isYearly ? "text-foreground" : "text-foreground/60"
-        }`}
-      >
-        Yearly <span className="text-primary text-xs ml-1">Save 20%</span>
-      </span>
+      <div className="relative">
+        <span
+          className={`text-sm font-medium ${
+            isYearly ? "text-foreground" : "text-foreground/60"
+          }`}
+        >
+          Yearly
+        </span>
+      </div>
+      <div className="absolute -right-[90px] -top-[31px] text-xs vdplx hidden items-center pnlaa sm:flex">
+        <CornerLeftDown className="h-4 w-4 text-blue-600 mt-3 mr-0.5" />
+        <span className="badge badge-soft badge-primary mb-2 bg-blue-100/80 text-blue-600 px-2 rounded-md py-1 dark:bg-blue-900/30 dark:text-blue-400">
+          Save up to 10%
+        </span>
+      </div>
     </div>
   );
 }
@@ -251,7 +265,7 @@ function PricingCard({
       }`}
     >
       {plan.popular && (
-        <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white text-center py-2 rounded-t-2xl text-sm font-semibold">
+        <div className="bg-linear-to-r from-blue-600 to-purple-600 text-white text-center py-3 rounded-t-2xl  font-semibold">
           Most Popular
         </div>
       )}
@@ -261,8 +275,13 @@ function PricingCard({
         <p className="text-foreground/60 mb-6">{plan.description}</p>
 
         <div className="mb-6">
-          <div className="flex items-baseline gap-2">
-            <span className="text-5xl font-bold">${price}</span>
+          <div className="flex items-baseline relative gap-2">
+            <span className="text-lg absolute top-0 font-medium text-blue-600">
+              $
+            </span>
+            <span className="text-5xl font-bold ml-4 text-blue-600">
+              {price}
+            </span>
             <span className="text-foreground/60">/{period}</span>
           </div>
           {isYearly && plan.monthlyPrice && (
@@ -275,9 +294,9 @@ function PricingCard({
 
         <Link href="/checkout" className="w-full">
           <Button
-            className={`w-full mb-8 ${
+            className={`w-full mb-8 h-11 uppercase  hover:bg-blue-600 dark:hover:bg-blue-600 dark:border-primary ${
               plan.popular
-                ? "bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+                ? "bg-linear-to-r   from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
                 : "border-primary"
             }`}
             variant={plan.popular ? "default" : "outline"}
@@ -286,10 +305,10 @@ function PricingCard({
           </Button>
         </Link>
 
-        <div className=" gap-4 pb-4">
+        <div className=" space-y-3 pb-4">
           {plan.features.map((feature: string, idx: number) => (
             <div key={idx} className="flex gap-3">
-              <Check className="h-5 w-5 text-green-600 dark:text-green-400 shrink-0 mt-0.5" />
+              <Check className="h-5 w-5 bg-green-100/80 border border-green-200 p-1 rounded-full text-green-600 dark:text-green-400 shrink-0 mt-0.5 dark:bg-green-900/30 dark:border-green-700/30" />
               <span className="text-sm text-foreground/80">{feature}</span>
             </div>
           ))}

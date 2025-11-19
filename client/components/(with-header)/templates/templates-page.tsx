@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Star } from "lucide-react";
+import { ArrowRight, Sparkles, Star } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
 
@@ -17,6 +17,7 @@ export default function TemplatesPage() {
         reviews: 127,
         image: "/modern-minimal-professional-resume-template.jpg",
         color: "from-blue-500 to-blue-600",
+        badge: "Popular",
       },
       {
         name: "Creative Bold",
@@ -25,6 +26,7 @@ export default function TemplatesPage() {
         reviews: 95,
         image: "/creative-bold-colorful-resume-design.jpg",
         color: "from-purple-500 to-purple-600",
+        badge: "Trending",
       },
       {
         name: "Executive Classic",
@@ -33,6 +35,7 @@ export default function TemplatesPage() {
         reviews: 156,
         image: "/executive-classic-business-resume.jpg",
         color: "from-slate-700 to-slate-800",
+        badge: "Best Seller",
       },
       {
         name: "Tech Forward",
@@ -41,6 +44,7 @@ export default function TemplatesPage() {
         reviews: 82,
         image: "/tech-forward-developer-resume.jpg",
         color: "from-cyan-500 to-cyan-600",
+        badge: "New",
       },
       {
         name: "Colorful Vibrant",
@@ -49,6 +53,7 @@ export default function TemplatesPage() {
         reviews: 103,
         image: "/colorful-vibrant-creative-resume.jpg",
         color: "from-pink-500 to-rose-600",
+        badge: "Featured",
       },
       {
         name: "Academic Formal",
@@ -57,6 +62,7 @@ export default function TemplatesPage() {
         reviews: 71,
         image: "/academic-formal-education-resume.jpg",
         color: "from-amber-700 to-amber-800",
+        badge: "Verified",
       },
     ],
     coverLetter: [
@@ -67,6 +73,7 @@ export default function TemplatesPage() {
         reviews: 89,
         image: "/professional-formal-corporate-cover-letter.jpg",
         color: "from-blue-600 to-blue-700",
+        badge: "Popular",
       },
       {
         name: "Modern Friendly",
@@ -75,6 +82,7 @@ export default function TemplatesPage() {
         reviews: 72,
         image: "/modern-friendly-startup-cover-letter.jpg",
         color: "from-purple-600 to-purple-700",
+        badge: "Trending",
       },
       {
         name: "Creative Bold",
@@ -83,6 +91,7 @@ export default function TemplatesPage() {
         reviews: 65,
         image: "/creative-bold-design-cover-letter.jpg",
         color: "from-pink-600 to-rose-700",
+        badge: "New",
       },
       {
         name: "Tech Industry",
@@ -91,6 +100,7 @@ export default function TemplatesPage() {
         reviews: 98,
         image: "/tech-industry-developer-cover-letter.jpg",
         color: "from-cyan-600 to-cyan-700",
+        badge: "Best Seller",
       },
       {
         name: "Executive",
@@ -99,6 +109,7 @@ export default function TemplatesPage() {
         reviews: 54,
         image: "/executive-management-cover-letter.jpg",
         color: "from-slate-700 to-slate-800",
+        badge: "Featured",
       },
       {
         name: "Academic",
@@ -107,6 +118,7 @@ export default function TemplatesPage() {
         reviews: 43,
         image: "/academic-education-cover-letter.jpg",
         color: "from-amber-700 to-amber-800",
+        badge: "Verified",
       },
     ],
     disclosure: [
@@ -117,6 +129,7 @@ export default function TemplatesPage() {
         reviews: 156,
         image: "/general-disclosure-statement-form.jpg",
         color: "from-green-600 to-green-700",
+        badge: "Popular",
       },
       {
         name: "Criminal Background",
@@ -125,6 +138,7 @@ export default function TemplatesPage() {
         reviews: 134,
         image: "/criminal-background-disclosure-form.jpg",
         color: "from-orange-600 to-orange-700",
+        badge: "Best Seller",
       },
       {
         name: "Financial Disclosure",
@@ -133,6 +147,7 @@ export default function TemplatesPage() {
         reviews: 87,
         image: "/financial-disclosure-statement.jpg",
         color: "from-yellow-600 to-yellow-700",
+        badge: "Featured",
       },
       {
         name: "Medical History",
@@ -141,6 +156,7 @@ export default function TemplatesPage() {
         reviews: 76,
         image: "/placeholder.svg?height=400&width=300",
         color: "from-red-600 to-red-700",
+        badge: "New",
       },
       {
         name: "Conflict of Interest",
@@ -149,6 +165,7 @@ export default function TemplatesPage() {
         reviews: 62,
         image: "/placeholder.svg?height=400&width=300",
         color: "from-indigo-600 to-indigo-700",
+        badge: "Trending",
       },
       {
         name: "Professional Conduct",
@@ -157,6 +174,7 @@ export default function TemplatesPage() {
         reviews: 58,
         image: "/placeholder.svg?height=400&width=300",
         color: "from-teal-600 to-teal-700",
+        badge: "Verified",
       },
     ],
   };
@@ -170,96 +188,145 @@ export default function TemplatesPage() {
   const currentTemplates = templates[activeDocType as keyof typeof templates];
 
   return (
-    <div className="min-h-screen bg-background">
-      <main className="py-12 sm:py-16 lg:py-24 px-4 sm:px-6 lg:px-8">
+    <div className="relative min-h-screen overflow-hidden">
+      {/* Premium background with grid */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute top-0 left-1/4 h-96 w-96 bg-linear-to-br from-blue-500/15 to-transparent rounded-full blur-3xl" />
+        <div className="absolute bottom-1/3 right-1/4 h-80 w-80 bg-linear-to-br from-purple-500/10 to-transparent rounded-full blur-3xl" />
+
+        {/* Grid pattern overlay */}
+        <div className="absolute inset-0 bg-[linear-gradient(0deg,transparent_24%,rgba(148,163,184,.05)_25%,rgba(148,163,184,.05)_26%,transparent_27%,transparent_74%,rgba(148,163,184,.05)_75%,rgba(148,163,254,.05)_76%,transparent_77%,transparent)] bg-size-[50px_50px]" />
+      </div>
+
+      <main className="relative z-10 py-12 sm:py-16 lg:py-24 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
-          {/* Header */}
-          <div className="text-center mb-12">
-            <h1 className="text-4xl sm:text-5xl font-bold mb-4">
+          {/* Premium Header */}
+          <div className="text-center mb-16 sm:mb-20">
+            <div className="inline-flex items-center gap-2 mb-4 px-4 py-2 rounded-full bg-primary/10 text-primary border border-primary/20">
+              <Sparkles className="h-4 w-4" />
+              <span className="text-sm font-semibold">Template Library</span>
+            </div>
+
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black mb-6 tracking-tight">
               Professional{" "}
-              <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+              <span className="bg-linear-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
                 Templates
               </span>
             </h1>
-            <p className="text-lg text-foreground/60 max-w-2xl mx-auto">
+            <p className="text-lg sm:text-xl text-foreground/60 max-w-3xl mx-auto leading-relaxed font-medium">
               Choose from our expertly-designed templates for all your
-              professional documents.
+              professional documents. Each template is crafted for maximum
+              impact.
             </p>
           </div>
 
-          <div className="flex flex-wrap gap-3 justify-center mb-12">
+          {/* Filter Buttons - Premium Style */}
+          <div className="flex flex-wrap gap-3 justify-center mb-16">
             {docTypes.map((docType) => (
               <Button
                 key={docType.id}
                 onClick={() => setActiveDocType(docType.id)}
                 variant={activeDocType === docType.id ? "default" : "outline"}
-                className={
+                className={`font-semibold px-6 py-2.5 rounded-lg transition-all duration-300 ${
                   activeDocType === docType.id
-                    ? "bg-gradient-to-r from-blue-600 to-purple-600"
-                    : ""
-                }
+                    ? "bg-linear-to-r from-blue-600 to-purple-600 text-white shadow-lg hover:shadow-xl"
+                    : "border-border/60 text-foreground hover:bg-card/50"
+                }`}
               >
                 {docType.label}
-                <span className="ml-2 text-xs bg-primary/20 px-2 py-0.5 rounded-full">
+                <span className="ml-2 text-xs bg-primary/20 px-2.5 py-0.5 rounded-full font-bold">
                   {docType.count}
                 </span>
               </Button>
             ))}
           </div>
 
-          {/* Templates Grid */}
+          {/* Templates Grid - Premium Cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {currentTemplates.map((template) => (
+            {currentTemplates.map((template, index) => (
               <div
                 key={template.name}
-                className="group bg-card rounded-xl border border-border overflow-hidden hover:border-primary/50 transition-all hover:shadow-lg"
+                className="group relative"
+                style={{
+                  transitionDelay: `${index * 50}ms`,
+                }}
               >
-                {/* Image */}
-                <div className="h-64 relative overflow-hidden bg-foreground/5">
-                  <Image
-                    src={template.image || "/placeholder.svg"}
-                    alt={template.name}
-                    fill
-                    className="object-cover group-hover:scale-105 transition-transform duration-300"
-                  />
-                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
-                    <Button
-                      variant="secondary"
-                      className="opacity-0 group-hover:opacity-100 transition-opacity"
-                    >
-                      Preview
+                {/* Premium Template Card */}
+                <div className="relative h-full bg-card/50 backdrop-blur-lg rounded-2xl overflow-hidden transition-all duration-500 flex flex-col shadow-md hover:shadow-xl group-hover:-translate-y-1">
+                  {/* Background overlay on hover */}
+                  <div className="absolute inset-0 bg-linear-to-br from-primary/3 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+
+                  {/* Image Container */}
+                  <div className="relative h-72 overflow-hidden bg-linear-to-br from-slate-200 to-slate-300 dark:from-slate-800 dark:to-slate-700">
+                    {/* Template Preview Image */}
+                    <Image
+                      src={template.image || "/placeholder.svg"}
+                      alt={template.name}
+                      fill
+                      className="object-cover group-hover:scale-110 transition-transform duration-700"
+                    />
+
+                    {/* Overlay */}
+                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors duration-500 z-20 flex items-center justify-center">
+                      <Button className="opacity-0 group-hover:opacity-100 transition-all duration-500 bg-white text-black hover:bg-gray-100 font-semibold px-8 py-3 rounded-lg shadow-xl flex items-center gap-2">
+                        <span>Preview Template</span>
+                        <ArrowRight className="h-4 w-4" />
+                      </Button>
+                    </div>
+
+                    {/* Badge */}
+                    <div className="absolute top-4 right-4 px-3 py-1.5 rounded-full bg-primary/90 backdrop-blur-sm text-white text-xs font-bold z-30">
+                      {template.badge}
+                    </div>
+
+                    {/* Top accent line */}
+                    <div className="absolute top-0 left-0 right-0 h-1 bg-linear-to-r from-transparent via-primary to-transparent" />
+                  </div>
+
+                  {/* Content Section */}
+                  <div className="relative z-10 p-6 sm:p-8 flex flex-col grow">
+                    {/* Title */}
+                    <h3 className="font-bold text-lg sm:text-xl mb-2 text-foreground">
+                      {template.name}
+                    </h3>
+
+                    {/* Category */}
+                    <p className="text-sm text-foreground/60 mb-4 font-medium">
+                      {template.category}
+                    </p>
+
+                    {/* Ratings */}
+                    <div className="flex items-center gap-2 mb-6">
+                      <div className="flex gap-0.5">
+                        {[...Array(5)].map((_, i) => (
+                          <Star
+                            key={i}
+                            className={`h-4 w-4 ${
+                              i < Math.floor(template.rating)
+                                ? "fill-amber-400 text-amber-400"
+                                : "text-foreground/20"
+                            }`}
+                          />
+                        ))}
+                      </div>
+                      <span className="text-sm text-foreground/60 ml-1">
+                        <span className="font-semibold">{template.rating}</span>
+                        <span className="text-foreground/50">
+                          {" "}
+                          ({template.reviews})
+                        </span>
+                      </span>
+                    </div>
+
+                    {/* Divider */}
+                    <div className="mb-6 h-px bg-border/40" />
+
+                    {/* CTA Button */}
+                    <Button className="w-full h-11 bg-linear-to-r from-primary/80 to-primary hover:from-primary hover:to-primary/90 text-white font-semibold rounded-lg transition-all duration-300 shadow-md hover:shadow-lg mt-auto flex items-center justify-center gap-2">
+                      <span>Use Template</span>
+                      <ArrowRight className="h-4 w-4" />
                     </Button>
                   </div>
-                </div>
-
-                {/* Info */}
-                <div className="p-6">
-                  <h3 className="font-bold text-lg mb-1">{template.name}</h3>
-                  <p className="text-sm text-foreground/60 mb-3">
-                    {template.category}
-                  </p>
-
-                  <div className="flex items-center gap-1 mb-4">
-                    <div className="flex gap-0.5">
-                      {[...Array(5)].map((_, i) => (
-                        <Star
-                          key={i}
-                          className={`h-4 w-4 ${
-                            i < Math.floor(template.rating)
-                              ? "fill-amber-400 text-amber-400"
-                              : "text-foreground/20"
-                          }`}
-                        />
-                      ))}
-                    </div>
-                    <span className="text-sm text-foreground/60 ml-2">
-                      {template.rating} ({template.reviews})
-                    </span>
-                  </div>
-
-                  <Button className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700">
-                    Use Template
-                  </Button>
                 </div>
               </div>
             ))}
