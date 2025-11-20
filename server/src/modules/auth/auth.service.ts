@@ -1,15 +1,17 @@
 import createError from 'http-errors';
 import secret from '../../app/secret';
 import { IJwtPayload } from '../../app/types';
+import accountActivationMail from '../../mails/account-activation-mail';
 import {
   deleteCache,
   generateCacheKey,
   getCache,
   setCache,
 } from '../../utils/cache';
-import { generateRandomPin } from '../../utils/generate-random-pin';
+import { generateTenantName } from '../../utils/generate-tenant-name';
 import generateToken, { verifyToken } from '../../utils/generate-token';
 import { removeImage } from '../../utils/image-utils';
+import { logger } from '../../utils/logger';
 import { comparePassword, hashPassword } from '../../utils/password';
 import { TenantService } from '../tenant/tenant.service';
 import UserModel from '../user/user.model';
@@ -20,8 +22,36 @@ export class AuthService {
     const exists = await UserModel.findOne({ email: payload.email }).lean();
     if (exists) throw createError.Conflict('Email already exists');
     const user = await UserModel.create({ ...payload });
-    // tenant add
-    await TenantService.create({ name: payload.first_name });
+
+    // Generate unique tenant name and create tenant
+    const tenantName = await generateTenantName(
+      payload.first_name,
+      payload.last_name,
+    );
+    await TenantService.create({ name: tenantName, userId: user._id });
+
+    // send account activation mail
+    const activationToken = generateToken(
+      {
+        _id: user._id.toString(),
+        role: user.role,
+        email: user.email,
+      },
+      {
+        secret: secret.jwt.accountActivationTokenSecret,
+        expiresIn: secret.jwt.accountActivationTokenExpiresIn,
+      },
+    );
+
+    try {
+      await accountActivationMail({
+        to: payload.email,
+        name: payload.first_name,
+        activationToken,
+      });
+    } catch (error) {
+      logger.error('Error sending account activation email:', error);
+    }
 
     return { _id: user._id };
   }
@@ -30,22 +60,25 @@ export class AuthService {
     const cacheKey = generateCacheKey({ resource: `auth:login:${email}` });
 
     const user = await UserModel.findOne({ email })
-      .select('+password +refresh_token role email first_name last_name avatar')
+      .select(
+        'password refresh_token role email first_name last_name avatar email_verified is_active',
+      )
       .lean();
     if (!user) throw createError.Unauthorized('User not found');
     const match = await comparePassword(password, user.password || '');
     if (!match) throw createError.Unauthorized('Invalid email or password');
+    if (!user.email_verified)
+      throw createError.Forbidden('Please verify your email to login');
+    if (!user.is_active)
+      throw createError.Forbidden('User account is deactivated.');
 
-    const loginCode = generateRandomPin(6);
     const accessPayload: IJwtPayload = {
       _id: user._id.toString(),
       role: user.role,
-      loginCode,
     };
     const refreshPayload: IJwtPayload = {
       _id: user._id.toString(),
       role: user.role,
-      loginCode,
     };
 
     const access_token = generateToken(accessPayload, {
@@ -61,6 +94,9 @@ export class AuthService {
       refresh_token,
       last_login: new Date(),
     });
+
+    const tanent = await TenantService.getByUserId(user._id.toString());
+
     await setCache(cacheKey, { last_login: Date.now() }, 60); // small ttl cache for rate limiting support
 
     return {
@@ -70,9 +106,11 @@ export class AuthService {
         _id: user._id,
         email: user.email,
         role: user.role,
-        name: user.name,
+        first_name: user.first_name,
+        last_name: user.last_name,
         avatar: user.avatar,
       },
+      tenant: { _id: tanent._id, name: tanent.name },
     };
   }
 
@@ -171,5 +209,69 @@ export class AuthService {
     await user.save();
     await deleteCache(generateCacheKey({ resource: 'me', query: { userId } }));
     return { _id: user._id };
+  }
+
+  static async activateAccount(token: string) {
+    try {
+      const decoded = verifyToken(
+        token,
+        secret.jwt.accountActivationTokenSecret,
+      );
+
+      const user = await UserModel.findById(decoded._id);
+      if (!user) throw createError.NotFound('User not found');
+
+      if (user.email_verified)
+        throw createError.Conflict('Account already activated');
+
+      user.email_verified = true;
+      await user.save();
+
+      await deleteCache(
+        generateCacheKey({ resource: 'me', query: { userId: decoded._id } }),
+      );
+
+      return { _id: user._id, message: 'Account activated successfully' };
+    } catch (error) {
+      if (error instanceof Error) {
+        if (error.message.includes('jwt')) {
+          throw createError.Unauthorized('Invalid or expired activation token');
+        }
+      }
+      throw error;
+    }
+  }
+
+  static async resendActivationLink(email: string) {
+    const user = await UserModel.findOne({ email }).lean();
+    if (!user) throw createError.NotFound('User not found');
+
+    if (user.email_verified)
+      throw createError.Conflict('Account is already activated');
+
+    const activationToken = generateToken(
+      {
+        _id: user._id.toString(),
+        role: user.role,
+        email: user.email,
+      },
+      {
+        secret: secret.jwt.accountActivationTokenSecret,
+        expiresIn: secret.jwt.accountActivationTokenExpiresIn,
+      },
+    );
+
+    try {
+      await accountActivationMail({
+        to: email,
+        name: `${user.first_name} ${user.last_name}`,
+        activationToken,
+      });
+    } catch (error) {
+      logger.error('Error sending activation email:', error);
+      throw createError.InternalServerError('Failed to send activation email');
+    }
+
+    return { message: 'Activation link sent to your email' };
   }
 }

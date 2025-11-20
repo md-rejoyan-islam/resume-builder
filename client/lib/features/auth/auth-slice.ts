@@ -53,6 +53,28 @@ export interface LogoutResponse {
   };
 }
 
+export interface ActivateAccountPayload {
+  token: string;
+}
+
+export interface ActivateAccountResponse {
+  data: {
+    _id: string;
+  };
+  message: string;
+}
+
+export interface ResendActivationLinkPayload {
+  email: string;
+}
+
+export interface ResendActivationLinkResponse {
+  data: {
+    message: string;
+  };
+  message: string;
+}
+
 const authSlice = createApi({
   reducerPath: "auth",
   baseQuery: fetchBaseQuery({
@@ -132,6 +154,28 @@ const authSlice = createApi({
       }),
       invalidatesTags: ["Auth"],
     }),
+
+    activateAccount: builder.mutation<
+      ActivateAccountResponse,
+      ActivateAccountPayload
+    >({
+      query: (payload) => ({
+        url: "/auth/activate",
+        method: "POST",
+        body: payload,
+      }),
+    }),
+
+    resendActivationLink: builder.mutation<
+      ResendActivationLinkResponse,
+      ResendActivationLinkPayload
+    >({
+      query: (payload) => ({
+        url: "/auth/resend-activation-link",
+        method: "POST",
+        body: payload,
+      }),
+    }),
   }),
 });
 
@@ -143,6 +187,8 @@ export const {
   useGetMeQuery,
   useUpdateMeMutation,
   useChangePasswordMutation,
+  useActivateAccountMutation,
+  useResendActivationLinkMutation,
 } = authSlice;
 
 export default authSlice;

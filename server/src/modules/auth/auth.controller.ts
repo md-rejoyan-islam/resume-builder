@@ -2,9 +2,9 @@ import { Request, Response } from 'express';
 import secret from '../../app/secret';
 import { IRequestWithUser } from '../../app/types';
 import { asyncHandler } from '../../utils/async-handler';
+import { generateImagePath } from '../../utils/image-utils';
 import { successResponse } from '../../utils/response-handler';
 import { AuthService } from './auth.service';
-import { generateImagePath } from '../../utils/image-utils';
 
 export const register = asyncHandler(async (req: Request, res: Response) => {
   const data = await AuthService.register(req.body);
@@ -93,6 +93,28 @@ export const changeMyPassword = asyncHandler(
     successResponse(res, {
       statusCode: 200,
       message: 'Password changed',
+      payload: { data },
+    });
+  },
+);
+
+export const activate = asyncHandler(async (req: Request, res: Response) => {
+  const { token } = req.body as { token: string };
+  const data = await AuthService.activateAccount(token);
+  successResponse(res, {
+    statusCode: 200,
+    message: data.message,
+    payload: { data: { _id: data._id } },
+  });
+});
+
+export const resendActivationLink = asyncHandler(
+  async (req: Request, res: Response) => {
+    const { email } = req.body as { email: string };
+    const data = await AuthService.resendActivationLink(email);
+    successResponse(res, {
+      statusCode: 200,
+      message: data.message,
       payload: { data },
     });
   },

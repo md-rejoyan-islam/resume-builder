@@ -11,6 +11,8 @@ const AdminUsersPage = () => {
   const users = [
     {
       id: 1,
+      first_name: "Sarah",
+      last_name: "Johnson",
       name: "Sarah Johnson",
       email: "sarah@example.com",
       status: "Active",
@@ -20,6 +22,8 @@ const AdminUsersPage = () => {
     },
     {
       id: 2,
+      first_name: "Mike",
+      last_name: "Chen",
       name: "Mike Chen",
       email: "mike@example.com",
       status: "Active",
@@ -29,6 +33,8 @@ const AdminUsersPage = () => {
     },
     {
       id: 3,
+      first_name: "Emily",
+      last_name: "Davis",
       name: "Emily Davis",
       email: "emily@example.com",
       status: "Inactive",
@@ -38,6 +44,8 @@ const AdminUsersPage = () => {
     },
     {
       id: 4,
+      first_name: "John",
+      last_name: "Smith",
       name: "John Smith",
       email: "john@example.com",
       status: "Active",
@@ -47,6 +55,8 @@ const AdminUsersPage = () => {
     },
     {
       id: 5,
+      first_name: "Lisa",
+      last_name: "Wong",
       name: "Lisa Wong",
       email: "lisa@example.com",
       status: "Active",
@@ -101,7 +111,9 @@ const AdminUsersPage = () => {
 
   const filteredUsers = users.filter(
     (user) =>
-      user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      `${user.first_name} ${user.last_name}`
+        .toLowerCase()
+        .includes(searchQuery.toLowerCase()) ||
       user.email.toLowerCase().includes(searchQuery.toLowerCase())
   );
 

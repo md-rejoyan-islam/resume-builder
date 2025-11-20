@@ -33,6 +33,13 @@ const refreshTokenExpiresIn: number = parseInt(
 const passwordResetCodeExpiresIn: number =
   Date.now() + +process.env.PASSWORD_RESET_CODE_EXPIRES_IN! * 60 * 1000;
 
+const accountActivationTokenSecret: string =
+  process.env.JWT_ACCESS_TOKEN_SECRET!;
+const accountActivationTokenExpiresIn: number = parseInt(
+  process.env.ACCOUNT_ACTIVATION_TOKEN_EXPIRES_IN || '600', // 10 minutes
+  10,
+);
+
 const emailHost: string = process.env.EMAIL_HOST!;
 const emailPort: number = +process.env.EMAIL_PORT!;
 const emailUsername: string = process.env.EMAIL_USERNAME!;
@@ -66,6 +73,8 @@ const secret = {
     refreshTokenSecret,
     accessTokenExpiresIn,
     refreshTokenExpiresIn,
+    accountActivationTokenSecret,
+    accountActivationTokenExpiresIn,
   },
   nodeMailer: {
     emailHost,

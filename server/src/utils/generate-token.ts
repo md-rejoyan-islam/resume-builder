@@ -9,8 +9,6 @@ const generateToken = (
     expiresIn: number;
   },
 ) => {
-  console.log(config);
-
   return jwt.sign(payload, config.secret, {
     expiresIn: config.expiresIn,
   });
@@ -19,8 +17,6 @@ const generateToken = (
 // verify the token
 export const verifyToken = (token: string, secret: string) => {
   try {
-    console.log(token, secret);
-
     return jwt.verify(token, secret) as IJwtPayload;
   } catch {
     throw new Error('Invalid token.');

@@ -209,5 +209,37 @@ export const getMeSchema = z.object({
   }),
 });
 
+export const activateAccountSchema = z.object({
+  body: z.object({
+    token: z
+      .string({
+        error: (iss) => {
+          if (!iss?.input) {
+            return 'Activation token is required';
+          } else if (iss?.code === 'invalid_type') {
+            return 'Activation token must be a string';
+          }
+        },
+      })
+      .min(1, 'Activation token cannot be empty'),
+  }),
+});
+
+export const resendActivationLinkSchema = z.object({
+  body: z.object({
+    email: z.email({
+      error: (iss) => {
+        if (!iss?.input) {
+          return 'Email is required';
+        } else if (iss?.code === 'invalid_type') {
+          return 'Email must be a string';
+        } else if (iss?.code === 'invalid_format') {
+          return 'Please provide a valid email address';
+        }
+      },
+    }),
+  }),
+});
+
 export type RegisterInput = z.infer<typeof registerSchema>['body'];
 export type LoginInput = z.infer<typeof loginSchema>;

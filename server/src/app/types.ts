@@ -18,7 +18,7 @@ export interface IErrorResponse {
 export interface IJwtPayload extends JwtPayload {
   _id: string;
   role: 'superadmin' | 'admin' | 'user';
-  loginCode: number;
+  email?: string;
 }
 
 export interface IUser {

@@ -143,6 +143,7 @@ async function handleProxyRequest(
 
   // response body
   const responseBody = await response.json();
+  console.log("here");
 
   // If the request is a login and successful, set cookies
   if (
@@ -150,8 +151,13 @@ async function handleProxyRequest(
     request.url.includes("/auth/login") &&
     response.status === 200
   ) {
-    await setCookie("accessToken", responseBody.data.accessToken);
-    await setCookie("refreshToken", responseBody.data.refreshToken);
+    console.log("here");
+
+    await setCookie("accessToken", responseBody.data.access_token);
+    await setCookie("refreshToken", responseBody.data.refresh_token);
+    await setCookie("role", responseBody.data.user.role);
+    await setCookie("tenantId", responseBody.data.tenant._id);
+    await setCookie("tenantName", responseBody.data.tenant.name);
   }
 
   return new NextResponse(JSON.stringify(responseBody), {

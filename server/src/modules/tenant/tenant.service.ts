@@ -111,6 +111,18 @@ export class TenantService {
     return tenant;
   }
 
+  static async getByName(name: string) {
+    const tenant = await TenantModel.findOne({ name }).lean();
+    if (!tenant) throw createError.NotFound('Tenant not found');
+    return tenant;
+  }
+
+  static async getByUserId(userId: string) {
+    const tenant = await TenantModel.findOne({ userId }).lean();
+    if (!tenant) throw createError.NotFound('Tenant not found');
+    return tenant;
+  }
+
   static async create(data: Record<string, unknown>) {
     const exists = await TenantModel.findOne({ name: data.name }).lean();
     if (exists) throw createError.Conflict('Tenant name already in use');

@@ -1,0 +1,110 @@
+name: Deploy to VPS Hosting
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Checkout repository
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # 2. Setup Node.js
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: "pnpm"
+
+      # 3. Install pnpm
+      - name: Install pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 9
+
+      # 4. Install root dependencies
+      - name: Install root dependencies
+        run: pnpm install --frozen-lockfile
+
+      # 5. Build client and server
+      - name: Build client and server
+        run: pnpm run build
+
+      # 6. Create .env file
+      - name: Create .env file
+        env:
+          ENV_FILE: ${{ secrets.ENV_FILE }}
+        run: |
+          echo "${ENV_FILE}" > .env
+          echo "Environment file created."
+
+      # 7. Deploy to VPS via SSH
+      - name: Deploy to VPS Hosting
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          password: ${{ secrets.VPS_PASSWORD }}
+          port: 22
+          script: |
+            # Define paths
+            CLIENT_DIR="/home/apps/client"
+            SERVER_DIR="/home/apps/server"
+
+            # Node path
+            export PATH=/root/.nvm/versions/node/v24.11.1/bin:$PATH
+
+            # Deploy function
+            deploy_project() {
+              DIR=$1
+              NAME=$2
+              
+              # Stop PM2 if exists
+              if pm2 list | grep -q "$NAME"; then
+                pm2 stop $NAME || true
+              fi
+
+              # Delete existing folder
+              if [ -d "$DIR" ]; then
+                  sudo rm -rf "$DIR"
+                  echo "Deleted existing directory: $DIR"
+              fi
+
+              # Create folder
+              sudo mkdir -p "$DIR"
+              echo "Directory $DIR created."
+
+              cd "$DIR"
+
+              # Copy files from repo
+              sudo cp -r /home/runner/work/resume-builder/resume-builder/$NAME/* .
+
+              # Copy .env
+              echo "${{ secrets.ENV_FILE }}" | sudo tee "$DIR/.env" > /dev/null
+              echo "Environment file for $NAME created."
+
+              # Install dependencies and build
+              pnpm install
+              pnpm run build
+
+              # Start/reload PM2
+              if pm2 list | grep -q "$NAME"; then
+                pm2 reload $NAME
+              else
+                pm2 start npm --name "$NAME" -- start
+              fi
+            }
+
+            # Deploy client
+            deploy_project $CLIENT_DIR "client"
+
+            # Deploy server
+            deploy_project $SERVER_DIR "server"
+
+            # Reload Nginx
+            sudo systemctl reload nginx

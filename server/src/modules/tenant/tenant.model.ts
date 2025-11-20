@@ -10,6 +10,11 @@ const TenantSchema = new mongoose.Schema<ITenant>(
       minlength: [1, 'Tenant name cannot be empty'],
       trim: true,
     },
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Users',
+      required: [true, 'User ID is required for tenant'],
+    },
   },
   {
     timestamps: true,

@@ -4,10 +4,16 @@ import { IUser } from './user.type';
 
 const UserSchema = new mongoose.Schema<IUser>(
   {
-    name: {
+    first_name: {
       type: String,
-      require: [1, 'Name is required'],
-      minlength: [1, 'Name cannot be empty'],
+      required: [true, 'First name is required'],
+      minlength: [1, 'First name cannot be empty'],
+      trim: true,
+    },
+    last_name: {
+      type: String,
+      required: [true, 'Last name is required'],
+      minlength: [1, 'Last name cannot be empty'],
       trim: true,
     },
     email: {
@@ -29,6 +35,7 @@ const UserSchema = new mongoose.Schema<IUser>(
       select: false,
     },
     avatar: { type: String, default: null },
+    email_verified: { type: Boolean, default: false },
     is_active: { type: Boolean, default: true },
     role: {
       type: String,

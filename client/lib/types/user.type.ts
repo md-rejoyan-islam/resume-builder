@@ -28,8 +28,10 @@ export interface ILoginResponse {
       _id: string;
       email: string;
       role: string;
-      name: string;
+      first_name: string;
+      last_name: string;
       avatar?: string;
     };
+    tenant: { _id: string; name: string };
   };
 }

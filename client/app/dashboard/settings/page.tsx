@@ -7,7 +7,8 @@ import { useState } from "react";
 const SettingsPage = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [profile, setProfile] = useState({
-    name: "John Doe",
+    first_name: "John",
+    last_name: "Doe",
     email: "john@example.com",
     phone: "+1 (555) 123-4567",
     bio: "Passionate product manager with 5+ years of experience",
@@ -42,12 +43,24 @@ const SettingsPage = () => {
         {isEditing ? (
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium mb-2">Name</label>
+              <label className="block text-sm font-medium mb-2">First Name</label>
               <input
                 type="text"
-                value={profile.name}
+                value={profile.first_name}
                 onChange={(e) =>
-                  setProfile({ ...profile, name: e.target.value })
+                  setProfile({ ...profile, first_name: e.target.value })
+                }
+                className="w-full px-4 py-2 border border-border rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-primary/50"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-2">Last Name</label>
+              <input
+                type="text"
+                value={profile.last_name}
+                onChange={(e) =>
+                  setProfile({ ...profile, last_name: e.target.value })
                 }
                 className="w-full px-4 py-2 border border-border rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-primary/50"
               />
@@ -100,7 +113,7 @@ const SettingsPage = () => {
           <div className="space-y-4">
             <div>
               <p className="text-sm text-muted-foreground">Name</p>
-              <p className="font-medium">{profile.name}</p>
+              <p className="font-medium">{profile.first_name} {profile.last_name}</p>
             </div>
             <div>
               <p className="text-sm text-muted-foreground">Email</p>

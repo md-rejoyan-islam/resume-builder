@@ -1,10 +1,14 @@
 "use server";
 
 import { cookies } from "next/headers";
+
 export const logout = async () => {
   const cookieStore = await cookies();
   cookieStore.delete("accessToken");
   cookieStore.delete("refreshToken");
+  cookieStore.delete("role");
+  cookieStore.delete("tenantId");
+  cookieStore.delete("tenantName");
 
   return {
     success: true,
@@ -40,14 +44,45 @@ export const getCookie = async (name: string) => {
 export const setCookie = async (name: string, value: string) => {
   const cookieStore = await cookies();
 
+  const isDevelopment = process.env.NODE_ENV !== "production";
+  const domain = isDevelopment ? ".redpro.local" : undefined;
+
   cookieStore.set(name, value, {
-    secure: process.env.NODE_ENV === "production",
+    secure: !isDevelopment,
     httpOnly: true,
-    sameSite: "strict",
+    sameSite: isDevelopment ? "lax" : "none",
+    domain: domain,
+    path: "/",
+    maxAge: 60 * 60 * 24 * 7, // 7 days
   });
 };
 
 export const deleteCookie = async (name: string) => {
   const cookieStore = await cookies();
   cookieStore.delete(name);
+};
+
+export const saveLoginCookies = async (data: {
+  accessToken: string;
+  refreshToken: string;
+  role: string;
+  tenantId: string;
+  tenantName: string;
+}) => {
+  await setCookie("accessToken", data.accessToken);
+  await setCookie("refreshToken", data.refreshToken);
+  await setCookie("role", data.role);
+  await setCookie("tenantId", data.tenantId);
+  await setCookie("tenantName", data.tenantName);
+};
+
+export const getAllAuthCookies = async () => {
+  const cookieStore = await cookies();
+  return {
+    accessToken: cookieStore.get("accessToken")?.value,
+    refreshToken: cookieStore.get("refreshToken")?.value,
+    role: cookieStore.get("role")?.value,
+    tenantId: cookieStore.get("tenantId")?.value,
+    tenantName: cookieStore.get("tenantName")?.value,
+  };
 };
