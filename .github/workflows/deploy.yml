@@ -19,7 +19,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 24
-          cache: "pnpm"
 
       # 3. Install pnpm globally on runner
       - name: Install pnpm on runner
