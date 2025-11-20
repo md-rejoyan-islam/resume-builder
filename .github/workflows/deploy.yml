@@ -43,8 +43,7 @@ jobs:
       - name: Install dependencies and build
         run: |
           pnpm install --no-frozen-lockfile
-          pnpm --filter ./client build
-          pnpm --filter ./server build
+          pnpm run build
 
       # 7. Copy client to VPS
       - name: Copy client folder to VPS
@@ -55,7 +54,7 @@ jobs:
           password: ${{ secrets.VPS_PASSWORD }}
           port: 22
           source: "client/**"
-          target: "/home/apps/client"
+          target: "/home/apps"
 
       # 8. Copy server to VPS
       - name: Copy server folder to VPS
@@ -66,7 +65,7 @@ jobs:
           password: ${{ secrets.VPS_PASSWORD }}
           port: 22
           source: "server/**"
-          target: "/home/apps/server"
+          target: "/home/apps"
 
       # 9. SSH into VPS to install dependencies, start/reload PM2, reload Nginx
       - name: Deploy on VPS
