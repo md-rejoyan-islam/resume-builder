@@ -90,6 +90,9 @@ jobs:
               echo "${{ secrets.ENV_FILE }}" | sudo tee "$DIR/.env" > /dev/null
               echo "Environment file for $NAME created."
 
+              # Add pnpm to PATH
+              export PATH=/root/.nvm/versions/node/v24.11.1/bin:$PATH
+
               # Install dependencies and build
               pnpm install
               pnpm run build
