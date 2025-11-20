@@ -5,11 +5,11 @@ import * as yaml from 'js-yaml';
 import morgan, { StreamOptions } from 'morgan';
 import path from 'path';
 import swaggerUi from 'swagger-ui-express';
-import corsOptions from '../config/cors';
 import limiter from '../config/rate-limiter';
 import { metricsMiddleware } from '../middlewares/matrics-middleware';
 import router from '../routes';
 import { logger } from '../utils/logger';
+import secret from './secret';
 
 const yamltoJson = yaml.load(
   fs.readFileSync(path.join(process.cwd(), 'docs', 'openapi.yaml'), 'utf8'),
@@ -47,9 +47,34 @@ app.use(
 );
 
 // CORS configuration
-app.use(cors(corsOptions));
+// app.use(cors(corsOptions));
 // for vps hosting
 // app.use(cors({ origin: secret.client_url, credentials: true }));
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      // allow requests with no origin (like mobile apps or curl)
+      if (!origin) return callback(null, true);
+
+      if (secret.node_env === 'development') {
+        // allow dev origins
+        if (secret.client_url.includes(origin)) return callback(null, true);
+      }
+
+      // allow main domain and all subdomains
+      const regex = new RegExp(
+        // eslint-disable-next-line no-useless-escape
+        `^https?:\/\/([a-z0-9-]+\\.)*${secret.client_url}$`,
+      );
+      if (regex.test(origin)) {
+        return callback(null, true);
+      }
+
+      callback(new Error('Not allowed by CORS'));
+    },
+    credentials: true,
+  }),
+);
 
 const stream: StreamOptions = {
   write: (message) => logger.http(message.trim()),
