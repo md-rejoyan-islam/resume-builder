@@ -22,7 +22,7 @@ jobs:
 
       # 3. Install pnpm globally
       - name: Install pnpm
-        run: npm install -g pnpm@9
+        run: npm install -g pnpm@10
 
       # 4. Verify pnpm
       - name: Check pnpm version
