@@ -31,8 +31,8 @@ jobs:
       # 5. Create .env files for client and server on runner
       - name: Create .env files
         env:
-          ENV_FILE_CLIENT: ${{ secrets.ENV_FILE }}
-          ENV_FILE_SERVER: ${{ secrets.ENV_FILE }}
+          ENV_FILE_CLIENT: ${{ secrets.ENV_FILE_CLIENT }}
+          ENV_FILE_SERVER: ${{ secrets.ENV_FILE_SERVER }}
         run: |
           echo "${ENV_FILE_CLIENT}" > ./client/.env
           echo "Client .env created."
