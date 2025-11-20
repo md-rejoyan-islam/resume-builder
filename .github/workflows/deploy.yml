@@ -30,7 +30,7 @@ jobs:
 
       # 5. Install root dependencies on runner
       - name: Install root dependencies
-        run: pnpm install --frozen-lockfile
+        run: pnpm install --no-frozen-lockfile
 
       # 6. Build client and server on runner
       - name: Build client and server
