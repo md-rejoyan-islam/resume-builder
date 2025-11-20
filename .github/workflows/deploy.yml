@@ -13,17 +13,17 @@ jobs:
       # 1. Checkout repository
       - name: Checkout repository
         uses: actions/checkout@v4
-      #check
+
       # 2. Setup Node.js
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 24
           cache: "pnpm"
 
       # 2. Install pnpm globally
       - name: Install pnpm
-        run: npm install -g pnpm@9
+        run: npm install -g pnpm@10
 
       # 3. Verify pnpm is available
       - name: Check pnpm version
