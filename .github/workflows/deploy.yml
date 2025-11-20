@@ -20,45 +20,56 @@ jobs:
         with:
           node-version: 24
 
-      # 3. Install pnpm globally on runner
-      - name: Install pnpm on runner
+      # 3. Install pnpm globally
+      - name: Install pnpm
         run: npm install -g pnpm@9
 
-      # 4. Verify pnpm on runner
+      # 4. Verify pnpm
       - name: Check pnpm version
         run: pnpm -v
 
-      # 5. Install root dependencies on runner
-      - name: Install root dependencies
-        run: pnpm install --no-frozen-lockfile
-
-      # 5. Create .env files for client and server
-      - name: Create .env files for build
+      # 5. Create .env files for client and server on runner
+      - name: Create .env files
         env:
           ENV_FILE_CLIENT: ${{ secrets.ENV_FILE }}
           ENV_FILE_SERVER: ${{ secrets.ENV_FILE }}
         run: |
           echo "${ENV_FILE_CLIENT}" > ./client/.env
-          echo "Client .env file created."
+          echo "Client .env created."
           echo "${ENV_FILE_SERVER}" > ./server/.env
-          echo "Server .env file created."
+          echo "Server .env created."
 
-      # 6. Build client and server on runner
-      - name: Build client and server
+      # 6. Install dependencies and build client/server on runner
+      - name: Install dependencies and build
         run: |
+          pnpm install --no-frozen-lockfile
           pnpm --filter ./client build
           pnpm --filter ./server build
 
-      # 7. Create .env file on runner (optional, used for deployment)
-      - name: Create .env file
-        env:
-          ENV_FILE: ${{ secrets.ENV_FILE }}
-        run: |
-          echo "${ENV_FILE}" > .env
-          echo "Environment file created."
+      # 7. Copy client to VPS
+      - name: Copy client folder to VPS
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          password: ${{ secrets.VPS_PASSWORD }}
+          port: 22
+          source: "client/**"
+          target: "/home/apps/client"
 
-      # 8. Deploy to VPS via SSH
-      - name: Deploy to VPS Hosting
+      # 8. Copy server to VPS
+      - name: Copy server folder to VPS
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          password: ${{ secrets.VPS_PASSWORD }}
+          port: 22
+          source: "server/**"
+          target: "/home/apps/server"
+
+      # 9. SSH into VPS to install dependencies, start/reload PM2, reload Nginx
+      - name: Deploy on VPS
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.VPS_HOST }}
@@ -66,56 +77,23 @@ jobs:
           password: ${{ secrets.VPS_PASSWORD }}
           port: 22
           script: |
-            # Define paths
-            CLIENT_DIR="/home/apps/client"
-            SERVER_DIR="/home/apps/server"
-
-            # Add Node.js bin to PATH
+            # Add Node.js to PATH
             export PATH=/root/.nvm/versions/node/v24.11.1/bin:$PATH
 
-            # Deploy function
+            # Function to deploy project
             deploy_project() {
               DIR=$1
               NAME=$2
-              
-              # Stop PM2 if exists
-              if pm2 list | grep -q "$NAME"; then
-                pm2 stop $NAME || true
-              fi
-
-              # Delete existing folder
-              if [ -d "$DIR" ]; then
-                  sudo rm -rf "$DIR"
-                  echo "Deleted existing directory: $DIR"
-              fi
-
-              # Create folder
-              sudo mkdir -p "$DIR"
-              echo "Directory $DIR created."
 
               cd "$DIR"
 
-              # Copy files from GitHub Actions runner workspace
-              sudo cp -r /home/runner/work/resume-builder/resume-builder/$NAME/* .
-
-              # Create .env file
-              echo "${{ secrets.ENV_FILE }}" | sudo tee "$DIR/.env" > /dev/null
-              echo ".env file created for $NAME"
-
-              # Install pnpm if missing
+              # Install dependencies if not installed
               if ! command -v pnpm &> /dev/null; then
-                echo "Installing pnpm on VPS..."
                 npm install -g pnpm@9
               fi
+              pnpm install || true
 
-              # Verify pnpm
-              pnpm -v
-
-              # Install dependencies and build
-              pnpm install
-              pnpm run build
-
-              # Start or reload PM2
+              # Start/reload PM2
               if pm2 list | grep -q "$NAME"; then
                 pm2 reload $NAME
               else
@@ -124,10 +102,10 @@ jobs:
             }
 
             # Deploy client
-            deploy_project $CLIENT_DIR "client"
+            deploy_project "/home/apps/client" "client"
 
             # Deploy server
-            deploy_project $SERVER_DIR "server"
+            deploy_project "/home/apps/server" "server"
 
             # Reload Nginx
             sudo systemctl reload nginx
