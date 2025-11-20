@@ -1,7 +1,13 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Menu, X } from "lucide-react";
+import {
+  Drawer,
+  DrawerClose,
+  DrawerContent,
+  DrawerHeader,
+} from "@/components/ui/drawer";
+import { ArrowRight, Menu, Sparkles, X } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
@@ -54,10 +60,10 @@ function Header() {
           </Link>
 
           {/* Beta Badge */}
-          {/* <div className="hidden sm:flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 ml-2">
+          <div className="hidden sm:flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 ml-2">
             <Sparkles className="h-3.5 w-3.5 text-blue-600" />
             <span className="text-xs font-semibold text-blue-600">Beta</span>
-          </div> */}
+          </div>
         </div>
 
         {/* Desktop Navigation */}
@@ -97,55 +103,79 @@ function Header() {
             </Button>
           </Link>
 
-          {/* Mobile Menu Button */}
-          <button
-            onClick={() => setIsOpen(!isOpen)}
-            className="md:hidden inline-flex items-center justify-center p-2 rounded-lg border border-border/50 hover:bg-card/50 hover:border-primary/50 transition-all"
-            aria-label="Toggle menu"
-          >
-            {isOpen ? (
-              <X className="h-6 w-6 text-foreground" />
-            ) : (
+          {/* Mobile Menu Drawer */}
+          <Drawer open={isOpen} onOpenChange={setIsOpen}>
+            <button
+              onClick={() => setIsOpen(true)}
+              className="md:hidden inline-flex items-center justify-center p-2 rounded-lg border border-border/50 hover:bg-card/50 hover:border-primary/50 transition-all"
+              aria-label="Toggle menu"
+            >
               <Menu className="h-6 w-6 text-foreground" />
-            )}
-          </button>
+            </button>
+
+            <DrawerContent className="bg-linear-to-b from-background to-background/95 h-screen max-h-screen lg:hidden">
+              <DrawerHeader className="border-b border-border/30 pb-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <div className="relative">
+                      <div className="absolute inset-0 bg-linear-to-br from-blue-600 to-purple-600 rounded-lg blur-sm opacity-75" />
+                      <Image
+                        src={"/logo.png"}
+                        alt="Logo"
+                        width={32}
+                        height={32}
+                        className="relative bg-white rounded-lg shadow-lg"
+                      />
+                    </div>
+                    <span className="text-sm font-bold bg-linear-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                      DocBuilder
+                    </span>
+                  </div>
+                  <DrawerClose asChild>
+                    <button className="p-2 hover:bg-card/50 rounded-lg transition">
+                      <X className="h-5 w-5" />
+                    </button>
+                  </DrawerClose>
+                </div>
+              </DrawerHeader>
+
+              {/* Drawer Menu Items */}
+              <div className="px-4 py-6 space-y-2 flex-1 overflow-y-auto">
+                {navigationLinks.map((link) => (
+                  <DrawerClose key={link.href} asChild>
+                    <Link
+                      href={link.href}
+                      className="flex items-center px-4 py-3 text-base font-semibold text-foreground/80 hover:text-foreground hover:bg-card/50 rounded-lg transition-all active:bg-card/70"
+                    >
+                      {link.label}
+                    </Link>
+                  </DrawerClose>
+                ))}
+              </div>
+
+              {/* Drawer Footer with Buttons */}
+              <div className="border-t border-border/30 px-4 py-6 space-y-3">
+                <Link href="/signin" className="w-full block">
+                  <Button
+                    variant="outline"
+                    className="w-full border-border/50 hover:border-primary/50 hover:bg-primary/5 font-semibold rounded-lg transition-all"
+                  >
+                    Sign In
+                  </Button>
+                </Link>
+                <DrawerClose asChild>
+                  <Link href="/pricing" className="w-full block">
+                    <Button className="w-full bg-linear-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold rounded-lg shadow-lg transition-all flex items-center justify-center gap-2">
+                      Get Started
+                      <ArrowRight className="h-4 w-4" />
+                    </Button>
+                  </Link>
+                </DrawerClose>
+              </div>
+            </DrawerContent>
+          </Drawer>
         </div>
       </div>
-
-      {/* Mobile Navigation Menu */}
-      {isOpen && (
-        <div className="md:hidden border-t border-border/40 bg-background/50 backdrop-blur animate-in fade-in slide-in-from-top-2">
-          <nav className="flex flex-col gap-1 p-4">
-            {navigationLinks.map((link) => (
-              <Navlink
-                key={link.href}
-                href={link.href}
-                label={link.label}
-                className="px-4 py-3 text-sm font-medium text-foreground/70 hover:text-foreground hover:bg-card/50 rounded-lg transition-all"
-                onClick={() => setIsOpen(false)}
-              />
-            ))}
-
-            {/* Mobile CTA Buttons */}
-            <div className="flex flex-col gap-2 mt-4 pt-4 border-t border-border/30">
-              <Link href="/signin" className="w-full">
-                <Button
-                  variant="outline"
-                  className="w-full border-border/50 hover:border-primary/50 hover:bg-primary/5 font-semibold rounded-lg transition-all"
-                >
-                  Sign In
-                </Button>
-              </Link>
-              <Link href="/pricing" className="w-full">
-                <Button className="w-full bg-linear-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold rounded-lg shadow-lg transition-all flex items-center justify-center gap-2">
-                  Get Started
-                  <ArrowRight className="h-4 w-4" />
-                </Button>
-              </Link>
-            </div>
-          </nav>
-        </div>
-      )}
     </header>
   );
 }
