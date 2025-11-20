@@ -13,7 +13,7 @@ const router = Router();
 // home route
 router.get('/', (_: Request, res: Response) => {
   successResponse(res, {
-    message: 'Welcome to the IoT Backend Service.',
+    message: 'Welcome to Resume Builder API',
     statusCode: 200,
   });
 });
