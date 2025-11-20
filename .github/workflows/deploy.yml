@@ -21,13 +21,13 @@ jobs:
           node-version: 20
           cache: "pnpm"
 
-      # 3. Install pnpm
+      # 2. Install pnpm globally
       - name: Install pnpm
-        uses: pnpm/action-setup@v3
-        with:
-          version: 9
-      # Verify pnpm
-      - run: pnpm -v
+        run: npm install -g pnpm@9
+
+      # 3. Verify pnpm is available
+      - name: Check pnpm version
+        run: pnpm -v
 
       # 4. Install root dependencies
       - name: Install root dependencies
