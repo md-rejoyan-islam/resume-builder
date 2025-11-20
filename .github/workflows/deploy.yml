@@ -32,6 +32,17 @@ jobs:
       - name: Install root dependencies
         run: pnpm install --no-frozen-lockfile
 
+      # 5. Create .env files for client and server
+      - name: Create .env files for build
+        env:
+          ENV_FILE_CLIENT: ${{ secrets.ENV_FILE }}
+          ENV_FILE_SERVER: ${{ secrets.ENV_FILE }}
+        run: |
+          echo "${ENV_FILE_CLIENT}" > ./client/.env
+          echo "Client .env file created."
+          echo "${ENV_FILE_SERVER}" > ./server/.env
+          echo "Server .env file created."
+
       # 6. Build client and server on runner
       - name: Build client and server
         run: |
