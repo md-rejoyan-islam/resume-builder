@@ -21,23 +21,25 @@ jobs:
           node-version: 24
           cache: "pnpm"
 
-      # 2. Install pnpm globally
-      - name: Install pnpm
+      # 3. Install pnpm globally on runner
+      - name: Install pnpm on runner
         run: npm install -g pnpm@9
 
-      # 3. Verify pnpm is available
+      # 4. Verify pnpm on runner
       - name: Check pnpm version
         run: pnpm -v
 
-      # 4. Install root dependencies
+      # 5. Install root dependencies on runner
       - name: Install root dependencies
         run: pnpm install --frozen-lockfile
 
-      # 5. Build client and server
+      # 6. Build client and server on runner
       - name: Build client and server
-        run: pnpm run build
+        run: |
+          pnpm --filter ./client build
+          pnpm --filter ./server build
 
-      # 6. Create .env file
+      # 7. Create .env file on runner (optional, used for deployment)
       - name: Create .env file
         env:
           ENV_FILE: ${{ secrets.ENV_FILE }}
@@ -45,7 +47,7 @@ jobs:
           echo "${ENV_FILE}" > .env
           echo "Environment file created."
 
-      # 7. Deploy to VPS via SSH
+      # 8. Deploy to VPS via SSH
       - name: Deploy to VPS Hosting
         uses: appleboy/ssh-action@master
         with:
@@ -58,7 +60,7 @@ jobs:
             CLIENT_DIR="/home/apps/client"
             SERVER_DIR="/home/apps/server"
 
-            # Node path
+            # Add Node.js bin to PATH
             export PATH=/root/.nvm/versions/node/v24.11.1/bin:$PATH
 
             # Deploy function
@@ -83,21 +85,27 @@ jobs:
 
               cd "$DIR"
 
-              # Copy files from repo
+              # Copy files from GitHub Actions runner workspace
               sudo cp -r /home/runner/work/resume-builder/resume-builder/$NAME/* .
 
-              # Copy .env
+              # Create .env file
               echo "${{ secrets.ENV_FILE }}" | sudo tee "$DIR/.env" > /dev/null
-              echo "Environment file for $NAME created."
+              echo ".env file created for $NAME"
 
-              # Add pnpm to PATH
-              export PATH=/root/.nvm/versions/node/v24.11.1/bin:$PATH
+              # Install pnpm if missing
+              if ! command -v pnpm &> /dev/null; then
+                echo "Installing pnpm on VPS..."
+                npm install -g pnpm@9
+              fi
+
+              # Verify pnpm
+              pnpm -v
 
               # Install dependencies and build
               pnpm install
               pnpm run build
 
-              # Start/reload PM2
+              # Start or reload PM2
               if pm2 list | grep -q "$NAME"; then
                 pm2 reload $NAME
               else
