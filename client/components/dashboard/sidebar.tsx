@@ -52,17 +52,17 @@ export function Sidebar({ role = "user" }: SidebarProps) {
     },
     {
       label: "Resumes",
-      href: "/dashboard/resumes",
+      href: "/resumes",
       icon: <FileText className="w-5 h-5" />,
     },
     {
       label: "Cover Letters",
-      href: "/dashboard/cover-letters",
+      href: "/cover-letters",
       icon: <FileText className="w-5 h-5" />,
     },
     {
       label: "Disclosures",
-      href: "/dashboard/disclosures",
+      href: "/disclosures",
       icon: <FileText className="w-5 h-5" />,
     },
   ];
@@ -93,43 +93,43 @@ export function Sidebar({ role = "user" }: SidebarProps) {
   const menuItems = [
     {
       label: "Overview",
-      href: "/dashboard",
+      href: "/",
       icon: <LayoutDashboard className="w-5 h-5" />,
       role: ["user", "admin"],
     },
     {
       label: "Resumes",
-      href: "/dashboard/resumes",
+      href: "resumes",
       icon: <FileText className="w-5 h-5" />,
       role: ["user"],
     },
     {
       label: "Cover Letters",
-      href: "/dashboard/cover-letters",
+      href: "/cover-letters",
       icon: <FileText className="w-5 h-5" />,
       role: ["user"],
     },
     {
       label: "Disclosures",
-      href: "/dashboard/disclosures",
+      href: "/disclosures",
       icon: <FileText className="w-5 h-5" />,
       role: ["user"],
     },
     {
       label: "Users",
-      href: "/dashboard/users",
+      href: "/users",
       icon: <Users className="w-5 h-5" />,
       role: ["admin"],
     },
     {
       label: "Analytics",
-      href: "/dashboard/analytics",
+      href: "/analytics",
       icon: <BarChart3 className="w-5 h-5" />,
       role: ["admin"],
     },
     {
       label: "Templates",
-      href: "/dashboard/templates",
+      href: "/templates",
       icon: <FileText className="w-5 h-5" />,
       role: ["admin"],
     },
@@ -138,7 +138,7 @@ export function Sidebar({ role = "user" }: SidebarProps) {
   const others = [
     {
       label: "Settings",
-      href: "/dashboard/admin/settings",
+      href: "/settings",
       icon: <Settings className="w-5 h-5" />,
     },
   ];
@@ -155,7 +155,7 @@ export function Sidebar({ role = "user" }: SidebarProps) {
   const items = menuItems.filter((item) => item.role.includes(role));
 
   const isActive = (href: string) => {
-    if (href === "/dashboard") return pathname === href;
+    if (href === "/") return pathname === href;
     return pathname.startsWith(href);
   };
 
@@ -242,7 +242,7 @@ export function Sidebar({ role = "user" }: SidebarProps) {
 
               {/* Bottom Section */}
               <div className="space-y-3 pt-4 border-t border-border">
-                <Link href="/dashboard/settings">
+                <Link href="/settings">
                   <Button
                     variant="outline"
                     className="w-full justify-start gap-3"
@@ -348,37 +348,33 @@ export function Sidebar({ role = "user" }: SidebarProps) {
                 <div
                   className={clsx(
                     "w-1 h-7 rounded-r-2xl",
-                    isActive("/dashboard/settings")
-                      ? "bg-primary "
-                      : "bg-transparent"
+                    isActive("/settings") ? "bg-primary " : "bg-transparent"
                   )}
                 ></div>
                 <Link
-                  href="/dashboard/settings"
+                  href="/settings"
                   className={`flex items-center w-full gap-3 px-4 py-2.5 rounded-lg transition-all group ${
-                    isActive("/dashboard/settings")
+                    isActive("/settings")
                       ? "bg-primary/10  text-foreground"
                       : "text-foreground hover:bg-primary/10 hover:text-foreground"
                   }`}
                 >
                   <span
                     className={`transition-transform group-hover:scale-110 shrink-0 ${
-                      isActive("/dashboard/settings")
-                        ? "text-primary-foreground"
-                        : ""
+                      isActive("/settings") ? "text-primary-foreground" : ""
                     }`}
                   >
                     <Settings
                       className={clsx(
                         "w-5 h-5",
-                        isActive("/dashboard/settings")
+                        isActive("/settings")
                           ? "text-primary"
                           : "text-foreground/60"
                       )}
                     />
                   </span>
                   <span className="font-medium text-sm">Settings</span>
-                  {isActive("/dashboard/settings") && (
+                  {isActive("/settings") && (
                     <ChevronRight className="w-4 h-4 ml-auto opacity-100 transition" />
                   )}
                 </Link>
