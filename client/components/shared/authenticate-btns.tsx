@@ -20,9 +20,7 @@ import {
 
 const AuthenticateBtns = () => {
   const { data } = useGetMeQuery("");
-  const rootDomain = window?.location?.hostname;
-  const protocol = window?.location?.protocol;
-  const port = window?.location?.port ? `:${window.location.port}` : "";
+
   const router = useRouter();
   const [clientLogout] = useLogoutMutation();
 
@@ -34,6 +32,9 @@ const AuthenticateBtns = () => {
   };
 
   const getDashboardUrl = () => {
+    const rootDomain = window?.location?.hostname;
+    const protocol = window?.location?.protocol;
+    const port = window?.location?.port ? `:${window.location.port}` : "";
     return `${protocol}//${data?.data?.tenant.name}.${rootDomain}${port}`;
   };
 
