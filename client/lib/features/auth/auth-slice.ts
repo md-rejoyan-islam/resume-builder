@@ -29,7 +29,7 @@ export interface UpdateMePayload {
 }
 
 export interface GetMeResponse {
-  data: IUser;
+  data: IUser & { tenant: { _id: string; name: string } };
 }
 
 export interface UpdateMeResponse {

@@ -149,6 +149,7 @@ export class AuthService {
       query: { userId, fields },
     });
     const cached = await getCache<Record<string, unknown>>(cacheKey);
+
     if (cached) return cached;
 
     // Build selection string
@@ -171,8 +172,11 @@ export class AuthService {
 
     const user = await UserModel.findById(userId).select(selectFields).lean();
     if (!user) throw createError.NotFound('User not found');
+
+    const tenant = await TenantService.getByUserId(userId);
+
     await setCache(cacheKey, user);
-    return user;
+    return { ...user, tenant: { _id: tenant._id, name: tenant.name } };
   }
 
   static async updateMe(

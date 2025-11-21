@@ -5,5 +5,5 @@ export default function Layout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  return <DashboardLayout role="admin">{children}</DashboardLayout>;
+  return <DashboardLayout>{children}</DashboardLayout>;
 }

@@ -1,22 +1,19 @@
-"use client";
-
 import { Button } from "@/components/ui/button";
 import {
   Drawer,
   DrawerClose,
   DrawerContent,
   DrawerHeader,
+  DrawerTrigger,
 } from "@/components/ui/drawer";
 import { ArrowRight, Menu, Sparkles, X } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import AuthenticateBtns from "./authenticate-btns";
 import Navlink from "./navlink";
 import { ThemeToggle } from "./theme-toggle";
 
 function Header() {
-  const [isOpen, setIsOpen] = useState(false);
-
   const navigationLinks = [
     { href: "/", label: "Home" },
     { href: "/templates", label: "Templates" },
@@ -86,32 +83,18 @@ function Header() {
           </div>
 
           {/* Sign In Button */}
-          <Link href="/signin" className="hidden sm:inline-flex">
-            <Button
-              variant="outline"
-              className="border-border/50 hover:border-primary/50 hover:bg-primary/5 text-foreground font-semibold rounded-lg transition-all"
-            >
-              Sign In
-            </Button>
-          </Link>
-
-          {/* Get Started Button */}
-          <Link href="/pricing" className="hidden sm:block">
-            <Button className="bg-linear-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all flex items-center gap-2">
-              Get Started
-              <ArrowRight className="h-4 w-4" />
-            </Button>
-          </Link>
+          <AuthenticateBtns />
 
           {/* Mobile Menu Drawer */}
-          <Drawer open={isOpen} onOpenChange={setIsOpen}>
-            <button
-              onClick={() => setIsOpen(true)}
-              className="md:hidden inline-flex items-center justify-center p-2 rounded-lg border border-border/50 hover:bg-card/50 hover:border-primary/50 transition-all"
-              aria-label="Toggle menu"
-            >
-              <Menu className="h-6 w-6 text-foreground" />
-            </button>
+          <Drawer>
+            <DrawerTrigger asChild>
+              <button
+                className="md:hidden inline-flex items-center justify-center p-2 rounded-lg border border-border/50 hover:bg-card/50 hover:border-primary/50 transition-all"
+                aria-label="Toggle menu"
+              >
+                <Menu className="h-6 w-6 text-foreground" />
+              </button>
+            </DrawerTrigger>
 
             <DrawerContent className="bg-linear-to-b from-background to-background/95 h-screen max-h-screen lg:hidden">
               <DrawerHeader className="border-b border-border/30 pb-4">

@@ -5,16 +5,12 @@ import { ReactNode } from "react";
 
 interface DashboardLayoutProps {
   children: ReactNode;
-  role?: "user" | "admin";
 }
 
-export function DashboardLayout({
-  children,
-  role = "user",
-}: DashboardLayoutProps) {
+export function DashboardLayout({ children }: DashboardLayoutProps) {
   return (
     <div className="flex min-h-screen bg-background">
-      <Sidebar role={role} />
+      <Sidebar />
 
       {/* Main Content */}
       <main className="flex-1 lg:ml-64 mt-16 lg:mt-0">

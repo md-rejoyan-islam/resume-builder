@@ -1,5 +1,6 @@
 "use client";
 
+import { logout } from "@/app/actions";
 import { Button } from "@/components/ui/button";
 import {
   Drawer,
@@ -12,6 +13,10 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import {
+  useGetMeQuery,
+  useLogoutMutation,
+} from "@/lib/features/auth/auth-slice";
 import clsx from "clsx";
 import {
   Activity,
@@ -28,7 +33,8 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { useEffect } from "react";
 
 interface SidebarItem {
   label: string;
@@ -37,12 +43,31 @@ interface SidebarItem {
   badge?: string;
 }
 
-interface SidebarProps {
-  role?: "user" | "admin";
-}
+const client_url = process.env.NEXT_PUBLIC_BASE_URL!;
 
-export function Sidebar({ role = "user" }: SidebarProps) {
+export function Sidebar() {
   const pathname = usePathname();
+
+  const { data, isLoading } = useGetMeQuery("");
+
+  const getInitials = () => {
+    const firstName = data?.data?.first_name || "";
+    const lastName = data?.data?.last_name || "";
+    return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
+  };
+
+  const role = data?.data?.role || "user";
+
+  const [clientLogout] = useLogoutMutation();
+
+  const router = useRouter();
+
+  const handleLogout = async () => {
+    await logout();
+
+    await clientLogout();
+    router.push(client_url + "/signin");
+  };
 
   const userItems: SidebarItem[] = [
     {
@@ -158,6 +183,16 @@ export function Sidebar({ role = "user" }: SidebarProps) {
     if (href === "/") return pathname === href;
     return pathname.startsWith(href);
   };
+
+  useEffect(() => {
+    if (!data?.data && !isLoading) {
+      router.push(client_url + "/signin");
+    }
+  }, [data, router, isLoading]);
+
+  if (isLoading) {
+    return null;
+  }
 
   return (
     <>
@@ -388,14 +423,14 @@ export function Sidebar({ role = "user" }: SidebarProps) {
               <PopoverTrigger asChild>
                 <div className="flex items-center gap-3 px-2 py-3 rounded-lg hover:bg-accent/10 transition cursor-pointer">
                   <div className="w-10 h-10 rounded-full bg-linear-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white font-semibold shrink-0">
-                    AT
+                    {getInitials()}
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="font-semibold text-sm leading-tight truncate">
-                      Arthur Taylor
+                      {data?.data?.first_name} {data?.data?.last_name}
                     </p>
                     <p className="text-xs text-muted-foreground truncate">
-                      arthur@example.com
+                      {data?.data?.email}
                     </p>
                   </div>
                   <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0" />
@@ -425,7 +460,10 @@ export function Sidebar({ role = "user" }: SidebarProps) {
                     <span className="text-sm font-medium">Settings</span>
                   </button>
 
-                  <button className="flex items-center gap-3 px-4 py-3 hover:bg-accent/10 transition text-left text-destructive border-b border-border">
+                  <button
+                    className="flex items-center gap-3 px-4 py-3 hover:bg-accent/10 transition text-left text-destructive border-b border-border"
+                    onClick={handleLogout}
+                  >
                     <LogOut className="w-5 h-5" />
                     <span className="text-sm font-medium">Logout</span>
                   </button>

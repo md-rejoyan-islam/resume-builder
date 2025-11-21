@@ -18,6 +18,7 @@ const max_requests_window: number = +process.env.MAX_REQUESTS_WINDOW!;
 
 const clinetWhiteList: string[] =
   process.env.CLIENT_WHITELIST?.split(',') || [];
+const client_root_domain: string = process.env.CLIENT_ROOT_DOMAIN!;
 
 const accessTokenSecret: string = process.env.JWT_ACCESS_TOKEN_SECRET!;
 const refreshTokenSecret: string = process.env.JWT_REFRESH_TOKEN_SECRET!;
@@ -60,6 +61,7 @@ const redis_url: string =
 const secret = {
   users_image_path,
   node_env,
+  client_root_domain,
   server_url,
   mongo_uri,
   client_url,

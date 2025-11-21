@@ -32,10 +32,10 @@ export default function SignInForm() {
       const response = await login(data).unwrap();
       toast.success("Logged in successfully!");
 
-      const domain = window.location.hostname.split(".").slice(-2).join(".");
-      const protocol = window.location.protocol;
-      const port = window.location.port ? `:${window.location.port}` : "";
-      const tenant = response.data.tenant.name;
+      const domain = window?.location?.hostname?.split(".").slice(-2).join(".");
+      const protocol = window?.location?.protocol;
+      const port = window?.location?.port ? `:${window.location.port}` : "";
+      const tenant = response.data?.tenant?.name;
 
       router.push(`${protocol}//${tenant}.${domain}${port}`);
     } catch (error: unknown) {

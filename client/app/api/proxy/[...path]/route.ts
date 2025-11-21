@@ -142,7 +142,6 @@ async function handleProxyRequest(
 
   // response body
   const responseBody = await response.json();
-  console.log("here");
 
   // If the request is a login and successful, set cookies
   if (

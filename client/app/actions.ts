@@ -1,11 +1,24 @@
 "use server";
 
 import { cookies } from "next/headers";
+import { NextResponse } from "next/server";
 
 export const logout = async () => {
+  const response = NextResponse.next();
+
+  response.cookies.delete("accessToken");
+
   const cookieStore = await cookies();
-  cookieStore.delete("accessToken");
-  cookieStore.delete("refreshToken");
+  cookieStore.delete({
+    name: "accessToken",
+    path: "/",
+    domain: `.${process.env.ROOT_DOMAIN || "redpro.local"}`,
+  });
+  cookieStore.delete({
+    name: "refreshToken",
+    path: "/",
+    domain: `.${process.env.ROOT_DOMAIN || "redpro.local"}`,
+  });
   cookieStore.delete("role");
   cookieStore.delete("tenantId");
   cookieStore.delete("tenantName");
