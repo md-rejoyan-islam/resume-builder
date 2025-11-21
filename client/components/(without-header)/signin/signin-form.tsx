@@ -31,10 +31,13 @@ export default function SignInForm() {
     try {
       const response = await login(data).unwrap();
       toast.success("Logged in successfully!");
-      // Store tokens if needed
-      localStorage.setItem("access_token", response.data.access_token);
-      localStorage.setItem("refresh_token", response.data.refresh_token);
-      router.push("/dashboard");
+
+      const domain = window.location.hostname.split(".").slice(-2).join(".");
+      const protocol = window.location.protocol;
+      const port = window.location.port ? `:${window.location.port}` : "";
+      const tenant = response.data.tenant.name;
+
+      router.push(`${protocol}//${tenant}.${domain}${port}`);
     } catch (error: unknown) {
       const err = error as { data?: { message?: string } };
       toast.error(err?.data?.message || "Failed to sign in");

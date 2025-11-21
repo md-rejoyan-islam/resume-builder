@@ -44,16 +44,12 @@ export const getCookie = async (name: string) => {
 export const setCookie = async (name: string, value: string) => {
   const cookieStore = await cookies();
 
-  const isDevelopment = process.env.NODE_ENV !== "production";
-  const domain = isDevelopment ? ".redpro.local" : undefined;
-
   cookieStore.set(name, value, {
-    secure: !isDevelopment,
+    secure: process.env.NODE_ENV === "production",
     httpOnly: true,
-    sameSite: isDevelopment ? "lax" : "none",
-    domain: domain,
+    sameSite: "strict",
+    domain: `.${process.env.ROOT_DOMAIN || "redpro.local"}`,
     path: "/",
-    maxAge: 60 * 60 * 24 * 7, // 7 days
   });
 };
 

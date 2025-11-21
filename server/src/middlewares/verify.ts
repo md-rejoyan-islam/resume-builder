@@ -58,12 +58,11 @@ export const isLoggedOut = asyncHandler(
   async (req: IRequestWithUser, _res: Response, next: NextFunction) => {
     const authHeader = req.headers?.authorization;
     const token = authHeader?.split(' ')[1];
-
     // check token
     const isValid = jwt.decode(token as string);
 
     if (isValid) {
-      throw createError.Unauthorized('You are already logged in');
+      throw createError.Forbidden('You are already logged in');
     }
 
     next();
