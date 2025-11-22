@@ -98,6 +98,10 @@ export class AuthService {
     const tanent = await TenantService.getByUserId(user._id.toString());
 
     await setCache(cacheKey, { last_login: Date.now() }, 60); // small ttl cache for rate limiting support
+    // delete me cache
+    await deleteCache(
+      generateCacheKey({ resource: 'me', query: { userId: user._id } }),
+    );
 
     return {
       access_token,
@@ -144,6 +148,7 @@ export class AuthService {
   }
 
   static async me(userId: string, fields?: string) {
+    // await deleteCache(generateCacheKey({ resource: 'me', query: { userId } }));
     const cacheKey = generateCacheKey({
       resource: 'me',
       query: { userId, fields },
@@ -175,8 +180,10 @@ export class AuthService {
 
     const tenant = await TenantService.getByUserId(userId);
 
-    await setCache(cacheKey, user);
-    return { ...user, tenant: { _id: tenant._id, name: tenant.name } };
+    const result = { ...user, tenant: { _id: tenant._id, name: tenant.name } };
+
+    await setCache(cacheKey, result);
+    return result;
   }
 
   static async updateMe(

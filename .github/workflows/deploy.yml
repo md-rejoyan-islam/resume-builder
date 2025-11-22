@@ -96,7 +96,7 @@ jobs:
               if pm2 list | grep -q "$NAME"; then
                 pm2 reload $NAME
               else
-                pm2 start npm --name "$NAME" -- start
+                pm2 start pnpm --name "$NAME" -- start
               fi
             }
 
