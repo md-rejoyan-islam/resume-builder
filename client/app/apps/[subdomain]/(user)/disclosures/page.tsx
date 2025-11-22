@@ -1,6 +1,7 @@
 "use client";
 
 import { DataTable } from "@/components/dashboard/data-table";
+import { TableActions } from "@/components/dashboard/table-actions";
 import { Button } from "@/components/ui/button";
 import { Plus, Search } from "lucide-react";
 import Link from "next/link";
@@ -8,8 +9,7 @@ import { useState } from "react";
 
 const DisclosuresPage = () => {
   const [searchQuery, setSearchQuery] = useState("");
-
-  const disclosures = [
+  const [disclosures, setDisclosures] = useState([
     {
       id: 1,
       title: "Background Check Disclosure 2024",
@@ -34,38 +34,59 @@ const DisclosuresPage = () => {
       status: "Draft",
       views: 0,
     },
-  ];
+  ]);
 
-  const columns = [
-    { key: "title", label: "Title" },
-    { key: "type", label: "Type" },
-    {
-      key: "status",
-      label: "Status",
-      render: (status: unknown) => {
-        const statusStr = status as string;
-        return (
-          <span
-            className={`text-xs font-medium px-3 py-1 rounded-full ${
-              statusStr === "Signed"
-                ? "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400"
-                : "bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400"
-            }`}
-          >
-            {statusStr === "Signed" ? "✓" : "📝"} {statusStr}
-          </span>
-        );
-      },
-    },
-    { key: "views", label: "Views" },
-    { key: "date", label: "Last Modified" },
-  ];
+  const handleDelete = (id: number | string) => {
+    setDisclosures(disclosures.filter((disclosure) => disclosure.id !== id));
+  };
+
+  const handleEdit = (id: number | string, newTitle: string) => {
+    setDisclosures(
+      disclosures.map((disclosure) =>
+        disclosure.id === id ? { ...disclosure, title: newTitle } : disclosure
+      )
+    );
+  };
 
   const filteredDisclosures = disclosures.filter(
     (disclosure) =>
       disclosure.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       disclosure.type.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  const headers = [
+    "Title",
+    "Type",
+    "Status",
+    "Views",
+    "Last Modified",
+    "Actions",
+  ];
+
+  const tableData = filteredDisclosures.map((disclosure) => [
+    disclosure.title,
+    disclosure.type,
+    <span
+      key={disclosure.id}
+      className={`text-xs font-medium px-3 py-1 rounded-full ${
+        disclosure.status === "Signed"
+          ? "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400"
+          : "bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400"
+      }`}
+    >
+      {disclosure.status === "Signed" ? "✓" : "📝"} {disclosure.status}
+    </span>,
+    disclosure.views,
+    disclosure.date,
+    <TableActions
+      key={disclosure.id}
+      id={disclosure.id}
+      title={disclosure.title}
+      viewLink={`/disclosure/${disclosure.id}`}
+      onDelete={handleDelete}
+      onEdit={handleEdit}
+    />,
+  ]);
 
   return (
     <div className="space-y-6">
@@ -99,11 +120,11 @@ const DisclosuresPage = () => {
 
       {/* Table */}
       <DataTable
-        columns={columns}
-        data={filteredDisclosures}
-        onView={(item) => console.log("View:", item)}
-        onEdit={(item) => console.log("Edit:", item)}
-        onDelete={(item) => console.log("Delete:", item)}
+        headers={headers}
+        data={tableData}
+        totalItems={filteredDisclosures.length}
+        itemsPerPage={10}
+        currentPage={1}
       />
 
       {/* Empty State */}

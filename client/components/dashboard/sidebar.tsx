@@ -13,6 +13,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { Switch } from "@/components/ui/switch";
 import {
   useGetMeQuery,
   useLogoutMutation,
@@ -31,6 +32,7 @@ import {
   Users,
   X,
 } from "lucide-react";
+import { useTheme } from "next-themes";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -47,6 +49,7 @@ const client_url = process.env.NEXT_PUBLIC_BASE_URL!;
 
 export function Sidebar() {
   const pathname = usePathname();
+  const { setTheme, theme } = useTheme();
 
   const { data, isLoading } = useGetMeQuery("");
 
@@ -124,7 +127,7 @@ export function Sidebar() {
     },
     {
       label: "Resumes",
-      href: "resumes",
+      href: "/resumes",
       icon: <FileText className="w-5 h-5" />,
       role: ["user"],
     },
@@ -444,9 +447,13 @@ export function Sidebar() {
                       <Moon className="w-5 h-5 text-muted-foreground" />
                       <span className="text-sm font-medium">Dark Mode</span>
                     </div>
-                    <div className="w-10 h-6 rounded-full bg-muted cursor-pointer relative">
-                      <div className="w-5 h-5 rounded-full bg-background absolute top-0.5 left-0.5 transition-all" />
-                    </div>
+                    <Switch
+                      checked={theme === "dark"}
+                      className="cursor-pointer"
+                      onCheckedChange={(checked: boolean) =>
+                        setTheme(checked ? "dark" : "light")
+                      }
+                    />
                   </div>
 
                   {/* Menu Items */}

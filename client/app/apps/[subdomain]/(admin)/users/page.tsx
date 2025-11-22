@@ -1,14 +1,14 @@
 "use client";
 
 import { DataTable } from "@/components/dashboard/data-table";
+import { TableActions } from "@/components/dashboard/table-actions";
 import { Button } from "@/components/ui/button";
 import { Plus, Search } from "lucide-react";
 import { useState } from "react";
 
 const AdminUsersPage = () => {
   const [searchQuery, setSearchQuery] = useState("");
-
-  const users = [
+  const [users, setUsers] = useState([
     {
       id: 1,
       first_name: "Sarah",
@@ -64,50 +64,17 @@ const AdminUsersPage = () => {
       joinDate: "Jun 22, 2024",
       documents: 15,
     },
-  ];
+  ]);
 
-  const columns = [
-    { key: "name", label: "Name" },
-    { key: "email", label: "Email" },
-    {
-      key: "role",
-      label: "Role",
-      render: (role: unknown) => {
-        const roleStr = role as string;
-        return (
-          <span
-            className={`text-xs font-medium px-3 py-1 rounded-full ${
-              roleStr === "Admin"
-                ? "bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400"
-                : "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400"
-            }`}
-          >
-            {roleStr}
-          </span>
-        );
-      },
-    },
-    {
-      key: "status",
-      label: "Status",
-      render: (status: unknown) => {
-        const statusStr = status as string;
-        return (
-          <span
-            className={`text-xs font-medium px-3 py-1 rounded-full ${
-              statusStr === "Active"
-                ? "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400"
-                : "bg-gray-100 dark:bg-gray-900/30 text-gray-700 dark:text-gray-400"
-            }`}
-          >
-            {statusStr === "Active" ? "●" : "○"} {statusStr}
-          </span>
-        );
-      },
-    },
-    { key: "documents", label: "Documents" },
-    { key: "joinDate", label: "Join Date" },
-  ];
+  const handleDelete = (id: number | string) => {
+    setUsers(users.filter((user) => user.id !== id));
+  };
+
+  const handleEdit = (id: number | string, newName: string) => {
+    setUsers(
+      users.map((user) => (user.id === id ? { ...user, name: newName } : user))
+    );
+  };
 
   const filteredUsers = users.filter(
     (user) =>
@@ -116,6 +83,51 @@ const AdminUsersPage = () => {
         .includes(searchQuery.toLowerCase()) ||
       user.email.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  const headers = [
+    "Name",
+    "Email",
+    "Role",
+    "Status",
+    "Documents",
+    "Join Date",
+    "Actions",
+  ];
+
+  const tableData = filteredUsers.map((user) => [
+    user.name,
+    user.email,
+    <span
+      key={user.id}
+      className={`text-xs font-medium px-3 py-1 rounded-full ${
+        user.role === "Admin"
+          ? "bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400"
+          : "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400"
+      }`}
+    >
+      {user.role}
+    </span>,
+    <span
+      key={`${user.id}-status`}
+      className={`text-xs font-medium px-3 py-1 rounded-full ${
+        user.status === "Active"
+          ? "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400"
+          : "bg-gray-100 dark:bg-gray-900/30 text-gray-700 dark:text-gray-400"
+      }`}
+    >
+      {user.status === "Active" ? "●" : "○"} {user.status}
+    </span>,
+    user.documents,
+    user.joinDate,
+    <TableActions
+      key={user.id}
+      id={user.id}
+      title={user.name}
+      viewLink={`/user/${user.id}`}
+      onDelete={handleDelete}
+      onEdit={handleEdit}
+    />,
+  ]);
 
   return (
     <div className="space-y-6">
@@ -174,11 +186,11 @@ const AdminUsersPage = () => {
 
       {/* Table */}
       <DataTable
-        columns={columns}
-        data={filteredUsers}
-        onView={(item) => console.log("View:", item)}
-        onEdit={(item) => console.log("Edit:", item)}
-        onDelete={(item) => console.log("Delete:", item)}
+        headers={headers}
+        data={tableData}
+        totalItems={filteredUsers.length}
+        itemsPerPage={10}
+        currentPage={1}
       />
     </div>
   );

@@ -1,6 +1,7 @@
 "use client";
 
 import { DataTable } from "@/components/dashboard/data-table";
+import { TableActions } from "@/components/dashboard/table-actions";
 import { Button } from "@/components/ui/button";
 import { Plus, Search } from "lucide-react";
 import Link from "next/link";
@@ -8,8 +9,7 @@ import { useState } from "react";
 
 const ResumesPage = () => {
   const [searchQuery, setSearchQuery] = useState("");
-
-  const resumes = [
+  const [resumes, setResumes] = useState([
     {
       id: 1,
       title: "Senior Product Manager Resume",
@@ -42,32 +42,19 @@ const ResumesPage = () => {
       status: "Completed",
       views: 42,
     },
-  ];
+  ]);
 
-  const columns = [
-    { key: "title", label: "Title" },
-    { key: "template", label: "Template" },
-    {
-      key: "status",
-      label: "Status",
-      render: (status: unknown) => {
-        const statusStr = status as string;
-        return (
-          <span
-            className={`text-xs font-medium px-3 py-1 rounded-full ${
-              statusStr === "Completed"
-                ? "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400"
-                : "bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400"
-            }`}
-          >
-            {statusStr === "Completed" ? "✓" : "📝"} {statusStr}
-          </span>
-        );
-      },
-    },
-    { key: "views", label: "Views" },
-    { key: "date", label: "Last Modified" },
-  ];
+  const handleDelete = (id: number | string) => {
+    setResumes(resumes.filter((resume) => resume.id !== id));
+  };
+
+  const handleEdit = (id: number | string, newTitle: string) => {
+    setResumes(
+      resumes.map((resume) =>
+        resume.id === id ? { ...resume, title: newTitle } : resume
+      )
+    );
+  };
 
   const filteredResumes = resumes.filter(
     (resume) =>
@@ -85,7 +72,7 @@ const ResumesPage = () => {
             Manage and organize all your resumes
           </p>
         </div>
-        <Link href="/dashboard/resumes/new">
+        <Link href="/resumes/new">
           <Button className="gap-2">
             <Plus className="w-4 h-4" />
             New Resume
@@ -107,11 +94,43 @@ const ResumesPage = () => {
 
       {/* Table */}
       <DataTable
-        columns={columns}
-        data={filteredResumes}
-        onView={(item) => console.log("View:", item)}
-        onEdit={(item) => console.log("Edit:", item)}
-        onDelete={(item) => console.log("Delete:", item)}
+        headers={[
+          "#",
+          "Title",
+          "Template",
+          "Status",
+          "Views",
+          "Last Modified",
+          "Actions",
+        ]}
+        data={filteredResumes.map((resume, index) => [
+          index + 1,
+          resume.title,
+          resume.template,
+          <span
+            key={resume.id}
+            className={`text-xs font-medium px-3 py-1 rounded-full ${
+              resume.status === "Completed"
+                ? "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400"
+                : "bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400"
+            }`}
+          >
+            {resume.status === "Completed" ? "✓" : "📝"} {resume.status}
+          </span>,
+          resume.views,
+          resume.date,
+          <TableActions
+            key={resume.id}
+            id={resume.id}
+            title={resume.title}
+            viewLink={`/resume/${resume.id}`}
+            onDelete={handleDelete}
+            onEdit={handleEdit}
+          />,
+        ])}
+        totalItems={filteredResumes.length}
+        itemsPerPage={10}
+        currentPage={1}
       />
 
       {/* Empty State */}

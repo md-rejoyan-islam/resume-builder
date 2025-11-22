@@ -1,6 +1,7 @@
 "use client";
 
 import { DataTable } from "@/components/dashboard/data-table";
+import { TableActions } from "@/components/dashboard/table-actions";
 import { Button } from "@/components/ui/button";
 import { Plus, Search } from "lucide-react";
 import Link from "next/link";
@@ -8,8 +9,7 @@ import { useState } from "react";
 
 const CoverLettersPage = () => {
   const [searchQuery, setSearchQuery] = useState("");
-
-  const coverLetters = [
+  const [coverLetters, setCoverLetters] = useState([
     {
       id: 1,
       title: "Tech Lead Position - TechCorp",
@@ -34,38 +34,59 @@ const CoverLettersPage = () => {
       status: "Draft",
       views: 0,
     },
-  ];
+  ]);
 
-  const columns = [
-    { key: "title", label: "Title" },
-    { key: "company", label: "Company" },
-    {
-      key: "status",
-      label: "Status",
-      render: (status: unknown) => {
-        const statusStr = status as string;
-        return (
-          <span
-            className={`text-xs font-medium px-3 py-1 rounded-full ${
-              statusStr === "Completed"
-                ? "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400"
-                : "bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400"
-            }`}
-          >
-            {statusStr === "Completed" ? "✓" : "📝"} {statusStr}
-          </span>
-        );
-      },
-    },
-    { key: "views", label: "Views" },
-    { key: "date", label: "Last Modified" },
-  ];
+  const handleDelete = (id: number | string) => {
+    setCoverLetters(coverLetters.filter((letter) => letter.id !== id));
+  };
+
+  const handleEdit = (id: number | string, newTitle: string) => {
+    setCoverLetters(
+      coverLetters.map((letter) =>
+        letter.id === id ? { ...letter, title: newTitle } : letter
+      )
+    );
+  };
 
   const filteredLetters = coverLetters.filter(
     (letter) =>
       letter.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       letter.company.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  const headers = [
+    "Title",
+    "Company",
+    "Status",
+    "Views",
+    "Last Modified",
+    "Actions",
+  ];
+
+  const tableData = filteredLetters.map((letter) => [
+    letter.title,
+    letter.company,
+    <span
+      key={letter.id}
+      className={`text-xs font-medium px-3 py-1 rounded-full ${
+        letter.status === "Completed"
+          ? "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400"
+          : "bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400"
+      }`}
+    >
+      {letter.status === "Completed" ? "✓" : "📝"} {letter.status}
+    </span>,
+    letter.views,
+    letter.date,
+    <TableActions
+      key={letter.id}
+      id={letter.id}
+      title={letter.title}
+      viewLink={`/cover-letter/${letter.id}`}
+      onDelete={handleDelete}
+      onEdit={handleEdit}
+    />,
+  ]);
 
   return (
     <div className="space-y-6">
@@ -99,11 +120,11 @@ const CoverLettersPage = () => {
 
       {/* Table */}
       <DataTable
-        columns={columns}
-        data={filteredLetters}
-        onView={(item) => console.log("View:", item)}
-        onEdit={(item) => console.log("Edit:", item)}
-        onDelete={(item) => console.log("Delete:", item)}
+        headers={headers}
+        data={tableData}
+        totalItems={filteredLetters.length}
+        itemsPerPage={10}
+        currentPage={1}
       />
 
       {/* Empty State */}
