@@ -6,7 +6,7 @@ import {
   DrawerHeader,
   DrawerTrigger,
 } from "@/components/ui/drawer";
-import { ArrowRight, Menu, Sparkles, X } from "lucide-react";
+import { ArrowRight, Menu, X } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import AuthenticateBtns from "./authenticate-btns";
@@ -37,30 +37,30 @@ function Header() {
             className="flex items-center gap-2.5 hover:opacity-85 transition group"
           >
             <div className="relative">
-              <div className="absolute inset-0 bg-linear-to-br from-blue-600 to-purple-600 rounded-xl blur-sm opacity-75 group-hover:opacity-100 transition" />
+              <div className="absolute opacity-0  inset-0 bg-linear-to-br from-blue-600 to-purple-600 rounded-xl blur-sm dark:opacity-75 group-hover:opacity-100 transition" />
               <Image
                 src={"/logo.png"}
                 alt="Logo"
                 width={40}
                 height={40}
-                className="relative bg-white rounded-xl shadow-lg"
+                className="relative "
               />
             </div>
-            <div className="flex flex-col">
+            {/* <div className="flex flex-col">
               <span className="text-lg font-bold bg-linear-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
                 DocBuilder
               </span>
               <span className="text-xs font-semibold text-primary/80 -mt-1">
                 Pro
               </span>
-            </div>
+            </div> */}
           </Link>
 
           {/* Beta Badge */}
-          <div className="hidden sm:flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 ml-2">
+          {/* <div className="hidden sm:flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 ml-2">
             <Sparkles className="h-3.5 w-3.5 text-blue-600" />
             <span className="text-xs font-semibold text-blue-600">Beta</span>
-          </div>
+          </div> */}
         </div>
 
         {/* Desktop Navigation */}

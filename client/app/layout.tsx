@@ -29,7 +29,7 @@ export const metadata: Metadata = {
     siteName: "ResumeBuilder",
     images: [
       {
-        url: "/image.png",
+        url: "/logo.png",
         width: 1200,
         height: 630,
         alt: "ResumeBuilder Open Graph Image",
