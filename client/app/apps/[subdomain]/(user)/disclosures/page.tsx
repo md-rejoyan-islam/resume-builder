@@ -98,7 +98,7 @@ const DisclosuresPage = () => {
             Manage your disclosure documents
           </p>
         </div>
-        <Link href="/dashboard/disclosures/new">
+        <Link href="/disclosures/new">
           <Button className="gap-2">
             <Plus className="w-4 h-4" />
             New Disclosure
@@ -134,7 +134,7 @@ const DisclosuresPage = () => {
           <p className="text-muted-foreground mb-4">
             Create disclosure documents for employment or compliance
           </p>
-          <Link href="/dashboard/disclosures/new">
+          <Link href="/disclosures/new">
             <Button>Create Your First Disclosure</Button>
           </Link>
         </div>
