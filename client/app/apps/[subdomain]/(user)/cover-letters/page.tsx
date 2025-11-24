@@ -5,6 +5,7 @@ import { TableActions } from "@/components/dashboard/table-actions";
 import { Button } from "@/components/ui/button";
 import { Plus, Search } from "lucide-react";
 import Link from "next/link";
+
 import { useState } from "react";
 
 const CoverLettersPage = () => {
@@ -98,7 +99,7 @@ const CoverLettersPage = () => {
             Create and manage your cover letters
           </p>
         </div>
-        <Link href="/dashboard/cover-letters/new">
+        <Link href="/cover-letters/new">
           <Button className="gap-2">
             <Plus className="w-4 h-4" />
             New Cover Letter
@@ -134,7 +135,7 @@ const CoverLettersPage = () => {
           <p className="text-muted-foreground mb-4">
             Start creating cover letters for your job applications
           </p>
-          <Link href="/dashboard/cover-letters/new">
+          <Link href="/cover-letters/new">
             <Button>Create Your First Cover Letter</Button>
           </Link>
         </div>
