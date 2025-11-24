@@ -1,14 +1,31 @@
 "use client";
 
 import { TextEditor } from "@/components/dashboard/text-editor";
+import { TemplateSelector } from "@/components/templates/TemplateSelector";
+import { Template1Classic } from "@/components/templates/resumes/Template1-Classic";
+import { Template10Condensed } from "@/components/templates/resumes/Template10-Condensed";
+import { Template11JordanSmith } from "@/components/templates/resumes/Template11-JordanSmith";
+import { Template3Minimal } from "@/components/templates/resumes/Template3-Minimal";
+import { Template4Creative } from "@/components/templates/resumes/Template4-Creative";
+import { Template6Contemporary } from "@/components/templates/resumes/Template6-Contemporary";
+import { Template8IvyLeague } from "@/components/templates/resumes/Template8-IvyLeague";
+import { Template9Single } from "@/components/templates/resumes/Template9-Single";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { PieChart } from "@/components/ui/pie-chart";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import html2CanvasPro from "html2canvas-pro";
 import {
   AlignCenter,
   AlignLeft,
@@ -20,7 +37,7 @@ import {
   Upload,
 } from "lucide-react";
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 declare global {
   interface Window {
@@ -90,7 +107,35 @@ interface Project {
   otherUrl: string;
 }
 
+interface Certificate {
+  id: string;
+  name: string;
+  issuer: string;
+  date: string;
+  description: string;
+}
+
+interface ThemeSettings {
+  colors: {
+    primary: string;
+    secondary: string;
+    accent: string;
+    text: string;
+    textLight: string;
+    background: string;
+    border: string;
+  };
+  spacing: {
+    pageMargin: number; // in mm
+    sectionGap: number; // in px
+    lineHeight: number; // multiplier
+    paragraphGap: number; // in px
+  };
+  fontFamily: string; // Font family for the entire resume
+}
+
 interface ResumeData {
+  theme: ThemeSettings;
   personalInfo: {
     fullName: string;
     jobTitle: string;
@@ -137,6 +182,10 @@ interface ResumeData {
   languagesTitle: string;
   languagesHeaderStyle: FieldStyle;
   languagesStyle: FieldStyle;
+  certificates: Certificate[];
+  certificatesTitle: string;
+  certificatesHeaderStyle: FieldStyle;
+  certificatesStyle: FieldStyle;
 }
 
 const defaultFieldStyle: FieldStyle = {
@@ -147,12 +196,30 @@ const defaultFieldStyle: FieldStyle = {
 };
 
 const defaultResumeData: ResumeData = {
+  theme: {
+    colors: {
+      primary: "#3b82f6",
+      secondary: "#1e3a5f",
+      accent: "#10b981",
+      text: "#000000",
+      textLight: "#666666",
+      background: "#ffffff",
+      border: "#d1d5db",
+    },
+    spacing: {
+      pageMargin: 20, // 20mm
+      sectionGap: 24, // 24px
+      lineHeight: 1.6,
+      paragraphGap: 8, // 8px
+    },
+    fontFamily: "Inter, system-ui, -apple-system, sans-serif", // Professional default font
+  },
   personalInfo: {
-    fullName: "",
-    jobTitle: "",
-    email: "",
-    phone: "",
-    location: "",
+    fullName: "Your Name",
+    jobTitle: "Job Title",
+    email: "your.email@example.com",
+    phone: "+1 (555) 123-4567",
+    location: "City, State",
     nameStyle: {
       fontFamily: "Arial",
       fontSize: 32,
@@ -186,9 +253,29 @@ const defaultResumeData: ResumeData = {
       color: "#333333",
       align: "left",
     },
-    content: "",
+    content:
+      "Write a brief summary about yourself, your skills, and your professional goals.",
   },
-  skills: [],
+  skills: [
+    {
+      id: "1",
+      name: "Skill 1",
+      level: 90,
+      color: "#3b82f6",
+    },
+    {
+      id: "2",
+      name: "Skill 2",
+      level: 85,
+      color: "#3b82f6",
+    },
+    {
+      id: "3",
+      name: "Skill 3",
+      level: 80,
+      color: "#3b82f6",
+    },
+  ],
   skillsTitle: "Skills",
   skillsHeaderStyle: {
     fontFamily: "Arial",
@@ -202,7 +289,22 @@ const defaultResumeData: ResumeData = {
     color: "#000000",
     align: "left",
   },
-  socialLinks: [],
+  socialLinks: [
+    {
+      id: "1",
+      platform: "LinkedIn",
+      url: "https://linkedin.com/in/yourprofile",
+      showIcon: true,
+      showLabel: true,
+    },
+    {
+      id: "2",
+      platform: "GitHub",
+      url: "https://github.com/yourprofile",
+      showIcon: true,
+      showLabel: true,
+    },
+  ],
   socialLinksTitle: "Social Links",
   socialLinksStyle: {
     fontFamily: "Arial",
@@ -210,7 +312,28 @@ const defaultResumeData: ResumeData = {
     color: "#0066cc",
     align: "left",
   },
-  experience: [],
+  experience: [
+    {
+      id: "1",
+      jobTitle: "Job Title",
+      company: "Company Name",
+      startDate: "Jan 2022",
+      endDate: "Present",
+      currentlyWorking: true,
+      description:
+        "Describe your responsibilities and achievements in this role.",
+    },
+    {
+      id: "2",
+      jobTitle: "Job Title2",
+      company: "Company Name2",
+      startDate: "Jan 2022",
+      endDate: "May 2023",
+      currentlyWorking: false,
+      description:
+        "Describe your responsibilities and achievements in this role.",
+    },
+  ],
   experienceTitle: "Experience",
   experienceHeaderStyle: {
     fontFamily: "Arial",
@@ -232,7 +355,28 @@ const defaultResumeData: ResumeData = {
       align: "left",
     },
   },
-  education: [],
+  education: [
+    {
+      id: "1",
+      school: "University Name",
+      degree: "Bachelor of Science",
+      field: "Computer Science",
+      startDate: "Sep 2018",
+      endDate: "May 2022",
+      currentlyStudying: false,
+      description: "Relevant coursework and achievements.",
+    },
+    {
+      id: "2",
+      school: "Secondary School Name",
+      degree: "High School Diploma",
+      field: "Science",
+      startDate: "Sep 2016",
+      endDate: "May 2018",
+      currentlyStudying: false,
+      description: "Relevant coursework and achievements.",
+    },
+  ],
   educationTitle: "Education",
   educationHeaderStyle: {
     fontFamily: "Arial",
@@ -254,7 +398,24 @@ const defaultResumeData: ResumeData = {
       align: "left",
     },
   },
-  projects: [],
+  projects: [
+    {
+      id: "1",
+      name: "Project Name",
+      description: "Brief description of the project and your role in it.",
+      previewUrl: "https://example.com",
+      githubUrl: "https://github.com/yourprofile/project",
+      otherUrl: "https://portfolio.com/project",
+    },
+    {
+      id: "2",
+      name: "Project Name2",
+      description: "Brief description of the project and your role in it.",
+      previewUrl: "https://example.com",
+      githubUrl: "https://github.com/yourprofile/project",
+      otherUrl: "https://portfolio.com/project",
+    },
+  ],
   projectsTitle: "Projects",
   projectsHeaderStyle: {
     fontFamily: "Arial",
@@ -268,7 +429,18 @@ const defaultResumeData: ResumeData = {
     color: "#000000",
     align: "left",
   },
-  languages: [],
+  languages: [
+    {
+      id: "1",
+      name: "English",
+      proficiency: "fluent",
+    },
+    {
+      id: "2",
+      name: "Spanish",
+      proficiency: "fluent",
+    },
+  ],
   languagesTitle: "Languages",
   languagesHeaderStyle: {
     fontFamily: "Arial",
@@ -277,6 +449,37 @@ const defaultResumeData: ResumeData = {
     align: "left",
   },
   languagesStyle: {
+    fontFamily: "Arial",
+    fontSize: 12,
+    color: "#000000",
+    align: "left",
+  },
+  certificates: [
+    {
+      id: "1",
+      name: "AWS Certified Solutions Architect",
+      issuer: "Amazon Web Services",
+      date: "Jan 2023",
+      description:
+        "Professional level certification for AWS cloud architecture",
+    },
+    {
+      id: "2",
+      name: "AWS Certified Solutions Architect2",
+      issuer: "Amazon Web Services",
+      date: "Jan 2023",
+      description:
+        "Professional level certification for AWS cloud architecture",
+    },
+  ],
+  certificatesTitle: "Certificates & Achievements",
+  certificatesHeaderStyle: {
+    fontFamily: "Arial",
+    fontSize: 14,
+    color: "#000000",
+    align: "left",
+  },
+  certificatesStyle: {
     fontFamily: "Arial",
     fontSize: 12,
     color: "#000000",
@@ -293,63 +496,6 @@ const fontFamilies = [
 ];
 const socialPlatforms = ["LinkedIn", "GitHub", "Twitter", "Website", "Email"];
 const proficiencyLevels = ["beginner", "intermediate", "advanced", "fluent"];
-
-const getPlatformIcon = (platform: string) => {
-  const iconMap: Record<string, () => React.ReactElement> = {
-    linkedin: () => (
-      <svg
-        className="w-4 h-4"
-        fill="currentColor"
-        viewBox="0 0 24 24"
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z" />
-      </svg>
-    ),
-    github: () => (
-      <svg
-        className="w-4 h-4"
-        fill="currentColor"
-        viewBox="0 0 24 24"
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v 3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
-      </svg>
-    ),
-    twitter: () => (
-      <svg
-        className="w-4 h-4"
-        fill="currentColor"
-        viewBox="0 0 24 24"
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        <path d="M23.953 4.57a10 10 0 002.856-3.476c-3.769 1.676-7.843 2.881-12.068 3.622a5.968 5.968 0 00-3.58-1.395c-3.329 0-6.032 2.703-6.032 6.032 0 .472.056.93.167 1.38C3.873 9.49 0 7.5 0 7.5c0 2.046 1.045 3.847 2.604 4.91-1.172.375-2.267.966-3.21 1.855v.077c0 2.909 2.126 5.381 4.943 5.943-.517.142-1.063.216-1.622.216-.388 0-.765-.038-1.134-.111.765 2.383 2.944 4.121 5.544 4.17-2.112 1.656-4.788 2.643-7.668 2.643-.498 0-.99-.03-1.47-.09 2.189 1.404 4.768 2.222 7.548 2.222 9.052 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63.961-.689 1.8-1.56 2.46-2.548l-.047-.02z" />
-      </svg>
-    ),
-    website: () => (
-      <svg
-        className="w-4 h-4"
-        fill="currentColor"
-        viewBox="0 0 24 24"
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        <path d="M12 0c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm-5.25 19.35c.677-.675 2.675-1.675 2.675-1.675s3.333 1.667 5.25 1.667c1.916 0 4.573-1 5.25-1.667.676-.667 2.674-1.675 2.674-1.675s1.667-2.333 1.667-5.25-1.667-5.25-1.667-5.25-2-1-2.674-1.667c-.677-.675-3.334-1.675-5.25-1.675-1.916 0-4.573 1-5.25 1.667-.676.667-2.674 1.675-2.674 1.675s-1.667 2.333-1.667 5.25 1.667 5.25 1.667 5.25 2 1 2.674 1.667z" />
-      </svg>
-    ),
-    email: () => (
-      <svg
-        className="w-4 h-4"
-        fill="currentColor"
-        viewBox="0 0 24 24"
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z" />
-      </svg>
-    ),
-  };
-
-  return iconMap[platform] || null;
-};
 
 const StyleControlPopover = ({
   style,
@@ -565,6 +711,8 @@ const StyleControlPopover = ({
 export default function ResumeFromScratchPage() {
   const [resumeData, setResumeData] = useState<ResumeData>(defaultResumeData);
   const [isDownloading, setIsDownloading] = useState(false);
+  const [selectedTemplate, setSelectedTemplate] = useState("classic");
+  const previewRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     // Load html2canvas library
@@ -821,6 +969,42 @@ export default function ResumeFromScratchPage() {
     }));
   };
 
+  const addCertificate = () => {
+    setResumeData((prev) => ({
+      ...prev,
+      certificates: [
+        ...prev.certificates,
+        {
+          id: Date.now().toString(),
+          name: "",
+          issuer: "",
+          date: "",
+          description: "",
+        },
+      ],
+    }));
+  };
+
+  const updateCertificate = (
+    id: string,
+    field: string,
+    value: string | FieldStyle
+  ) => {
+    setResumeData((prev) => ({
+      ...prev,
+      certificates: prev.certificates.map((cert) =>
+        cert.id === id ? { ...cert, [field]: value } : cert
+      ),
+    }));
+  };
+
+  const removeCertificate = (id: string) => {
+    setResumeData((prev) => ({
+      ...prev,
+      certificates: prev.certificates.filter((c) => c.id !== id),
+    }));
+  };
+
   const addProject = () => {
     setResumeData((prev) => ({
       ...prev,
@@ -879,6 +1063,93 @@ export default function ResumeFromScratchPage() {
     }));
   };
 
+  // Completion percentage calculations
+  const calculatePersonalInfoCompletion = () => {
+    const fields = [
+      resumeData.personalInfo.fullName,
+      resumeData.personalInfo.jobTitle,
+      resumeData.personalInfo.email,
+      resumeData.personalInfo.phone,
+      resumeData.personalInfo.location,
+    ];
+    const filled = fields.filter(
+      (field) => field && field.trim() !== ""
+    ).length;
+    return Math.round((filled / fields.length) * 100);
+  };
+
+  const calculateExperienceCompletion = () => {
+    if (resumeData.experience.length === 0) return 0;
+    const totalFields = resumeData.experience.length * 5; // company, jobTitle, startDate, endDate, description
+    const filledFields = resumeData.experience.reduce((count, exp) => {
+      let filled = 0;
+      if (exp.company?.trim()) filled++;
+      if (exp.jobTitle?.trim()) filled++;
+      if (exp.startDate?.trim()) filled++;
+      if (exp.endDate?.trim()) filled++;
+      if (exp.description?.trim()) filled++;
+      return count + filled;
+    }, 0);
+    return Math.round((filledFields / totalFields) * 100);
+  };
+
+  const calculateEducationCompletion = () => {
+    if (resumeData.education.length === 0) return 0;
+    const totalFields = resumeData.education.length * 5; // school, degree, field, startDate, endDate
+    const filledFields = resumeData.education.reduce((count, edu) => {
+      let filled = 0;
+      if (edu.school?.trim()) filled++;
+      if (edu.degree?.trim()) filled++;
+      if (edu.field?.trim()) filled++;
+      if (edu.startDate?.trim()) filled++;
+      if (edu.endDate?.trim()) filled++;
+      return count + filled;
+    }, 0);
+    return Math.round((filledFields / totalFields) * 100);
+  };
+
+  const calculateSkillsCompletion = () => {
+    if (resumeData.skills.length === 0) return 0;
+    const filled = resumeData.skills.filter((skill) =>
+      skill.name?.trim()
+    ).length;
+    return filled > 0 ? 100 : 0;
+  };
+
+  const calculateProjectsCompletion = () => {
+    if (resumeData.projects.length === 0) return 0;
+    const totalFields = resumeData.projects.length * 2; // name, description (minimum)
+    const filledFields = resumeData.projects.reduce((count, project) => {
+      let filled = 0;
+      if (project.name?.trim()) filled++;
+      if (project.description?.trim()) filled++;
+      return count + filled;
+    }, 0);
+    return Math.round((filledFields / totalFields) * 100);
+  };
+
+  const calculateLanguagesCompletion = () => {
+    if (resumeData.languages.length === 0) return 0;
+    const filled = resumeData.languages.filter(
+      (lang) => lang.name?.trim() && lang.proficiency
+    ).length;
+    return filled > 0 ? 100 : 0;
+  };
+
+  const calculateCertificatesCompletion = () => {
+    if (resumeData.certificates.length === 0) return 0;
+    const totalFields = resumeData.certificates.length * 4; // name, issuer, date, description
+    const filledFields = resumeData.certificates.reduce((count, cert) => {
+      let filled = 0;
+      if (cert.name?.trim()) filled++;
+      if (cert.issuer?.trim()) filled++;
+      if (cert.date?.trim()) filled++;
+      if (cert.description?.trim()) filled++;
+      return count + filled;
+    }, 0);
+    return Math.round((filledFields / totalFields) * 100);
+  };
+
   const addSocialLink = () => {
     setResumeData((prev) => ({
       ...prev,
@@ -930,224 +1201,95 @@ export default function ResumeFromScratchPage() {
   const downloadResumeAsPDF = async () => {
     if (isDownloading) return;
 
-    const element = document.getElementById("resume-preview");
-    if (!element) {
+    // Get the actual A4 page element, not the flex container
+    const previewContainer = previewRef.current;
+    if (!previewContainer) {
       console.error("Resume preview element not found");
       alert("Resume preview not found");
+      return;
+    }
+
+    // Find the first A4 page within the container
+    const a4Page = previewContainer.querySelector(".a4-page") as HTMLElement;
+    if (!a4Page) {
+      console.error("A4 page element not found");
+      alert("Resume page not found");
       return;
     }
 
     setIsDownloading(true);
 
     try {
-      console.log("Starting PDF download...");
+      console.log("Starting PDF download with html2canvas-pro...");
 
-      // Dynamically import libraries
-      console.log("Importing html2canvas...");
-      const html2canvas = (await import("html2canvas")).default;
-      console.log("html2canvas imported successfully");
-
-      console.log("Importing jsPDF...");
+      // Import jsPDF
       const { jsPDF } = await import("jspdf");
       console.log("jsPDF imported successfully");
 
       const filename = `${resumeData.personalInfo.fullName || "resume"}.pdf`;
       console.log("Filename:", filename);
 
-      // Clone the element to avoid modifying the original
-      const clonedElement = element.cloneNode(true) as HTMLElement;
+      // Use html2canvas-pro to render only the A4 page element
+      console.log("Converting to canvas with html2canvas-pro...");
+      const canvas = await html2CanvasPro(a4Page, {
+        allowTaint: true,
+        useCORS: true,
+        backgroundColor: "#ffffff",
+        scale: 2,
+        logging: false,
+        imageTimeout: 15000,
+      });
 
-      // Recursively apply computed styles as inline styles to preserve visual appearance
-      const applyInlineStyles = (el: HTMLElement) => {
-        const computed = window.getComputedStyle(el);
-
-        // List of all CSS properties to preserve
-        const properties = [
-          "display",
-          "position",
-          "width",
-          "height",
-          "top",
-          "left",
-          "right",
-          "bottom",
-          "margin",
-          "margin-top",
-          "margin-right",
-          "margin-bottom",
-          "margin-left",
-          "padding",
-          "padding-top",
-          "padding-right",
-          "padding-bottom",
-          "padding-left",
-          "font-size",
-          "font-weight",
-          "font-family",
-          "line-height",
-          "text-align",
-          "text-decoration",
-          "letter-spacing",
-          "word-spacing",
-          "color",
-          "background-color",
-          "border",
-          "border-top",
-          "border-right",
-          "border-bottom",
-          "border-left",
-          "border-radius",
-          "flex-direction",
-          "justify-content",
-          "align-items",
-          "gap",
-          "flex-wrap",
-          "flex-grow",
-          "flex-shrink",
-          "flex-basis",
-          "opacity",
-          "z-index",
-          "box-shadow",
-          "text-transform",
-          "font-style",
-        ];
-
-        let inlineStyle = "";
-
-        properties.forEach((prop) => {
-          let value = computed.getPropertyValue(prop);
-          if (!value || value === "none" || value === "auto") return;
-
-          // Skip if value contains lab()
-          if (value.includes("lab(")) {
-            // Use fallback color
-            if (prop === "color") {
-              value = "black";
-            } else if (prop === "background-color") {
-              value = "transparent";
-            } else {
-              return;
-            }
-          }
-
-          inlineStyle += `${prop}:${value};`;
-        });
-
-        if (inlineStyle) {
-          el.setAttribute("style", inlineStyle);
-        }
-
-        // Process children
-        Array.from(el.children).forEach((child) => {
-          applyInlineStyles(child as HTMLElement);
-        });
-      };
-
-      applyInlineStyles(clonedElement);
-
-      // Create wrapper
-      const tempWrapper = document.createElement("div");
-      tempWrapper.setAttribute(
-        "style",
-        "position:absolute;left:-9999px;top:0;width:210mm;background:white;padding:10mm;margin:0;box-sizing:border-box;"
+      console.log(
+        "Canvas created, dimensions:",
+        canvas.width,
+        "x",
+        canvas.height
       );
-      tempWrapper.appendChild(clonedElement);
-      document.body.appendChild(tempWrapper);
 
-      try {
-        console.log("Converting to canvas with html2canvas...");
+      // Create PDF
+      console.log("Creating PDF document...");
+      const pdf = new jsPDF({
+        orientation: "portrait",
+        unit: "mm",
+        format: "a4",
+      });
 
-        // Use html2canvas without trying to parse stylesheets
-        const canvas = await html2canvas(tempWrapper, {
-          backgroundColor: "#ffffff",
-          scale: 2,
-          useCORS: true,
-          allowTaint: true,
-          logging: false,
-          ignoreElements: (element: Element) => {
-            // Ignore all style/link elements to prevent lab() parsing
-            return (
-              element.tagName === "SCRIPT" ||
-              element.tagName === "STYLE" ||
-              element.tagName === "LINK"
-            );
-          },
-        });
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
 
-        console.log(
-          "Canvas created, dimensions:",
-          canvas.width,
-          "x",
-          canvas.height
-        );
+      // Calculate image dimensions to fit on A4 page without margins
+      const imgWidth = pageWidth;
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
 
-        // Clean up
-        document.body.removeChild(tempWrapper);
+      // Convert canvas to image data
+      const imageData = canvas.toDataURL("image/png");
+      console.log("Image data created");
 
-        // Create PDF
-        console.log("Creating PDF document...");
-        const pdf = new jsPDF({
-          orientation: "portrait",
-          unit: "mm",
-          format: "a4",
-        });
+      // Add first page with no margins
+      pdf.addImage(imageData, "PNG", 0, 0, imgWidth, imgHeight);
 
-        const pageWidth = pdf.internal.pageSize.getWidth();
-        const pageHeight = pdf.internal.pageSize.getHeight();
+      // Add additional pages only if content extends beyond one page
+      // Add small tolerance (2mm) to avoid creating extra pages due to rounding
+      let yPosition = 0;
+      let remainingHeight = imgHeight - pageHeight - 2;
 
-        // Calculate image dimensions to fit on A4 page
-        const imgWidth = pageWidth - 10; // 5mm margins on each side
-        const imgHeight = (canvas.height * imgWidth) / canvas.width;
-
-        let yPosition = 5; // Start from 5mm top margin
-        let remainingHeight = imgHeight;
-
-        // Convert canvas to image data
-        const imageData = canvas.toDataURL("image/png");
-        console.log("Image data created");
-
-        // Add first page
-        pdf.addImage(imageData, "PNG", 5, yPosition, imgWidth, imgHeight);
-        remainingHeight -= pageHeight - 10;
-
-        // Add additional pages if content extends beyond one page
-        while (remainingHeight > 0) {
-          pdf.addPage();
-          yPosition = remainingHeight - imgHeight + 5;
-          pdf.addImage(imageData, "PNG", 5, yPosition, imgWidth, imgHeight);
-          remainingHeight -= pageHeight - 10;
-        }
-
-        // Save the PDF
-        console.log("Saving PDF as:", filename);
-        pdf.save(filename);
-
-        alert("PDF downloaded successfully!");
-      } catch (error) {
-        console.error("Error during PDF generation:", error);
-        if (document.body.contains(tempWrapper)) {
-          document.body.removeChild(tempWrapper);
-        }
-        if (error instanceof Error) {
-          alert(`Failed to download PDF: ${error.message}`);
-        } else {
-          alert("Failed to download PDF. Please try again.");
-        }
-      } finally {
-        // Remove temp wrapper if still in DOM
-        if (document.body.contains(tempWrapper)) {
-          document.body.removeChild(tempWrapper);
-        }
-
-        setIsDownloading(false);
+      while (remainingHeight > 0) {
+        pdf.addPage();
+        yPosition = -remainingHeight;
+        pdf.addImage(imageData, "PNG", 0, yPosition, imgWidth, imgHeight);
+        remainingHeight -= pageHeight;
       }
+
+      // Save the PDF
+      console.log("Saving PDF as:", filename);
+      pdf.save(filename);
+
+      alert("PDF downloaded successfully!");
     } catch (error) {
-      console.error("Error downloading PDF:", error);
-      if (error instanceof Error) {
-        alert(`Failed to download PDF: ${error.message}`);
-      } else {
-        alert("Failed to download PDF. Please try again.");
-      }
+      console.error("Error during PDF generation:", error);
+      alert("Failed to download PDF. Please try again.");
+    } finally {
       setIsDownloading(false);
     }
   };
@@ -1174,940 +1316,1855 @@ export default function ResumeFromScratchPage() {
         </div>
       </div>
 
-      <div className="grid lg:grid-cols-2 gap-8">
-        {/* Form */}
-        <div className="space-y-6">
+      <div className="grid lg:grid-cols-3 gap-8">
+        {/* Form - 1/3 */}
+        <div className="lg:col-span-1 space-y-6">
           <Tabs defaultValue="personal" className="w-full">
-            <TabsList className="grid w-full grid-cols-3">
+            <TabsList className="grid w-full grid-cols-4">
               <TabsTrigger value="personal">Personal</TabsTrigger>
               <TabsTrigger value="professional">Professional</TabsTrigger>
               <TabsTrigger value="education">Education</TabsTrigger>
+              <TabsTrigger value="styling">Styling</TabsTrigger>
             </TabsList>
 
             {/* TAB 1: PERSONAL */}
             <TabsContent value="personal" className="space-y-6 mt-6">
-              {/* Header */}
-              <div className="space-y-3 p-4 bg-card border border-border rounded-lg">
-                <h3 className="font-semibold text-lg">Personal Information</h3>
-
-                {/* Profile Image */}
-                <div className="flex items-center gap-4">
-                  {resumeData.personalInfo.profileImage && (
-                    <div className="relative w-16 h-16">
-                      <Image
-                        src={resumeData.personalInfo.profileImage}
-                        alt="Profile"
-                        fill
-                        className="rounded-full object-cover"
+              <Accordion
+                type="multiple"
+                defaultValue={[]}
+                className="space-y-3"
+              >
+                {/* Personal Information Section */}
+                <AccordionItem
+                  value="personal"
+                  className="border border-border rounded-lg bg-card"
+                >
+                  <AccordionTrigger className="px-4 py-3 hover:no-underline">
+                    <div className="flex items-center justify-between w-full pr-4">
+                      <div className="flex items-center gap-3">
+                        <h3 className="font-semibold text-lg">
+                          Personal Information
+                        </h3>
+                      </div>
+                      <PieChart
+                        percentage={calculatePersonalInfoCompletion()}
                       />
                     </div>
-                  )}
-                  <label className="cursor-pointer">
-                    <div className="flex items-center gap-2 px-4 py-2 border border-dashed border-border rounded-lg hover:border-primary hover:bg-primary/5 transition-colors">
-                      <Upload className="w-4 h-4" />
-                      <span className="text-sm">Upload Photo</span>
-                    </div>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={handleImageUpload}
-                      className="hidden"
-                    />
-                  </label>
-                </div>
-
-                {/* Full Name */}
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <label className="text-sm font-medium">Full Name</label>
-                    <StyleControlPopover
-                      label="Style"
-                      style={resumeData.personalInfo.nameStyle}
-                      onChange={(s) => updatePersonalStyle("nameStyle", s)}
-                    />
-                  </div>
-                  <Input
-                    placeholder="John Doe"
-                    value={resumeData.personalInfo.fullName}
-                    onChange={(e) =>
-                      updatePersonalInfo("fullName", e.target.value)
-                    }
-                  />
-                </div>
-
-                {/* Professional Title */}
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <label className="text-sm font-medium">
-                      Professional Title
-                    </label>
-                    <StyleControlPopover
-                      label="Style"
-                      style={resumeData.personalInfo.titleStyle}
-                      onChange={(s) => updatePersonalStyle("titleStyle", s)}
-                    />
-                  </div>
-                  <Input
-                    placeholder="Senior Manager"
-                    value={resumeData.personalInfo.jobTitle}
-                    onChange={(e) =>
-                      updatePersonalInfo("jobTitle", e.target.value)
-                    }
-                  />
-                </div>
-
-                {/* Contact Info */}
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium">Email</label>
-                    <Input
-                      type="email"
-                      placeholder="john@example.com"
-                      value={resumeData.personalInfo.email}
-                      onChange={(e) =>
-                        updatePersonalInfo("email", e.target.value)
-                      }
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium">Phone</label>
-                    <Input
-                      placeholder="+1 (555) 123-4567"
-                      value={resumeData.personalInfo.phone}
-                      onChange={(e) =>
-                        updatePersonalInfo("phone", e.target.value)
-                      }
-                    />
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <label className="text-sm font-medium">Location</label>
-                    <StyleControlPopover
-                      label="Style"
-                      style={resumeData.personalInfo.contactStyle}
-                      onChange={(s) => updatePersonalStyle("contactStyle", s)}
-                    />
-                  </div>
-                  <Input
-                    placeholder="San Francisco, CA"
-                    value={resumeData.personalInfo.location}
-                    onChange={(e) =>
-                      updatePersonalInfo("location", e.target.value)
-                    }
-                  />
-                </div>
-              </div>
-
-              {/* About Section */}
-              <div className="space-y-3 p-4 bg-card border border-border rounded-lg">
-                <h3 className="font-semibold text-lg">About / Summary</h3>
-
-                <div className="flex items-center justify-between mb-3 p-2 bg-muted/50 rounded gap-2">
-                  <span className="text-xs font-medium">Styles</span>
-                  <div className="flex gap-4">
-                    <div className="flex items-end gap-2">
-                      <div>
-                        <span className="text-xs text-muted-foreground block mb-1">
-                          Header
-                        </span>
-                        <StyleControlPopover
-                          style={resumeData.about.headerStyle}
-                          onChange={(s) => updateAboutStyle("headerStyle", s)}
-                        />
-                      </div>
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <div className="flex items-center justify-center gap-2 cursor-pointer text-xs text-muted-foreground hover:text-foreground transition-colors group">
-                            <span>Edit Title</span>
-                            <Settings className="w-3 h-3 opacity-60 group-hover:opacity-100" />
-                          </div>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-80">
-                          <div className="space-y-4">
-                            <h4 className="font-medium text-sm">
-                              About Section Title
-                            </h4>
-                            <Input
-                              placeholder="Enter section title"
-                              value={resumeData.about.title}
-                              onChange={(e) =>
-                                setResumeData({
-                                  ...resumeData,
-                                  about: {
-                                    ...resumeData.about,
-                                    title: e.target.value,
-                                  },
-                                })
-                              }
+                  </AccordionTrigger>
+                  <AccordionContent className="px-4 pb-4">
+                    <div className="space-y-3">
+                      {/* Profile Image */}
+                      <div className="flex items-center gap-4">
+                        {resumeData.personalInfo.profileImage && (
+                          <div className="relative w-16 h-16">
+                            <Image
+                              src={resumeData.personalInfo.profileImage}
+                              alt="Profile"
+                              fill
+                              className="rounded-full object-cover"
                             />
                           </div>
-                        </PopoverContent>
-                      </Popover>
-                    </div>
-                    <div>
-                      <span className="text-xs text-muted-foreground block mb-1">
-                        Content
-                      </span>
-                      <StyleControlPopover
-                        style={resumeData.about.contentStyle}
-                        onChange={(s) => updateAboutStyle("contentStyle", s)}
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                <div>
-                  <label className="text-sm font-medium">Content</label>
-                  <TextEditor
-                    value={resumeData.about.content}
-                    onChange={updateAbout}
-                  />
-                </div>
-              </div>
-
-              {/* Social Links */}
-              <div className="space-y-3 p-4 bg-card border border-border rounded-lg">
-                <div className="flex justify-between items-center">
-                  <h3 className="font-semibold text-lg">Social Links</h3>
-                  <Button onClick={addSocialLink} size="sm" variant="outline">
-                    <Plus className="w-4 h-4 mr-1" /> Add
-                  </Button>
-                </div>
-
-                <div className="flex items-center justify-between p-2 bg-muted/50 rounded">
-                  <span className="text-xs font-medium">Global Style</span>
-                  <StyleControlPopover
-                    label="Style"
-                    style={resumeData.socialLinksStyle}
-                    onChange={(s) =>
-                      setResumeData({ ...resumeData, socialLinksStyle: s })
-                    }
-                  />
-                </div>
-
-                {resumeData.socialLinks.map((link) => (
-                  <div
-                    key={link.id}
-                    className="p-3 border border-border rounded-lg space-y-2"
-                  >
-                    <div className="flex justify-between items-center">
-                      <select
-                        value={link.platform}
-                        onChange={(e) =>
-                          updateSocialLink(link.id, "platform", e.target.value)
-                        }
-                        className="flex-1 p-2 text-sm border rounded bg-background"
-                      >
-                        {socialPlatforms.map((p) => (
-                          <option key={p} value={p}>
-                            {p}
-                          </option>
-                        ))}
-                      </select>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => removeSocialLink(link.id)}
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
-                    </div>
-                    <Input
-                      placeholder="https://..."
-                      value={link.url}
-                      onChange={(e) =>
-                        updateSocialLink(link.id, "url", e.target.value)
-                      }
-                    />
-                    <div className="flex gap-3">
-                      <label className="flex items-center gap-2">
-                        <input
-                          type="checkbox"
-                          checked={link.showIcon}
-                          onChange={(e) =>
-                            updateSocialLink(
-                              link.id,
-                              "showIcon",
-                              e.target.checked
-                            )
-                          }
-                        />
-                        <span className="text-xs">Icon</span>
-                      </label>
-                      <label className="flex items-center gap-2">
-                        <input
-                          type="checkbox"
-                          checked={link.showLabel}
-                          onChange={(e) =>
-                            updateSocialLink(
-                              link.id,
-                              "showLabel",
-                              e.target.checked
-                            )
-                          }
-                        />
-                        <span className="text-xs">Label</span>
-                      </label>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </TabsContent>
-
-            {/* TAB 2: PROFESSIONAL */}
-            <TabsContent value="professional" className="space-y-6 mt-6">
-              {/* Skills */}
-              <div className="space-y-3 p-4 bg-card border border-border rounded-lg">
-                <div className="flex justify-between items-center mb-3">
-                  <h3 className="font-semibold text-lg">Skills</h3>
-                  <Button onClick={addSkill} size="sm" variant="outline">
-                    <Plus className="w-4 h-4 mr-1" /> Add
-                  </Button>
-                </div>
-
-                <div className="flex items-center justify-between mb-3 p-2 bg-muted/50 rounded gap-2">
-                  <span className="text-xs font-medium">Styles</span>
-                  <div className="flex gap-4">
-                    <div className="flex items-end gap-2">
-                      <div>
-                        <span className="text-xs text-muted-foreground block mb-1">
-                          Header
-                        </span>
-                        <StyleControlPopover
-                          style={resumeData.skillsHeaderStyle}
-                          onChange={(s) => updateSkillsHeaderStyle(s)}
-                        />
-                      </div>
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <div className="flex items-center justify-center gap-2 cursor-pointer text-xs text-muted-foreground hover:text-foreground transition-colors group">
-                            <span>Edit Title</span>
-                            <Settings className="w-3 h-3 opacity-60 group-hover:opacity-100" />
+                        )}
+                        <label className="cursor-pointer">
+                          <div className="flex items-center gap-2 px-4 py-2 border border-dashed border-border rounded-lg hover:border-primary hover:bg-primary/5 transition-colors">
+                            <Upload className="w-4 h-4" />
+                            <span className="text-sm">Upload Photo</span>
                           </div>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-80">
-                          <div className="space-y-4">
-                            <h4 className="font-medium text-sm">
-                              Skills Section Title
-                            </h4>
-                            <Input
-                              placeholder="Enter section title"
-                              value={resumeData.skillsTitle}
-                              onChange={(e) =>
-                                setResumeData({
-                                  ...resumeData,
-                                  skillsTitle: e.target.value,
-                                })
-                              }
-                            />
-                          </div>
-                        </PopoverContent>
-                      </Popover>
-                    </div>
-                    <div>
-                      <span className="text-xs text-muted-foreground block mb-1">
-                        Items
-                      </span>
-                      <StyleControlPopover
-                        style={resumeData.skillsStyle}
-                        onChange={(s) => updateSkillsStyle(s)}
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                {resumeData.skills.map((skill) => (
-                  <div
-                    key={skill.id}
-                    className="p-3 border border-border rounded-lg space-y-2"
-                  >
-                    <div className="flex gap-2">
-                      <Input
-                        placeholder="Skill name"
-                        value={skill.name}
-                        onChange={(e) =>
-                          updateSkill(skill.id, "name", e.target.value)
-                        }
-                        className="flex-1"
-                      />
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => removeSkill(skill.id)}
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
-                    </div>
-                    <div className="grid grid-cols-2 gap-2">
-                      <div>
-                        <label className="text-xs">
-                          Level: {skill.level}/5
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={handleImageUpload}
+                            className="hidden"
+                          />
                         </label>
-                        <input
-                          type="range"
-                          min="1"
-                          max="5"
-                          value={skill.level}
+                      </div>
+
+                      {/* Full Name */}
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <label className="text-sm font-medium">
+                            Full Name
+                          </label>
+                          <StyleControlPopover
+                            label="Style"
+                            style={resumeData.personalInfo.nameStyle}
+                            onChange={(s) =>
+                              updatePersonalStyle("nameStyle", s)
+                            }
+                          />
+                        </div>
+                        <Input
+                          placeholder="John Doe"
+                          value={resumeData.personalInfo.fullName}
                           onChange={(e) =>
-                            updateSkill(
-                              skill.id,
-                              "level",
-                              Number(e.target.value)
-                            )
+                            updatePersonalInfo("fullName", e.target.value)
                           }
-                          className="w-full"
                         />
                       </div>
-                      <div>
-                        <label className="text-xs">Color</label>
-                        <input
-                          type="color"
-                          value={skill.color}
+
+                      {/* Professional Title */}
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <label className="text-sm font-medium">
+                            Professional Title
+                          </label>
+                          <StyleControlPopover
+                            label="Style"
+                            style={resumeData.personalInfo.titleStyle}
+                            onChange={(s) =>
+                              updatePersonalStyle("titleStyle", s)
+                            }
+                          />
+                        </div>
+                        <Input
+                          placeholder="Senior Manager"
+                          value={resumeData.personalInfo.jobTitle}
                           onChange={(e) =>
-                            updateSkill(skill.id, "color", e.target.value)
+                            updatePersonalInfo("jobTitle", e.target.value)
                           }
-                          className="w-full h-8 rounded cursor-pointer border"
+                        />
+                      </div>
+
+                      {/* Contact Info */}
+                      <div className="grid grid-cols-2 gap-3">
+                        <div className="space-y-2">
+                          <label className="text-sm font-medium">Email</label>
+                          <Input
+                            type="email"
+                            placeholder="john@example.com"
+                            value={resumeData.personalInfo.email}
+                            onChange={(e) =>
+                              updatePersonalInfo("email", e.target.value)
+                            }
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-sm font-medium">Phone</label>
+                          <Input
+                            placeholder="+1 (555) 123-4567"
+                            value={resumeData.personalInfo.phone}
+                            onChange={(e) =>
+                              updatePersonalInfo("phone", e.target.value)
+                            }
+                          />
+                        </div>
+                      </div>
+
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <label className="text-sm font-medium">
+                            Location
+                          </label>
+                          <StyleControlPopover
+                            label="Style"
+                            style={resumeData.personalInfo.contactStyle}
+                            onChange={(s) =>
+                              updatePersonalStyle("contactStyle", s)
+                            }
+                          />
+                        </div>
+                        <Input
+                          placeholder="San Francisco, CA"
+                          value={resumeData.personalInfo.location}
+                          onChange={(e) =>
+                            updatePersonalInfo("location", e.target.value)
+                          }
                         />
                       </div>
                     </div>
-                  </div>
-                ))}
-              </div>
+                  </AccordionContent>
+                </AccordionItem>
 
-              {/* Experience */}
-              <div className="space-y-3 p-4 bg-card border border-border rounded-lg">
-                <div className="flex justify-between items-center mb-2">
-                  <h3 className="font-semibold text-lg">Experience</h3>
-                  <Button onClick={addExperience} size="sm" variant="outline">
-                    <Plus className="w-4 h-4 mr-1" /> Add
-                  </Button>
-                </div>
-
-                <div className="flex items-center justify-between mb-4 p-2 bg-muted/50 rounded gap-2">
-                  <span className="text-xs font-medium">Global Styles</span>
-                  <div className="flex gap-4">
-                    <div className="flex items-end gap-2">
-                      <div>
-                        <span className="text-xs text-muted-foreground block mb-1">
-                          Header
-                        </span>
-                        <StyleControlPopover
-                          style={resumeData.experienceHeaderStyle}
-                          onChange={(s) => updateExperienceHeaderStyle(s)}
-                        />
+                {/* About Section */}
+                <AccordionItem
+                  value="about"
+                  className="border border-border rounded-lg bg-card"
+                >
+                  <AccordionTrigger className="px-4 py-3 hover:no-underline">
+                    <div className="flex items-center justify-between w-full pr-4">
+                      <div className="flex items-center gap-3">
+                        <h3 className="font-semibold text-lg">
+                          About / Summary
+                        </h3>
                       </div>
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <div className="flex items-center justify-center gap-2 cursor-pointer text-xs text-muted-foreground hover:text-foreground transition-colors group">
-                            <span>Edit Title</span>
-                            <Settings className="w-3 h-3 opacity-60 group-hover:opacity-100" />
+                      <PieChart percentage={100} />
+                    </div>
+                  </AccordionTrigger>
+                  <AccordionContent className="px-4 pb-4">
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between mb-3 p-2 bg-muted/50 rounded gap-2">
+                        <span className="text-xs font-medium">Styles</span>
+                        <div className="flex gap-4">
+                          <div className="flex items-end gap-2">
+                            <div>
+                              <span className="text-xs text-muted-foreground block mb-1">
+                                Header
+                              </span>
+                              <StyleControlPopover
+                                style={resumeData.about.headerStyle}
+                                onChange={(s) =>
+                                  updateAboutStyle("headerStyle", s)
+                                }
+                              />
+                            </div>
+                            <Popover>
+                              <PopoverTrigger asChild>
+                                <div className="flex items-center justify-center gap-2 cursor-pointer text-xs text-muted-foreground hover:text-foreground transition-colors group">
+                                  <span>Edit Title</span>
+                                  <Settings className="w-3 h-3 opacity-60 group-hover:opacity-100" />
+                                </div>
+                              </PopoverTrigger>
+                              <PopoverContent className="w-80">
+                                <div className="space-y-4">
+                                  <h4 className="font-medium text-sm">
+                                    About Section Title
+                                  </h4>
+                                  <Input
+                                    placeholder="Enter section title"
+                                    value={resumeData.about.title}
+                                    onChange={(e) =>
+                                      setResumeData({
+                                        ...resumeData,
+                                        about: {
+                                          ...resumeData.about,
+                                          title: e.target.value,
+                                        },
+                                      })
+                                    }
+                                  />
+                                </div>
+                              </PopoverContent>
+                            </Popover>
                           </div>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-80">
-                          <div className="space-y-4">
-                            <h4 className="font-medium text-sm">
-                              Experience Section Title
-                            </h4>
-                            <Input
-                              placeholder="Enter section title"
-                              value={resumeData.experienceTitle}
-                              onChange={(e) =>
-                                setResumeData({
-                                  ...resumeData,
-                                  experienceTitle: e.target.value,
-                                })
+                          <div>
+                            <span className="text-xs text-muted-foreground block mb-1">
+                              Content
+                            </span>
+                            <StyleControlPopover
+                              style={resumeData.about.contentStyle}
+                              onChange={(s) =>
+                                updateAboutStyle("contentStyle", s)
                               }
                             />
                           </div>
-                        </PopoverContent>
-                      </Popover>
-                    </div>
-                    <div>
-                      <span className="text-xs text-muted-foreground block mb-1">
-                        Title
-                      </span>
-                      <StyleControlPopover
-                        style={resumeData.experienceStyle.titleStyle}
-                        onChange={(s) => updateExperienceStyle("titleStyle", s)}
-                      />
-                    </div>
-                    <div>
-                      <span className="text-xs text-muted-foreground block mb-1">
-                        Description
-                      </span>
-                      <StyleControlPopover
-                        style={resumeData.experienceStyle.descStyle}
-                        onChange={(s) => updateExperienceStyle("descStyle", s)}
-                      />
-                    </div>
-                  </div>
-                </div>
+                        </div>
+                      </div>
 
-                {resumeData.experience.map((exp) => (
-                  <div
-                    key={exp.id}
-                    className="p-3 border border-border rounded-lg space-y-3"
-                  >
-                    <div className="flex justify-between">
-                      <h4 className="font-medium">Experience Entry</h4>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => removeExperience(exp.id)}
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
-                    </div>
-
-                    <Input
-                      placeholder="Job Title"
-                      value={exp.jobTitle}
-                      onChange={(e) =>
-                        updateExperience(exp.id, "jobTitle", e.target.value)
-                      }
-                    />
-                    <Input
-                      placeholder="Company"
-                      value={exp.company}
-                      onChange={(e) =>
-                        updateExperience(exp.id, "company", e.target.value)
-                      }
-                    />
-
-                    <div className="grid grid-cols-2 gap-2">
-                      <Input
-                        type="date"
-                        value={exp.startDate}
-                        onChange={(e) =>
-                          updateExperience(exp.id, "startDate", e.target.value)
-                        }
-                      />
-                      <Input
-                        type="date"
-                        value={exp.endDate}
-                        onChange={(e) =>
-                          updateExperience(exp.id, "endDate", e.target.value)
-                        }
-                        disabled={exp.currentlyWorking}
-                      />
-                    </div>
-
-                    <label className="flex items-center gap-2">
-                      <input
-                        type="checkbox"
-                        checked={exp.currentlyWorking}
-                        onChange={(e) =>
-                          updateExperience(
-                            exp.id,
-                            "currentlyWorking",
-                            e.target.checked
-                          )
-                        }
-                      />
-                      <span className="text-sm">Currently Working</span>
-                    </label>
-
-                    <div>
-                      <label className="text-xs font-medium">Description</label>
-                      <TextEditor
-                        value={exp.description}
-                        onChange={(content) =>
-                          updateExperience(exp.id, "description", content)
-                        }
-                      />
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              {/* Projects */}
-              <div className="space-y-3 p-4 bg-card border border-border rounded-lg">
-                <div className="flex justify-between items-center mb-2">
-                  <h3 className="font-semibold text-lg">Projects</h3>
-                  <Button onClick={addProject} size="sm" variant="outline">
-                    <Plus className="w-4 h-4 mr-1" /> Add
-                  </Button>
-                </div>
-
-                <div className="flex items-center justify-between mb-4 p-2 bg-muted/50 rounded gap-2">
-                  <span className="text-xs font-medium">Global Styles</span>
-                  <div className="flex gap-4">
-                    <div className="flex items-end gap-2">
                       <div>
-                        <span className="text-xs text-muted-foreground block mb-1">
-                          Header
-                        </span>
-                        <StyleControlPopover
-                          style={resumeData.projectsHeaderStyle}
-                          onChange={(s) => updateProjectsHeaderStyle(s)}
+                        <label className="text-sm font-medium">Content</label>
+                        <TextEditor
+                          value={resumeData.about.content}
+                          onChange={updateAbout}
                         />
                       </div>
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <div className="flex items-center justify-center gap-2 cursor-pointer text-xs text-muted-foreground hover:text-foreground transition-colors group">
-                            <span>Edit Title</span>
-                            <Settings className="w-3 h-3 opacity-60 group-hover:opacity-100" />
-                          </div>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-80">
-                          <div className="space-y-4">
-                            <h4 className="font-medium text-sm">
-                              Projects Section Title
-                            </h4>
-                            <Input
-                              placeholder="Enter section title"
-                              value={resumeData.projectsTitle}
-                              onChange={(e) =>
-                                updateProjectsTitle(e.target.value)
-                              }
-                            />
-                          </div>
-                        </PopoverContent>
-                      </Popover>
                     </div>
-                    <div>
-                      <span className="text-xs text-muted-foreground block mb-1">
-                        Items
-                      </span>
-                      <StyleControlPopover
-                        style={resumeData.projectsStyle}
-                        onChange={(s) => updateProjectsStyle(s)}
-                      />
-                    </div>
-                  </div>
-                </div>
+                  </AccordionContent>
+                </AccordionItem>
 
-                {resumeData.projects.map((project) => (
-                  <div
-                    key={project.id}
-                    className="p-3 border border-border rounded-lg space-y-3"
-                  >
-                    <div className="flex justify-between">
-                      <h4 className="font-medium">Project Entry</h4>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => removeProject(project.id)}
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
-                    </div>
-
-                    <Input
-                      placeholder="Project Name"
-                      value={project.name}
-                      onChange={(e) =>
-                        updateProject(project.id, "name", e.target.value)
-                      }
-                    />
-
-                    <div>
-                      <label className="text-xs font-medium">Description</label>
-                      <TextEditor
-                        value={project.description}
-                        onChange={(content) =>
-                          updateProject(project.id, "description", content)
-                        }
-                      />
-                    </div>
-
-                    <Input
-                      placeholder="Preview URL"
-                      type="url"
-                      value={project.previewUrl}
-                      onChange={(e) =>
-                        updateProject(project.id, "previewUrl", e.target.value)
-                      }
-                    />
-
-                    <Input
-                      placeholder="GitHub URL"
-                      type="url"
-                      value={project.githubUrl}
-                      onChange={(e) =>
-                        updateProject(project.id, "githubUrl", e.target.value)
-                      }
-                    />
-
-                    <Input
-                      placeholder="Other URL"
-                      type="url"
-                      value={project.otherUrl}
-                      onChange={(e) =>
-                        updateProject(project.id, "otherUrl", e.target.value)
-                      }
-                    />
-                  </div>
-                ))}
-              </div>
-            </TabsContent>
-
-            {/* TAB 3: EDUCATION */}
-            <TabsContent value="education" className="space-y-6 mt-6">
-              {/* Education */}
-              <div className="space-y-3 p-4 bg-card border border-border rounded-lg">
-                <div className="flex justify-between items-center mb-2">
-                  <h3 className="font-semibold text-lg">Education</h3>
-                  <Button onClick={addEducation} size="sm" variant="outline">
-                    <Plus className="w-4 h-4 mr-1" /> Add
-                  </Button>
-                </div>
-
-                <div className="flex items-center justify-between mb-4 p-2 bg-muted/50 rounded gap-2">
-                  <span className="text-xs font-medium">Global Styles</span>
-                  <div className="flex gap-4">
-                    <div className="flex items-end gap-2">
-                      <div>
-                        <span className="text-xs text-muted-foreground block mb-1">
-                          Header
-                        </span>
-                        <StyleControlPopover
-                          style={resumeData.educationHeaderStyle}
-                          onChange={(s) => updateEducationHeaderStyle(s)}
-                        />
+                {/* Social Links */}
+                <AccordionItem
+                  value="social"
+                  className="border border-border rounded-lg bg-card"
+                >
+                  <AccordionTrigger className="px-4 py-3 hover:no-underline">
+                    <div className="flex items-center justify-between w-full pr-4">
+                      <div className="flex items-center gap-3">
+                        <h3 className="font-semibold text-lg">Social Links</h3>
                       </div>
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <div className="flex items-center justify-center gap-2 cursor-pointer text-xs text-muted-foreground hover:text-foreground transition-colors group">
-                            <span>Edit Title</span>
-                            <Settings className="w-3 h-3 opacity-60 group-hover:opacity-100" />
-                          </div>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-80">
-                          <div className="space-y-4">
-                            <h4 className="font-medium text-sm">
-                              Education Section Title
-                            </h4>
-                            <Input
-                              placeholder="Enter section title"
-                              value={resumeData.educationTitle}
-                              onChange={(e) =>
-                                setResumeData({
-                                  ...resumeData,
-                                  educationTitle: e.target.value,
-                                })
-                              }
-                            />
-                          </div>
-                        </PopoverContent>
-                      </Popover>
+                      <PieChart percentage={100} />
                     </div>
-                    <div>
-                      <span className="text-xs text-muted-foreground block mb-1">
-                        Title
-                      </span>
-                      <StyleControlPopover
-                        style={resumeData.educationStyle.titleStyle}
-                        onChange={(s) => updateEducationStyle("titleStyle", s)}
-                      />
-                    </div>
-                    <div>
-                      <span className="text-xs text-muted-foreground block mb-1">
-                        Description
-                      </span>
-                      <StyleControlPopover
-                        style={resumeData.educationStyle.descStyle}
-                        onChange={(s) => updateEducationStyle("descStyle", s)}
-                      />
-                    </div>
-                  </div>
-                </div>
+                  </AccordionTrigger>
+                  <AccordionContent className="px-4 pb-4">
+                    <div className="space-y-3">
+                      <div className="flex justify-between items-center">
+                        <Button
+                          onClick={addSocialLink}
+                          size="sm"
+                          variant="outline"
+                        >
+                          <Plus className="w-4 h-4 mr-1" /> Add
+                        </Button>
+                      </div>
 
-                {resumeData.education.map((edu) => (
-                  <div
-                    key={edu.id}
-                    className="p-3 border border-border rounded-lg space-y-3"
-                  >
-                    <div className="flex justify-between">
-                      <h4 className="font-medium">Education Entry</h4>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => removeEducation(edu.id)}
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
-                    </div>
-
-                    <Input
-                      placeholder="Degree"
-                      value={edu.degree}
-                      onChange={(e) =>
-                        updateEducation(edu.id, "degree", e.target.value)
-                      }
-                    />
-                    <Input
-                      placeholder="School/University"
-                      value={edu.school}
-                      onChange={(e) =>
-                        updateEducation(edu.id, "school", e.target.value)
-                      }
-                    />
-
-                    <Input
-                      placeholder="Field of Study"
-                      value={edu.field}
-                      onChange={(e) =>
-                        updateEducation(edu.id, "field", e.target.value)
-                      }
-                    />
-
-                    <Input
-                      type="date"
-                      placeholder="Start Date"
-                      value={edu.startDate}
-                      onChange={(e) =>
-                        updateEducation(edu.id, "startDate", e.target.value)
-                      }
-                    />
-
-                    <Input
-                      type="date"
-                      placeholder="End Date"
-                      value={edu.endDate}
-                      onChange={(e) =>
-                        updateEducation(edu.id, "endDate", e.target.value)
-                      }
-                      disabled={edu.currentlyStudying}
-                    />
-
-                    <label className="flex items-center gap-2">
-                      <input
-                        type="checkbox"
-                        checked={edu.currentlyStudying}
-                        onChange={(e) =>
-                          updateEducation(
-                            edu.id,
-                            "currentlyStudying",
-                            e.target.checked
-                          )
-                        }
-                      />
-                      <span className="text-sm">Currently Studying</span>
-                    </label>
-
-                    <div>
-                      <label className="text-xs font-medium">Description</label>
-                      <TextEditor
-                        value={edu.description}
-                        onChange={(content) =>
-                          updateEducation(edu.id, "description", content)
-                        }
-                      />
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              {/* Languages */}
-              <div className="space-y-3 p-4 bg-card border border-border rounded-lg">
-                <div className="flex justify-between items-center">
-                  <h3 className="font-semibold text-lg">Languages</h3>
-                  <Button onClick={addLanguage} size="sm" variant="outline">
-                    <Plus className="w-4 h-4 mr-1" /> Add
-                  </Button>
-                </div>
-
-                <div className="flex items-center justify-between mb-3 p-2 bg-muted/50 rounded gap-2">
-                  <span className="text-xs font-medium">Global Styles</span>
-                  <div className="flex gap-4">
-                    <div className="flex items-end gap-2">
-                      <div>
-                        <span className="text-xs text-muted-foreground block mb-1">
-                          Header
+                      <div className="flex items-center justify-between p-2 bg-muted/50 rounded">
+                        <span className="text-xs font-medium">
+                          Global Style
                         </span>
                         <StyleControlPopover
                           label="Style"
-                          style={resumeData.languagesHeaderStyle}
+                          style={resumeData.socialLinksStyle}
                           onChange={(s) =>
                             setResumeData({
                               ...resumeData,
-                              languagesHeaderStyle: s,
+                              socialLinksStyle: s,
                             })
                           }
                         />
                       </div>
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <div className="flex items-center justify-center gap-2 cursor-pointer text-xs text-muted-foreground hover:text-foreground transition-colors group">
-                            <span>Edit Title</span>
-                            <Settings className="w-3 h-3 opacity-60 group-hover:opacity-100" />
-                          </div>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-80">
-                          <div className="space-y-4">
-                            <h4 className="font-medium text-sm">
-                              Languages Section Title
-                            </h4>
-                            <Input
-                              placeholder="Enter section title"
-                              value={resumeData.languagesTitle}
+
+                      {resumeData.socialLinks.map((link) => (
+                        <div
+                          key={link.id}
+                          className="p-3 border border-border rounded-lg space-y-2"
+                        >
+                          <div className="flex justify-between items-center">
+                            <select
+                              value={link.platform}
                               onChange={(e) =>
+                                updateSocialLink(
+                                  link.id,
+                                  "platform",
+                                  e.target.value
+                                )
+                              }
+                              className="flex-1 p-2 text-sm border rounded bg-background"
+                            >
+                              {socialPlatforms.map((p) => (
+                                <option key={p} value={p}>
+                                  {p}
+                                </option>
+                              ))}
+                            </select>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => removeSocialLink(link.id)}
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </div>
+                          <Input
+                            placeholder="https://..."
+                            value={link.url}
+                            onChange={(e) =>
+                              updateSocialLink(link.id, "url", e.target.value)
+                            }
+                          />
+                          <div className="flex gap-3">
+                            <label className="flex items-center gap-2">
+                              <input
+                                type="checkbox"
+                                checked={link.showIcon}
+                                onChange={(e) =>
+                                  updateSocialLink(
+                                    link.id,
+                                    "showIcon",
+                                    e.target.checked
+                                  )
+                                }
+                              />
+                              <span className="text-xs">Icon</span>
+                            </label>
+                            <label className="flex items-center gap-2">
+                              <input
+                                type="checkbox"
+                                checked={link.showLabel}
+                                onChange={(e) =>
+                                  updateSocialLink(
+                                    link.id,
+                                    "showLabel",
+                                    e.target.checked
+                                  )
+                                }
+                              />
+                              <span className="text-xs">Label</span>
+                            </label>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
+              </Accordion>
+            </TabsContent>
+
+            {/* TAB 2: PROFESSIONAL */}
+            <TabsContent value="professional" className="space-y-6 mt-6">
+              <Accordion
+                type="multiple"
+                defaultValue={[]}
+                className="space-y-3"
+              >
+                {/* Skills */}
+                <AccordionItem
+                  value="skills"
+                  className="border border-border rounded-lg bg-card"
+                >
+                  <AccordionTrigger className="px-4 py-3 hover:no-underline">
+                    <div className="flex items-center justify-between w-full pr-4">
+                      <div className="flex items-center gap-3">
+                        <h3 className="font-semibold text-lg">Skills</h3>
+                      </div>
+                      <PieChart percentage={calculateSkillsCompletion()} />
+                    </div>
+                  </AccordionTrigger>
+                  <AccordionContent className="px-4 pb-4">
+                    <div className="space-y-3">
+                      <div className="flex justify-between items-center mb-3">
+                        <Button onClick={addSkill} size="sm" variant="outline">
+                          <Plus className="w-4 h-4 mr-1" /> Add
+                        </Button>
+                      </div>
+
+                      <div className="flex items-center justify-between mb-3 p-2 bg-muted/50 rounded gap-2">
+                        <span className="text-xs font-medium">Styles</span>
+                        <div className="flex gap-4">
+                          <div className="flex items-end gap-2">
+                            <div>
+                              <span className="text-xs text-muted-foreground block mb-1">
+                                Header
+                              </span>
+                              <StyleControlPopover
+                                style={resumeData.skillsHeaderStyle}
+                                onChange={(s) => updateSkillsHeaderStyle(s)}
+                              />
+                            </div>
+                            <Popover>
+                              <PopoverTrigger asChild>
+                                <div className="flex items-center justify-center gap-2 cursor-pointer text-xs text-muted-foreground hover:text-foreground transition-colors group">
+                                  <span>Edit Title</span>
+                                  <Settings className="w-3 h-3 opacity-60 group-hover:opacity-100" />
+                                </div>
+                              </PopoverTrigger>
+                              <PopoverContent className="w-80">
+                                <div className="space-y-4">
+                                  <h4 className="font-medium text-sm">
+                                    Skills Section Title
+                                  </h4>
+                                  <Input
+                                    placeholder="Enter section title"
+                                    value={resumeData.skillsTitle}
+                                    onChange={(e) =>
+                                      setResumeData({
+                                        ...resumeData,
+                                        skillsTitle: e.target.value,
+                                      })
+                                    }
+                                  />
+                                </div>
+                              </PopoverContent>
+                            </Popover>
+                          </div>
+                          <div>
+                            <span className="text-xs text-muted-foreground block mb-1">
+                              Items
+                            </span>
+                            <StyleControlPopover
+                              style={resumeData.skillsStyle}
+                              onChange={(s) => updateSkillsStyle(s)}
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      {resumeData.skills.map((skill) => (
+                        <div
+                          key={skill.id}
+                          className="p-3 border border-border rounded-lg space-y-2"
+                        >
+                          <div className="flex gap-2">
+                            <Input
+                              placeholder="Skill name"
+                              value={skill.name}
+                              onChange={(e) =>
+                                updateSkill(skill.id, "name", e.target.value)
+                              }
+                              className="flex-1"
+                            />
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => removeSkill(skill.id)}
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </div>
+                          <div className="grid grid-cols-2 gap-2">
+                            <div>
+                              <label className="text-xs">
+                                Level: {skill.level}/5
+                              </label>
+                              <input
+                                type="range"
+                                min="1"
+                                max="5"
+                                value={skill.level}
+                                onChange={(e) =>
+                                  updateSkill(
+                                    skill.id,
+                                    "level",
+                                    Number(e.target.value)
+                                  )
+                                }
+                                className="w-full"
+                              />
+                            </div>
+                            <div>
+                              <label className="text-xs">Color</label>
+                              <input
+                                type="color"
+                                value={skill.color}
+                                onChange={(e) =>
+                                  updateSkill(skill.id, "color", e.target.value)
+                                }
+                                className="w-full h-8 rounded cursor-pointer border"
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
+
+                {/* Experience */}
+                <AccordionItem
+                  value="experience"
+                  className="border border-border rounded-lg bg-card"
+                >
+                  <AccordionTrigger className="px-4 py-3 hover:no-underline">
+                    <div className="flex items-center justify-between w-full pr-4">
+                      <div className="flex items-center gap-3">
+                        <h3 className="font-semibold text-lg">Experience</h3>
+                      </div>
+                      <PieChart percentage={calculateExperienceCompletion()} />
+                    </div>
+                  </AccordionTrigger>
+                  <AccordionContent className="px-4 pb-4">
+                    <div className="space-y-3">
+                      <div className="flex justify-between items-center mb-2">
+                        <Button
+                          onClick={addExperience}
+                          size="sm"
+                          variant="outline"
+                        >
+                          <Plus className="w-4 h-4 mr-1" /> Add
+                        </Button>
+                      </div>
+
+                      <div className="flex items-center justify-between mb-4 p-2 bg-muted/50 rounded gap-2">
+                        <span className="text-xs font-medium">
+                          Global Styles
+                        </span>
+                        <div className="flex gap-4">
+                          <div className="flex items-end gap-2">
+                            <div>
+                              <span className="text-xs text-muted-foreground block mb-1">
+                                Header
+                              </span>
+                              <StyleControlPopover
+                                style={resumeData.experienceHeaderStyle}
+                                onChange={(s) => updateExperienceHeaderStyle(s)}
+                              />
+                            </div>
+                            <Popover>
+                              <PopoverTrigger asChild>
+                                <div className="flex items-center justify-center gap-2 cursor-pointer text-xs text-muted-foreground hover:text-foreground transition-colors group">
+                                  <span>Edit Title</span>
+                                  <Settings className="w-3 h-3 opacity-60 group-hover:opacity-100" />
+                                </div>
+                              </PopoverTrigger>
+                              <PopoverContent className="w-80">
+                                <div className="space-y-4">
+                                  <h4 className="font-medium text-sm">
+                                    Experience Section Title
+                                  </h4>
+                                  <Input
+                                    placeholder="Enter section title"
+                                    value={resumeData.experienceTitle}
+                                    onChange={(e) =>
+                                      setResumeData({
+                                        ...resumeData,
+                                        experienceTitle: e.target.value,
+                                      })
+                                    }
+                                  />
+                                </div>
+                              </PopoverContent>
+                            </Popover>
+                          </div>
+                          <div>
+                            <span className="text-xs text-muted-foreground block mb-1">
+                              Title
+                            </span>
+                            <StyleControlPopover
+                              style={resumeData.experienceStyle.titleStyle}
+                              onChange={(s) =>
+                                updateExperienceStyle("titleStyle", s)
+                              }
+                            />
+                          </div>
+                          <div>
+                            <span className="text-xs text-muted-foreground block mb-1">
+                              Description
+                            </span>
+                            <StyleControlPopover
+                              style={resumeData.experienceStyle.descStyle}
+                              onChange={(s) =>
+                                updateExperienceStyle("descStyle", s)
+                              }
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      {resumeData.experience.map((exp) => (
+                        <div
+                          key={exp.id}
+                          className="p-3 border border-border rounded-lg space-y-3"
+                        >
+                          <div className="flex justify-between">
+                            <h4 className="font-medium">Experience Entry</h4>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => removeExperience(exp.id)}
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </div>
+
+                          <Input
+                            placeholder="Job Title"
+                            value={exp.jobTitle}
+                            onChange={(e) =>
+                              updateExperience(
+                                exp.id,
+                                "jobTitle",
+                                e.target.value
+                              )
+                            }
+                          />
+                          <Input
+                            placeholder="Company"
+                            value={exp.company}
+                            onChange={(e) =>
+                              updateExperience(
+                                exp.id,
+                                "company",
+                                e.target.value
+                              )
+                            }
+                          />
+
+                          <div className="grid grid-cols-2 gap-2">
+                            <Input
+                              placeholder="Start Date (e.g., Jan 2022)"
+                              value={exp.startDate}
+                              onChange={(e) =>
+                                updateExperience(
+                                  exp.id,
+                                  "startDate",
+                                  e.target.value
+                                )
+                              }
+                            />
+                            <Input
+                              placeholder="End Date (e.g., Present)"
+                              value={exp.endDate}
+                              onChange={(e) =>
+                                updateExperience(
+                                  exp.id,
+                                  "endDate",
+                                  e.target.value
+                                )
+                              }
+                              disabled={exp.currentlyWorking}
+                            />
+                          </div>
+
+                          <label className="flex items-center gap-2">
+                            <input
+                              type="checkbox"
+                              checked={exp.currentlyWorking}
+                              onChange={(e) =>
+                                updateExperience(
+                                  exp.id,
+                                  "currentlyWorking",
+                                  e.target.checked
+                                )
+                              }
+                            />
+                            <span className="text-sm">Currently Working</span>
+                          </label>
+
+                          <div>
+                            <label className="text-xs font-medium">
+                              Description
+                            </label>
+                            <TextEditor
+                              value={exp.description}
+                              onChange={(content) =>
+                                updateExperience(exp.id, "description", content)
+                              }
+                            />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
+
+                {/* Projects */}
+                <AccordionItem
+                  value="projects"
+                  className="border border-border rounded-lg bg-card"
+                >
+                  <AccordionTrigger className="px-4 py-3 hover:no-underline">
+                    <div className="flex items-center justify-between w-full pr-4">
+                      <div className="flex items-center gap-3">
+                        <h3 className="font-semibold text-lg">Projects</h3>
+                      </div>
+                      <PieChart percentage={calculateProjectsCompletion()} />
+                    </div>
+                  </AccordionTrigger>
+                  <AccordionContent className="px-4 pb-4">
+                    <div className="space-y-3">
+                      <div className="flex justify-between items-center mb-2">
+                        <Button
+                          onClick={addProject}
+                          size="sm"
+                          variant="outline"
+                        >
+                          <Plus className="w-4 h-4 mr-1" /> Add
+                        </Button>
+                      </div>
+
+                      <div className="flex items-center justify-between mb-4 p-2 bg-muted/50 rounded gap-2">
+                        <span className="text-xs font-medium">
+                          Global Styles
+                        </span>
+                        <div className="flex gap-4">
+                          <div className="flex items-end gap-2">
+                            <div>
+                              <span className="text-xs text-muted-foreground block mb-1">
+                                Header
+                              </span>
+                              <StyleControlPopover
+                                style={resumeData.projectsHeaderStyle}
+                                onChange={(s) => updateProjectsHeaderStyle(s)}
+                              />
+                            </div>
+                            <Popover>
+                              <PopoverTrigger asChild>
+                                <div className="flex items-center justify-center gap-2 cursor-pointer text-xs text-muted-foreground hover:text-foreground transition-colors group">
+                                  <span>Edit Title</span>
+                                  <Settings className="w-3 h-3 opacity-60 group-hover:opacity-100" />
+                                </div>
+                              </PopoverTrigger>
+                              <PopoverContent className="w-80">
+                                <div className="space-y-4">
+                                  <h4 className="font-medium text-sm">
+                                    Projects Section Title
+                                  </h4>
+                                  <Input
+                                    placeholder="Enter section title"
+                                    value={resumeData.projectsTitle}
+                                    onChange={(e) =>
+                                      updateProjectsTitle(e.target.value)
+                                    }
+                                  />
+                                </div>
+                              </PopoverContent>
+                            </Popover>
+                          </div>
+                          <div>
+                            <span className="text-xs text-muted-foreground block mb-1">
+                              Items
+                            </span>
+                            <StyleControlPopover
+                              style={resumeData.projectsStyle}
+                              onChange={(s) => updateProjectsStyle(s)}
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      {resumeData.projects.map((project) => (
+                        <div
+                          key={project.id}
+                          className="p-3 border border-border rounded-lg space-y-3"
+                        >
+                          <div className="flex justify-between">
+                            <h4 className="font-medium">Project Entry</h4>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => removeProject(project.id)}
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </div>
+
+                          <Input
+                            placeholder="Project Name"
+                            value={project.name}
+                            onChange={(e) =>
+                              updateProject(project.id, "name", e.target.value)
+                            }
+                          />
+
+                          <div>
+                            <label className="text-xs font-medium">
+                              Description
+                            </label>
+                            <TextEditor
+                              value={project.description}
+                              onChange={(content) =>
+                                updateProject(
+                                  project.id,
+                                  "description",
+                                  content
+                                )
+                              }
+                            />
+                          </div>
+
+                          <Input
+                            placeholder="Preview URL"
+                            type="url"
+                            value={project.previewUrl}
+                            onChange={(e) =>
+                              updateProject(
+                                project.id,
+                                "previewUrl",
+                                e.target.value
+                              )
+                            }
+                          />
+
+                          <Input
+                            placeholder="GitHub URL"
+                            type="url"
+                            value={project.githubUrl}
+                            onChange={(e) =>
+                              updateProject(
+                                project.id,
+                                "githubUrl",
+                                e.target.value
+                              )
+                            }
+                          />
+
+                          <Input
+                            placeholder="Other URL"
+                            type="url"
+                            value={project.otherUrl}
+                            onChange={(e) =>
+                              updateProject(
+                                project.id,
+                                "otherUrl",
+                                e.target.value
+                              )
+                            }
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
+              </Accordion>
+            </TabsContent>
+
+            {/* TAB 3: EDUCATION */}
+            <TabsContent value="education" className="space-y-6 mt-6">
+              <Accordion
+                type="multiple"
+                defaultValue={[]}
+                className="space-y-3"
+              >
+                {/* Education */}
+                <AccordionItem
+                  value="education"
+                  className="border border-border rounded-lg bg-card"
+                >
+                  <AccordionTrigger className="px-4 py-3 hover:no-underline">
+                    <div className="flex items-center justify-between w-full pr-4">
+                      <div className="flex items-center gap-3">
+                        <h3 className="font-semibold text-lg">Education</h3>
+                      </div>
+                      <PieChart percentage={calculateEducationCompletion()} />
+                    </div>
+                  </AccordionTrigger>
+                  <AccordionContent className="px-4 pb-4">
+                    <div className="space-y-3">
+                      <div className="flex justify-between items-center mb-2">
+                        <Button
+                          onClick={addEducation}
+                          size="sm"
+                          variant="outline"
+                        >
+                          <Plus className="w-4 h-4 mr-1" /> Add
+                        </Button>
+                      </div>
+
+                      <div className="flex items-center justify-between mb-4 p-2 bg-muted/50 rounded gap-2">
+                        <span className="text-xs font-medium">
+                          Global Styles
+                        </span>
+                        <div className="flex gap-4">
+                          <div className="flex items-end gap-2">
+                            <div>
+                              <span className="text-xs text-muted-foreground block mb-1">
+                                Header
+                              </span>
+                              <StyleControlPopover
+                                style={resumeData.educationHeaderStyle}
+                                onChange={(s) => updateEducationHeaderStyle(s)}
+                              />
+                            </div>
+                            <Popover>
+                              <PopoverTrigger asChild>
+                                <div className="flex items-center justify-center gap-2 cursor-pointer text-xs text-muted-foreground hover:text-foreground transition-colors group">
+                                  <span>Edit Title</span>
+                                  <Settings className="w-3 h-3 opacity-60 group-hover:opacity-100" />
+                                </div>
+                              </PopoverTrigger>
+                              <PopoverContent className="w-80">
+                                <div className="space-y-4">
+                                  <h4 className="font-medium text-sm">
+                                    Education Section Title
+                                  </h4>
+                                  <Input
+                                    placeholder="Enter section title"
+                                    value={resumeData.educationTitle}
+                                    onChange={(e) =>
+                                      setResumeData({
+                                        ...resumeData,
+                                        educationTitle: e.target.value,
+                                      })
+                                    }
+                                  />
+                                </div>
+                              </PopoverContent>
+                            </Popover>
+                          </div>
+                          <div>
+                            <span className="text-xs text-muted-foreground block mb-1">
+                              Title
+                            </span>
+                            <StyleControlPopover
+                              style={resumeData.educationStyle.titleStyle}
+                              onChange={(s) =>
+                                updateEducationStyle("titleStyle", s)
+                              }
+                            />
+                          </div>
+                          <div>
+                            <span className="text-xs text-muted-foreground block mb-1">
+                              Description
+                            </span>
+                            <StyleControlPopover
+                              style={resumeData.educationStyle.descStyle}
+                              onChange={(s) =>
+                                updateEducationStyle("descStyle", s)
+                              }
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      {resumeData.education.map((edu) => (
+                        <div
+                          key={edu.id}
+                          className="p-3 border border-border rounded-lg space-y-3"
+                        >
+                          <div className="flex justify-between">
+                            <h4 className="font-medium">Education Entry</h4>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => removeEducation(edu.id)}
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </div>
+
+                          <Input
+                            placeholder="Degree"
+                            value={edu.degree}
+                            onChange={(e) =>
+                              updateEducation(edu.id, "degree", e.target.value)
+                            }
+                          />
+                          <Input
+                            placeholder="School/University"
+                            value={edu.school}
+                            onChange={(e) =>
+                              updateEducation(edu.id, "school", e.target.value)
+                            }
+                          />
+
+                          <Input
+                            placeholder="Field of Study"
+                            value={edu.field}
+                            onChange={(e) =>
+                              updateEducation(edu.id, "field", e.target.value)
+                            }
+                          />
+
+                          <div className="grid grid-cols-2 gap-2">
+                            <Input
+                              placeholder="Start Date (e.g., Sep 2018)"
+                              value={edu.startDate}
+                              onChange={(e) =>
+                                updateEducation(
+                                  edu.id,
+                                  "startDate",
+                                  e.target.value
+                                )
+                              }
+                            />
+                            <Input
+                              placeholder="End Date (e.g., May 2022)"
+                              value={edu.endDate}
+                              onChange={(e) =>
+                                updateEducation(
+                                  edu.id,
+                                  "endDate",
+                                  e.target.value
+                                )
+                              }
+                              disabled={edu.currentlyStudying}
+                            />
+                          </div>
+
+                          <label className="flex items-center gap-2">
+                            <input
+                              type="checkbox"
+                              checked={edu.currentlyStudying}
+                              onChange={(e) =>
+                                updateEducation(
+                                  edu.id,
+                                  "currentlyStudying",
+                                  e.target.checked
+                                )
+                              }
+                            />
+                            <span className="text-sm">Currently Studying</span>
+                          </label>
+
+                          <div>
+                            <label className="text-xs font-medium">
+                              Description
+                            </label>
+                            <TextEditor
+                              value={edu.description}
+                              onChange={(content) =>
+                                updateEducation(edu.id, "description", content)
+                              }
+                            />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
+
+                {/* Languages */}
+                <AccordionItem
+                  value="languages"
+                  className="border border-border rounded-lg bg-card"
+                >
+                  <AccordionTrigger className="px-4 py-3 hover:no-underline">
+                    <div className="flex items-center justify-between w-full pr-4">
+                      <div className="flex items-center gap-3">
+                        <h3 className="font-semibold text-lg">Languages</h3>
+                      </div>
+                      <PieChart percentage={calculateLanguagesCompletion()} />
+                    </div>
+                  </AccordionTrigger>
+                  <AccordionContent className="px-4 pb-4">
+                    <div className="space-y-3">
+                      <div className="flex justify-between items-center">
+                        <Button
+                          onClick={addLanguage}
+                          size="sm"
+                          variant="outline"
+                        >
+                          <Plus className="w-4 h-4 mr-1" /> Add
+                        </Button>
+                      </div>
+
+                      <div className="flex items-center justify-between mb-3 p-2 bg-muted/50 rounded gap-2">
+                        <span className="text-xs font-medium">
+                          Global Styles
+                        </span>
+                        <div className="flex gap-4">
+                          <div className="flex items-end gap-2">
+                            <div>
+                              <span className="text-xs text-muted-foreground block mb-1">
+                                Header
+                              </span>
+                              <StyleControlPopover
+                                label="Style"
+                                style={resumeData.languagesHeaderStyle}
+                                onChange={(s) =>
+                                  setResumeData({
+                                    ...resumeData,
+                                    languagesHeaderStyle: s,
+                                  })
+                                }
+                              />
+                            </div>
+                            <Popover>
+                              <PopoverTrigger asChild>
+                                <div className="flex items-center justify-center gap-2 cursor-pointer text-xs text-muted-foreground hover:text-foreground transition-colors group">
+                                  <span>Edit Title</span>
+                                  <Settings className="w-3 h-3 opacity-60 group-hover:opacity-100" />
+                                </div>
+                              </PopoverTrigger>
+                              <PopoverContent className="w-80">
+                                <div className="space-y-4">
+                                  <h4 className="font-medium text-sm">
+                                    Languages Section Title
+                                  </h4>
+                                  <Input
+                                    placeholder="Enter section title"
+                                    value={resumeData.languagesTitle}
+                                    onChange={(e) =>
+                                      setResumeData({
+                                        ...resumeData,
+                                        languagesTitle: e.target.value,
+                                      })
+                                    }
+                                  />
+                                </div>
+                              </PopoverContent>
+                            </Popover>
+                          </div>
+                          <div>
+                            <span className="text-xs text-muted-foreground block mb-1">
+                              Items
+                            </span>
+                            <StyleControlPopover
+                              label="Style"
+                              style={resumeData.languagesStyle}
+                              onChange={(s) =>
                                 setResumeData({
                                   ...resumeData,
-                                  languagesTitle: e.target.value,
+                                  languagesStyle: s,
                                 })
                               }
                             />
                           </div>
-                        </PopoverContent>
-                      </Popover>
-                    </div>
-                    <div>
-                      <span className="text-xs text-muted-foreground block mb-1">
-                        Items
-                      </span>
-                      <StyleControlPopover
-                        label="Style"
-                        style={resumeData.languagesStyle}
-                        onChange={(s) =>
-                          setResumeData({ ...resumeData, languagesStyle: s })
-                        }
-                      />
-                    </div>
-                  </div>
-                </div>
+                        </div>
+                      </div>
 
-                {resumeData.languages.map((lang) => (
-                  <div
-                    key={lang.id}
-                    className="p-3 border border-border rounded-lg space-y-2"
-                  >
-                    <div className="flex gap-2">
-                      <Input
-                        placeholder="Language"
-                        value={lang.name}
-                        onChange={(e) =>
-                          updateLanguage(lang.id, "name", e.target.value)
-                        }
-                        className="flex-1"
-                      />
-                      <select
-                        value={lang.proficiency}
-                        onChange={(e) =>
-                          updateLanguage(lang.id, "proficiency", e.target.value)
-                        }
-                        className="p-2 text-sm border rounded bg-background"
-                      >
-                        {proficiencyLevels.map((level) => (
-                          <option key={level} value={level}>
-                            {level.charAt(0).toUpperCase() + level.slice(1)}
-                          </option>
-                        ))}
-                      </select>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => removeLanguage(lang.id)}
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
+                      {resumeData.languages.map((lang) => (
+                        <div
+                          key={lang.id}
+                          className="p-3 border border-border rounded-lg space-y-2"
+                        >
+                          <div className="flex gap-2">
+                            <Input
+                              placeholder="Language"
+                              value={lang.name}
+                              onChange={(e) =>
+                                updateLanguage(lang.id, "name", e.target.value)
+                              }
+                              className="flex-1"
+                            />
+                            <select
+                              value={lang.proficiency}
+                              onChange={(e) =>
+                                updateLanguage(
+                                  lang.id,
+                                  "proficiency",
+                                  e.target.value
+                                )
+                              }
+                              className="p-2 text-sm border rounded bg-background"
+                            >
+                              {proficiencyLevels.map((level) => (
+                                <option key={level} value={level}>
+                                  {level.charAt(0).toUpperCase() +
+                                    level.slice(1)}
+                                </option>
+                              ))}
+                            </select>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => removeLanguage(lang.id)}
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        </div>
+                      ))}
                     </div>
-                  </div>
-                ))}
-              </div>
+                  </AccordionContent>
+                </AccordionItem>
+
+                {/* Certificates & Achievements */}
+                <AccordionItem
+                  value="certificates"
+                  className="border border-border rounded-lg bg-card"
+                >
+                  <AccordionTrigger className="px-4 py-3 hover:no-underline">
+                    <div className="flex items-center justify-between w-full pr-4">
+                      <div className="flex items-center gap-3">
+                        <h3 className="font-semibold text-lg">
+                          Certificates & Achievements
+                        </h3>
+                      </div>
+                      <PieChart
+                        percentage={calculateCertificatesCompletion()}
+                      />
+                    </div>
+                  </AccordionTrigger>
+                  <AccordionContent className="px-4 pb-4">
+                    <div className="space-y-3">
+                      <div className="flex justify-between items-center">
+                        <Button
+                          onClick={addCertificate}
+                          size="sm"
+                          variant="outline"
+                        >
+                          <Plus className="w-4 h-4 mr-1" /> Add
+                        </Button>
+                      </div>
+
+                      <div className="flex items-center justify-between mb-3 p-2 bg-muted/50 rounded gap-2">
+                        <span className="text-xs font-medium">
+                          Global Styles
+                        </span>
+                        <div className="flex gap-4">
+                          <div className="flex items-end gap-2">
+                            <div>
+                              <span className="text-xs text-muted-foreground block mb-1">
+                                Header
+                              </span>
+                              <StyleControlPopover
+                                label="Style"
+                                style={resumeData.certificatesHeaderStyle}
+                                onChange={(s) =>
+                                  setResumeData({
+                                    ...resumeData,
+                                    certificatesHeaderStyle: s,
+                                  })
+                                }
+                              />
+                            </div>
+                            <Popover>
+                              <PopoverTrigger asChild>
+                                <div className="flex items-center justify-center gap-2 cursor-pointer text-xs text-muted-foreground hover:text-foreground transition-colors group">
+                                  <span>Edit Title</span>
+                                  <Settings className="w-3 h-3 opacity-60 group-hover:opacity-100" />
+                                </div>
+                              </PopoverTrigger>
+                              <PopoverContent className="w-80">
+                                <div className="space-y-4">
+                                  <h4 className="font-medium text-sm">
+                                    Certificates Section Title
+                                  </h4>
+                                  <Input
+                                    placeholder="Enter section title"
+                                    value={resumeData.certificatesTitle}
+                                    onChange={(e) =>
+                                      setResumeData({
+                                        ...resumeData,
+                                        certificatesTitle: e.target.value,
+                                      })
+                                    }
+                                  />
+                                </div>
+                              </PopoverContent>
+                            </Popover>
+                          </div>
+                          <div>
+                            <span className="text-xs text-muted-foreground block mb-1">
+                              Items
+                            </span>
+                            <StyleControlPopover
+                              label="Style"
+                              style={resumeData.certificatesStyle}
+                              onChange={(s) =>
+                                setResumeData({
+                                  ...resumeData,
+                                  certificatesStyle: s,
+                                })
+                              }
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      {resumeData.certificates.map((cert) => (
+                        <div
+                          key={cert.id}
+                          className="p-3 border border-border rounded-lg space-y-3"
+                        >
+                          <div className="flex justify-between">
+                            <h4 className="font-medium">Certificate Entry</h4>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => removeCertificate(cert.id)}
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </div>
+
+                          <Input
+                            placeholder="Certificate/Achievement Name"
+                            value={cert.name}
+                            onChange={(e) =>
+                              updateCertificate(cert.id, "name", e.target.value)
+                            }
+                          />
+
+                          <div className="grid grid-cols-2 gap-2">
+                            <Input
+                              placeholder="Issuing Organization"
+                              value={cert.issuer}
+                              onChange={(e) =>
+                                updateCertificate(
+                                  cert.id,
+                                  "issuer",
+                                  e.target.value
+                                )
+                              }
+                            />
+                            <Input
+                              placeholder="Date (e.g., Jan 2023)"
+                              value={cert.date}
+                              onChange={(e) =>
+                                updateCertificate(
+                                  cert.id,
+                                  "date",
+                                  e.target.value
+                                )
+                              }
+                            />
+                          </div>
+
+                          <div>
+                            <label className="text-xs font-medium">
+                              Description
+                            </label>
+                            <TextEditor
+                              value={cert.description}
+                              onChange={(content) =>
+                                updateCertificate(
+                                  cert.id,
+                                  "description",
+                                  content
+                                )
+                              }
+                            />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
+              </Accordion>
+            </TabsContent>
+
+            {/* TAB 4: STYLING */}
+            <TabsContent value="styling" className="space-y-6 mt-6">
+              <Accordion
+                type="multiple"
+                defaultValue={[]}
+                className="space-y-3"
+              >
+                {/* Colors Section */}
+                <AccordionItem
+                  value="colors"
+                  className="border border-border rounded-lg bg-card"
+                >
+                  <AccordionTrigger className="px-4 py-3 hover:no-underline">
+                    <div className="flex items-center justify-between w-full pr-4">
+                      <div className="flex items-center gap-3">
+                        <h3 className="font-semibold text-lg">Theme Colors</h3>
+                      </div>
+                    </div>
+                  </AccordionTrigger>
+                  <AccordionContent className="px-4 pb-4">
+                    <div className="space-y-4">
+                      <p className="text-sm text-muted-foreground mb-4">
+                        Customize the color scheme for your resume template
+                      </p>
+
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <label className="text-sm font-medium mb-2 block">
+                            Primary Color
+                          </label>
+                          <div className="flex items-center gap-2">
+                            <input
+                              type="color"
+                              value={resumeData.theme.colors.primary}
+                              onChange={(e) =>
+                                setResumeData({
+                                  ...resumeData,
+                                  theme: {
+                                    ...resumeData.theme,
+                                    colors: {
+                                      ...resumeData.theme.colors,
+                                      primary: e.target.value,
+                                    },
+                                  },
+                                })
+                              }
+                              className="w-12 h-10 rounded cursor-pointer border"
+                            />
+                            <Input
+                              value={resumeData.theme.colors.primary}
+                              onChange={(e) =>
+                                setResumeData({
+                                  ...resumeData,
+                                  theme: {
+                                    ...resumeData.theme,
+                                    colors: {
+                                      ...resumeData.theme.colors,
+                                      primary: e.target.value,
+                                    },
+                                  },
+                                })
+                              }
+                              className="flex-1"
+                            />
+                          </div>
+                        </div>
+
+                        <div>
+                          <label className="text-sm font-medium mb-2 block">
+                            Secondary Color
+                          </label>
+                          <div className="flex items-center gap-2">
+                            <input
+                              type="color"
+                              value={resumeData.theme.colors.secondary}
+                              onChange={(e) =>
+                                setResumeData({
+                                  ...resumeData,
+                                  theme: {
+                                    ...resumeData.theme,
+                                    colors: {
+                                      ...resumeData.theme.colors,
+                                      secondary: e.target.value,
+                                    },
+                                  },
+                                })
+                              }
+                              className="w-12 h-10 rounded cursor-pointer border"
+                            />
+                            <Input
+                              value={resumeData.theme.colors.secondary}
+                              onChange={(e) =>
+                                setResumeData({
+                                  ...resumeData,
+                                  theme: {
+                                    ...resumeData.theme,
+                                    colors: {
+                                      ...resumeData.theme.colors,
+                                      secondary: e.target.value,
+                                    },
+                                  },
+                                })
+                              }
+                              className="flex-1"
+                            />
+                          </div>
+                        </div>
+
+                        <div>
+                          <label className="text-sm font-medium mb-2 block">
+                            Accent Color
+                          </label>
+                          <div className="flex items-center gap-2">
+                            <input
+                              type="color"
+                              value={resumeData.theme.colors.accent}
+                              onChange={(e) =>
+                                setResumeData({
+                                  ...resumeData,
+                                  theme: {
+                                    ...resumeData.theme,
+                                    colors: {
+                                      ...resumeData.theme.colors,
+                                      accent: e.target.value,
+                                    },
+                                  },
+                                })
+                              }
+                              className="w-12 h-10 rounded cursor-pointer border"
+                            />
+                            <Input
+                              value={resumeData.theme.colors.accent}
+                              onChange={(e) =>
+                                setResumeData({
+                                  ...resumeData,
+                                  theme: {
+                                    ...resumeData.theme,
+                                    colors: {
+                                      ...resumeData.theme.colors,
+                                      accent: e.target.value,
+                                    },
+                                  },
+                                })
+                              }
+                              className="flex-1"
+                            />
+                          </div>
+                        </div>
+
+                        <div>
+                          <label className="text-sm font-medium mb-2 block">
+                            Text Color
+                          </label>
+                          <div className="flex items-center gap-2">
+                            <input
+                              type="color"
+                              value={resumeData.theme.colors.text}
+                              onChange={(e) =>
+                                setResumeData({
+                                  ...resumeData,
+                                  theme: {
+                                    ...resumeData.theme,
+                                    colors: {
+                                      ...resumeData.theme.colors,
+                                      text: e.target.value,
+                                    },
+                                  },
+                                })
+                              }
+                              className="w-12 h-10 rounded cursor-pointer border"
+                            />
+                            <Input
+                              value={resumeData.theme.colors.text}
+                              onChange={(e) =>
+                                setResumeData({
+                                  ...resumeData,
+                                  theme: {
+                                    ...resumeData.theme,
+                                    colors: {
+                                      ...resumeData.theme.colors,
+                                      text: e.target.value,
+                                    },
+                                  },
+                                })
+                              }
+                              className="flex-1"
+                            />
+                          </div>
+                        </div>
+
+                        <div>
+                          <label className="text-sm font-medium mb-2 block">
+                            Text Light Color
+                          </label>
+                          <div className="flex items-center gap-2">
+                            <input
+                              type="color"
+                              value={resumeData.theme.colors.textLight}
+                              onChange={(e) =>
+                                setResumeData({
+                                  ...resumeData,
+                                  theme: {
+                                    ...resumeData.theme,
+                                    colors: {
+                                      ...resumeData.theme.colors,
+                                      textLight: e.target.value,
+                                    },
+                                  },
+                                })
+                              }
+                              className="w-12 h-10 rounded cursor-pointer border"
+                            />
+                            <Input
+                              value={resumeData.theme.colors.textLight}
+                              onChange={(e) =>
+                                setResumeData({
+                                  ...resumeData,
+                                  theme: {
+                                    ...resumeData.theme,
+                                    colors: {
+                                      ...resumeData.theme.colors,
+                                      textLight: e.target.value,
+                                    },
+                                  },
+                                })
+                              }
+                              className="flex-1"
+                            />
+                          </div>
+                        </div>
+
+                        <div>
+                          <label className="text-sm font-medium mb-2 block">
+                            Border Color
+                          </label>
+                          <div className="flex items-center gap-2">
+                            <input
+                              type="color"
+                              value={resumeData.theme.colors.border}
+                              onChange={(e) =>
+                                setResumeData({
+                                  ...resumeData,
+                                  theme: {
+                                    ...resumeData.theme,
+                                    colors: {
+                                      ...resumeData.theme.colors,
+                                      border: e.target.value,
+                                    },
+                                  },
+                                })
+                              }
+                              className="w-12 h-10 rounded cursor-pointer border"
+                            />
+                            <Input
+                              value={resumeData.theme.colors.border}
+                              onChange={(e) =>
+                                setResumeData({
+                                  ...resumeData,
+                                  theme: {
+                                    ...resumeData.theme,
+                                    colors: {
+                                      ...resumeData.theme.colors,
+                                      border: e.target.value,
+                                    },
+                                  },
+                                })
+                              }
+                              className="flex-1"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
+
+                {/* Spacing Section */}
+                <AccordionItem
+                  value="spacing"
+                  className="border border-border rounded-lg bg-card"
+                >
+                  <AccordionTrigger className="px-4 py-3 hover:no-underline">
+                    <div className="flex items-center justify-between w-full pr-4">
+                      <div className="flex items-center gap-3">
+                        <h3 className="font-semibold text-lg">
+                          Spacing & Layout
+                        </h3>
+                      </div>
+                    </div>
+                  </AccordionTrigger>
+                  <AccordionContent className="px-4 pb-4">
+                    <div className="space-y-4">
+                      <p className="text-sm text-muted-foreground mb-4">
+                        Control margins, gaps, and line heights for your resume
+                      </p>
+
+                      <div className="space-y-4">
+                        <div>
+                          <label className="text-sm font-medium mb-2 block">
+                            Page Margin: {resumeData.theme.spacing.pageMargin}mm
+                          </label>
+                          <input
+                            type="range"
+                            min="10"
+                            max="30"
+                            step="1"
+                            value={resumeData.theme.spacing.pageMargin}
+                            onChange={(e) =>
+                              setResumeData({
+                                ...resumeData,
+                                theme: {
+                                  ...resumeData.theme,
+                                  spacing: {
+                                    ...resumeData.theme.spacing,
+                                    pageMargin: Number(e.target.value),
+                                  },
+                                },
+                              })
+                            }
+                            className="w-full"
+                          />
+                          <div className="flex justify-between text-xs text-muted-foreground mt-1">
+                            <span>10mm</span>
+                            <span>30mm</span>
+                          </div>
+                        </div>
+
+                        <div>
+                          <label className="text-sm font-medium mb-2 block">
+                            Section Gap: {resumeData.theme.spacing.sectionGap}px
+                          </label>
+                          <input
+                            type="range"
+                            min="12"
+                            max="48"
+                            step="4"
+                            value={resumeData.theme.spacing.sectionGap}
+                            onChange={(e) =>
+                              setResumeData({
+                                ...resumeData,
+                                theme: {
+                                  ...resumeData.theme,
+                                  spacing: {
+                                    ...resumeData.theme.spacing,
+                                    sectionGap: Number(e.target.value),
+                                  },
+                                },
+                              })
+                            }
+                            className="w-full"
+                          />
+                          <div className="flex justify-between text-xs text-muted-foreground mt-1">
+                            <span>12px</span>
+                            <span>48px</span>
+                          </div>
+                        </div>
+
+                        <div>
+                          <label className="text-sm font-medium mb-2 block">
+                            Line Height: {resumeData.theme.spacing.lineHeight}
+                          </label>
+                          <input
+                            type="range"
+                            min="1.2"
+                            max="2.0"
+                            step="0.1"
+                            value={resumeData.theme.spacing.lineHeight}
+                            onChange={(e) =>
+                              setResumeData({
+                                ...resumeData,
+                                theme: {
+                                  ...resumeData.theme,
+                                  spacing: {
+                                    ...resumeData.theme.spacing,
+                                    lineHeight: Number(e.target.value),
+                                  },
+                                },
+                              })
+                            }
+                            className="w-full"
+                          />
+                          <div className="flex justify-between text-xs text-muted-foreground mt-1">
+                            <span>1.2</span>
+                            <span>2.0</span>
+                          </div>
+                        </div>
+
+                        <div>
+                          <label className="text-sm font-medium mb-2 block">
+                            Paragraph Gap:{" "}
+                            {resumeData.theme.spacing.paragraphGap}px
+                          </label>
+                          <input
+                            type="range"
+                            min="4"
+                            max="20"
+                            step="2"
+                            value={resumeData.theme.spacing.paragraphGap}
+                            onChange={(e) =>
+                              setResumeData({
+                                ...resumeData,
+                                theme: {
+                                  ...resumeData.theme,
+                                  spacing: {
+                                    ...resumeData.theme.spacing,
+                                    paragraphGap: Number(e.target.value),
+                                  },
+                                },
+                              })
+                            }
+                            className="w-full"
+                          />
+                          <div className="flex justify-between text-xs text-muted-foreground mt-1">
+                            <span>4px</span>
+                            <span>20px</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
+
+                {/* Font Family Section */}
+                <AccordionItem
+                  value="fonts"
+                  className="border border-border rounded-lg bg-card"
+                >
+                  <AccordionTrigger className="px-4 py-3 hover:no-underline">
+                    <div className="flex items-center justify-between w-full pr-4">
+                      <div className="flex items-center gap-3">
+                        <h3 className="font-semibold text-lg">Font Family</h3>
+                      </div>
+                    </div>
+                  </AccordionTrigger>
+                  <AccordionContent className="px-4 pb-4">
+                    <div className="space-y-4">
+                      <p className="text-sm text-muted-foreground mb-4">
+                        Choose a professional font for your entire resume
+                      </p>
+
+                      <div>
+                        <label className="text-sm font-medium mb-2 block">
+                          Resume Font
+                        </label>
+                        <select
+                          value={resumeData.theme.fontFamily}
+                          onChange={(e) =>
+                            setResumeData({
+                              ...resumeData,
+                              theme: {
+                                ...resumeData.theme,
+                                fontFamily: e.target.value,
+                              },
+                            })
+                          }
+                          className="w-full px-3 py-2 border border-border rounded-md bg-background text-sm"
+                        >
+                          <option value="Inter, system-ui, -apple-system, sans-serif">
+                            Inter (Modern)
+                          </option>
+                          <option value="Arial, sans-serif">
+                            Arial (Classic)
+                          </option>
+                          <option value="Helvetica, sans-serif">
+                            Helvetica (Professional)
+                          </option>
+                          <option value="Georgia, serif">
+                            Georgia (Elegant)
+                          </option>
+                          <option value="'Times New Roman', serif">
+                            Times New Roman (Traditional)
+                          </option>
+                          <option value="Roboto, sans-serif">
+                            Roboto (Clean)
+                          </option>
+                          <option value="'Open Sans', sans-serif">
+                            Open Sans (Friendly)
+                          </option>
+                          <option value="Lato, sans-serif">
+                            Lato (Contemporary)
+                          </option>
+                          <option value="Merriweather, serif">
+                            Merriweather (Sophisticated)
+                          </option>
+                          <option value="Calibri, sans-serif">
+                            Calibri (Modern)
+                          </option>
+                          <option value="Verdana, sans-serif">
+                            Verdana (Clear)
+                          </option>
+                          <option value="Garamond, serif">
+                            Garamond (Classic Serif)
+                          </option>
+                        </select>
+                        <p className="text-xs text-muted-foreground mt-2">
+                          Selected font will apply to all text in your resume
+                        </p>
+                      </div>
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
+              </Accordion>
             </TabsContent>
           </Tabs>
 
@@ -2121,378 +3178,181 @@ export default function ResumeFromScratchPage() {
           </div> */}
         </div>
 
-        {/* Live Preview */}
-        <div className="sticky top-4">
-          <LivePreview data={resumeData} />
+        {/* Live Preview - 2/3 */}
+        <div className="lg:col-span-2 sticky top-4">
+          <TemplateSelector
+            selectedTemplate={selectedTemplate}
+            onTemplateChange={setSelectedTemplate}
+          />
+          <TemplatePreview
+            templateId={selectedTemplate}
+            data={resumeData}
+            previewRef={previewRef}
+          />
         </div>
       </div>
     </div>
   );
 }
 
-function LivePreview({ data }: { data: ResumeData }) {
+function TemplatePreview({
+  templateId,
+  data,
+  previewRef,
+}: {
+  templateId: string;
+  data: ResumeData;
+  previewRef: React.RefObject<HTMLDivElement | null>;
+}) {
+  // Convert template data to the format expected by templates
+  const templateData = {
+    theme: data.theme,
+    personalInfo: {
+      fullName: data.personalInfo.fullName,
+      jobTitle: data.personalInfo.jobTitle,
+      email: data.personalInfo.email,
+      phone: data.personalInfo.phone,
+      location: data.personalInfo.location,
+      profileImage: data.personalInfo.profileImage,
+      summary: data.about.content,
+      socialLinks: data.socialLinks.map((link) => ({
+        platform: link.platform,
+        url: link.url,
+      })),
+    },
+    experience: data.experience.map((exp) => ({
+      id: exp.id,
+      company: exp.company,
+      position: exp.jobTitle,
+      startDate: exp.startDate,
+      endDate: exp.endDate,
+      description: exp.description,
+    })),
+    education: data.education.map((edu) => ({
+      id: edu.id,
+      school: edu.school,
+      degree: edu.degree,
+      field: edu.field,
+      startDate: edu.startDate,
+      graduationYear: edu.currentlyStudying ? "Present" : edu.endDate,
+      currentlyStudying: edu.currentlyStudying,
+    })),
+    skills: data.skills.map((skill) => ({
+      id: skill.id,
+      name: skill.name,
+    })),
+    projects: data.projects.map((project) => ({
+      id: project.id,
+      name: project.name,
+      description: project.description,
+      previewUrl: project.previewUrl,
+      githubUrl: project.githubUrl,
+      otherUrl: project.otherUrl,
+    })),
+    languages: data.languages.map((lang) => ({
+      id: lang.id,
+      name: lang.name,
+      proficiency: lang.proficiency,
+    })),
+    certificates: data.certificates.map((cert) => ({
+      id: cert.id,
+      name: cert.name,
+      issuer: cert.issuer,
+      date: cert.date,
+      description: cert.description,
+    })),
+  };
+
+  // Render the selected template
+  const renderTemplate = () => {
+    switch (templateId) {
+      case "minimal":
+        return <Template3Minimal data={templateData} />;
+      case "creative":
+        return <Template4Creative data={templateData} />;
+      case "contemporary":
+        return <Template6Contemporary data={templateData} />;
+      case "ivyleague":
+        return <Template8IvyLeague data={templateData} />;
+      case "single":
+        return <Template9Single data={templateData} />;
+      case "condensed":
+        return <Template10Condensed data={templateData} />;
+      case "jordansmith":
+        return <Template11JordanSmith data={templateData} />;
+      case "classic":
+      default:
+        return <Template1Classic data={templateData} />;
+    }
+  };
+
   return (
-    <div
-      id="resume-preview"
-      className="p-8 bg-white dark:bg-slate-950 border border-border rounded-lg shadow-lg space-y-4 max-h-screen overflow-auto text-sm"
-    >
-      {/* Header */}
-      <div className="text-center border-b pb-4">
-        {data.personalInfo.profileImage && (
-          <div className="relative w-16 h-16 mx-auto mb-2">
-            <Image
-              src={data.personalInfo.profileImage}
-              alt="Profile"
-              fill
-              className="rounded-full object-cover"
-            />
-          </div>
-        )}
-        <h1
-          style={{
-            fontFamily: data.personalInfo.nameStyle.fontFamily,
-            fontSize: `${data.personalInfo.nameStyle.fontSize}px`,
-            color: data.personalInfo.nameStyle.color,
-          }}
-          className="font-bold"
-        >
-          {data.personalInfo.fullName || "Your Name"}
-        </h1>
-        {data.personalInfo.jobTitle && (
-          <p
-            style={{
-              fontFamily: data.personalInfo.titleStyle.fontFamily,
-              fontSize: `${data.personalInfo.titleStyle.fontSize}px`,
-              color: data.personalInfo.titleStyle.color,
-            }}
-          >
-            {data.personalInfo.jobTitle}
-          </p>
-        )}
-        <div
-          style={{
-            fontFamily: data.personalInfo.contactStyle.fontFamily,
-            fontSize: `${data.personalInfo.contactStyle.fontSize}px`,
-            color: data.personalInfo.contactStyle.color,
-          }}
-          className="flex justify-center gap-3 flex-wrap mt-2"
-        >
-          {data.personalInfo.email && <span>{data.personalInfo.email}</span>}
-          {data.personalInfo.phone && <span>•</span>}
-          {data.personalInfo.phone && <span>{data.personalInfo.phone}</span>}
-          {data.personalInfo.location && <span>•</span>}
-          {data.personalInfo.location && (
-            <span>{data.personalInfo.location}</span>
-          )}
-        </div>
-      </div>
+    <div className="flex justify-center" id="resume-preview" ref={previewRef}>
+      <style jsx global>{`
+        @media screen {
+          .resume-page-container {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+            background: #f4f7fdff;
 
-      {/* Social Links */}
-      {data.socialLinks.length > 0 && (
-        <div className="flex justify-center gap-4 flex-wrap">
-          {data.socialLinks.map((link) => {
-            const platformName = link.platform.toLowerCase();
-            const Icon = getPlatformIcon(platformName);
+            border-radius: 8px;
+          }
 
-            return (
-              <a
-                key={link.id}
-                href={link.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{
-                  fontFamily: data.socialLinksStyle.fontFamily,
-                  fontSize: `${data.socialLinksStyle.fontSize}px`,
-                  color: data.socialLinksStyle.color,
-                  textAlign: data.socialLinksStyle.align,
-                }}
-                className="hover:underline flex items-center gap-2"
-              >
-                {link.showIcon && Icon && Icon()}
-                {link.showLabel && link.platform}
-              </a>
-            );
-          })}
-        </div>
-      )}
+          .a4-page {
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1),
+              0 4px 8px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(0, 0, 0, 0.05);
+            position: relative;
+            margin-bottom: 20px !important;
+            margin-top: 0 !important;
+            page-break-after: always;
+            width: 210mm;
+            height: 297mm;
+            overflow: hidden;
+          }
 
-      {/* About */}
-      {data.about.content && (
-        <div>
-          <h2
-            style={{
-              fontFamily: data.about.headerStyle.fontFamily,
-              fontSize: `${data.about.headerStyle.fontSize}px`,
-              color: data.about.headerStyle.color,
-            }}
-            className="font-bold uppercase text-xs tracking-wide mb-2"
-          >
-            {data.about.title}
-          </h2>
-          <div
-            style={{
-              fontFamily: data.about.contentStyle.fontFamily,
-              fontSize: `${data.about.contentStyle.fontSize}px`,
-              color: data.about.contentStyle.color,
-            }}
-            className="prose-preview"
-            dangerouslySetInnerHTML={{ __html: data.about.content }}
-          />
-        </div>
-      )}
+          /* Create Word-like page breaks every 297mm with visible gap */
+          .a4-page > div {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            overflow: visible;
+          }
+        }
 
-      {/* Skills */}
-      {data.skills.length > 0 && (
-        <div>
-          <h2
-            style={{
-              fontFamily: data.skillsHeaderStyle.fontFamily,
-              fontSize: `${data.skillsHeaderStyle.fontSize}px`,
-              color: data.skillsHeaderStyle.color,
-            }}
-            className="font-bold uppercase text-xs tracking-wide mb-2"
-          >
-            {data.skillsTitle}
-          </h2>
-          <div className="space-y-1">
-            {data.skills.map((skill) => (
-              <div key={skill.id}>
-                <div
-                  style={{
-                    fontFamily: data.skillsStyle.fontFamily,
-                    fontSize: `${data.skillsStyle.fontSize}px`,
-                    color: data.skillsStyle.color,
-                  }}
-                  className="font-medium"
-                >
-                  {skill.name}
-                </div>
-                <div className="h-1.5 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden mt-1">
-                  <div
-                    className="h-full rounded-full"
-                    style={{
-                      width: `${(skill.level / 5) * 100}%`,
-                      backgroundColor: skill.color,
-                    }}
-                  />
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
+        @media print {
+          .resume-page-container {
+            gap: 0;
+            background: transparent !important;
+            padding: 0 !important;
+          }
 
-      {/* Experience */}
-      {data.experience.length > 0 && (
-        <div>
-          <h2
-            style={{
-              fontFamily: data.experienceHeaderStyle.fontFamily,
-              fontSize: `${data.experienceHeaderStyle.fontSize}px`,
-              color: data.experienceHeaderStyle.color,
-            }}
-            className="font-bold uppercase text-xs tracking-wide mb-2"
-          >
-            {data.experienceTitle}
-          </h2>
-          <div className="space-y-2">
-            {data.experience.map((exp) => (
-              <div key={exp.id}>
-                <div
-                  style={{
-                    fontFamily: data.experienceStyle.titleStyle.fontFamily,
-                    fontSize: `${data.experienceStyle.titleStyle.fontSize}px`,
-                    color: data.experienceStyle.titleStyle.color,
-                  }}
-                  className="font-semibold"
-                >
-                  {exp.jobTitle}
-                </div>
-                <div className="text-xs text-muted-foreground">
-                  {exp.company}
-                </div>
-                <div className="text-xs text-muted-foreground">
-                  {exp.startDate} -{" "}
-                  {exp.currentlyWorking ? "Present" : exp.endDate}
-                </div>
-                {exp.description && (
-                  <div
-                    style={{
-                      fontFamily: data.experienceStyle.descStyle.fontFamily,
-                      fontSize: `${data.experienceStyle.descStyle.fontSize}px`,
-                      color: data.experienceStyle.descStyle.color,
-                    }}
-                    className="text-xs mt-1 prose-preview"
-                    dangerouslySetInnerHTML={{ __html: exp.description }}
-                  />
-                )}
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
+          .a4-page {
+            margin: 0 !important;
+            box-shadow: none !important;
+          }
 
-      {/* Education */}
-      {data.education.length > 0 && (
-        <div>
-          <h2
-            style={{
-              fontFamily: data.educationHeaderStyle.fontFamily,
-              fontSize: `${data.educationHeaderStyle.fontSize}px`,
-              color: data.educationHeaderStyle.color,
-            }}
-            className="font-bold uppercase text-xs tracking-wide mb-2"
-          >
-            {data.educationTitle}
-          </h2>
-          <div className="space-y-2">
-            {data.education.map((edu) => (
-              <div key={edu.id}>
-                <div
-                  style={{
-                    fontFamily: data.educationStyle.titleStyle.fontFamily,
-                    fontSize: `${data.educationStyle.titleStyle.fontSize}px`,
-                    color: data.educationStyle.titleStyle.color,
-                  }}
-                  className="font-semibold"
-                >
-                  {edu.degree}
-                </div>
-                <div className="text-xs text-muted-foreground">
-                  {edu.school}
-                </div>
-                {edu.field && (
-                  <div className="text-xs text-muted-foreground">
-                    {edu.field}
-                  </div>
-                )}
-                <div className="text-xs text-muted-foreground">
-                  {edu.startDate && `${edu.startDate}`}
-                  {edu.startDate && edu.endDate && " - "}
-                  {edu.currentlyStudying ? "Present" : edu.endDate}
-                </div>
-                {edu.description && (
-                  <div
-                    style={{
-                      fontFamily: data.educationStyle.descStyle.fontFamily,
-                      fontSize: `${data.educationStyle.descStyle.fontSize}px`,
-                      color: data.educationStyle.descStyle.color,
-                    }}
-                    className="text-xs mt-1 prose-preview"
-                    dangerouslySetInnerHTML={{ __html: edu.description }}
-                  />
-                )}
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
+          .a4-page::before {
+            display: none;
+          }
 
-      {/* Projects */}
-      {data.projects.length > 0 && (
-        <div>
-          <h2
-            style={{
-              fontFamily: data.projectsHeaderStyle.fontFamily,
-              fontSize: `${data.projectsHeaderStyle.fontSize}px`,
-              color: data.projectsHeaderStyle.color,
-            }}
-            className="font-bold uppercase text-xs tracking-wide mb-2"
-          >
-            {data.projectsTitle}
-          </h2>
-          <div className="space-y-2">
-            {data.projects.map((project) => (
-              <div key={project.id}>
-                <div
-                  style={{
-                    fontFamily: data.projectsStyle.fontFamily,
-                    fontSize: `${data.projectsStyle.fontSize}px`,
-                    color: data.projectsStyle.color,
-                  }}
-                  className="font-semibold"
-                >
-                  {project.name}
-                </div>
-                {project.description && (
-                  <div
-                    style={{
-                      fontFamily: data.projectsStyle.fontFamily,
-                      fontSize: `${data.projectsStyle.fontSize}px`,
-                      color: data.projectsStyle.color,
-                    }}
-                    className="text-xs mt-1 prose-preview"
-                    dangerouslySetInnerHTML={{ __html: project.description }}
-                  />
-                )}
-                <div className="flex gap-2 mt-1 flex-wrap">
-                  {project.previewUrl && (
-                    <a
-                      href={project.previewUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-xs text-blue-600 hover:underline dark:text-blue-400"
-                    >
-                      Preview
-                    </a>
-                  )}
-                  {project.githubUrl && (
-                    <a
-                      href={project.githubUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-xs text-blue-600 hover:underline dark:text-blue-400"
-                    >
-                      GitHub
-                    </a>
-                  )}
-                  {project.otherUrl && (
-                    <a
-                      href={project.otherUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-xs text-blue-600 hover:underline dark:text-blue-400"
-                    >
-                      Link
-                    </a>
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
+          .a4-page > div::after {
+            display: none;
+          }
 
-      {/* Languages */}
-      {data.languages.length > 0 && (
-        <div>
-          <h2
-            style={{
-              fontFamily: data.languagesHeaderStyle.fontFamily,
-              fontSize: `${data.languagesHeaderStyle.fontSize}px`,
-              color: data.languagesHeaderStyle.color,
-            }}
-            className="font-bold uppercase text-xs tracking-wide mb-2"
-          >
-            {data.languagesTitle}
-          </h2>
-          <div className="space-y-1">
-            {data.languages.map((lang) => (
-              <div
-                key={lang.id}
-                style={{
-                  fontFamily: data.languagesStyle.fontFamily,
-                  fontSize: `${data.languagesStyle.fontSize}px`,
-                  color: data.languagesStyle.color,
-                }}
-                className="text-xs"
-              >
-                {lang.name} - {lang.proficiency}
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
+          .a4-page > div {
+            background-image: none !important;
+            page-break-inside: auto;
+          }
+
+          /* Force page break every 297mm */
+          @page {
+            size: A4;
+            margin: 0;
+          }
+        }
+      `}</style>
+      <div className="resume-page-container">{renderTemplate()}</div>
     </div>
   );
 }
