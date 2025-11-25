@@ -1,6 +1,7 @@
 "use client";
 
 import { Sidebar } from "@/components/dashboard/sidebar";
+import { usePathname } from "next/navigation";
 import { ReactNode } from "react";
 
 interface DashboardLayoutProps {
@@ -8,6 +9,17 @@ interface DashboardLayoutProps {
 }
 
 export function DashboardLayout({ children }: DashboardLayoutProps) {
+  const pathname = usePathname();
+  const isResumeBuilder = pathname?.includes("/resumes/from-scratch/");
+
+  if (isResumeBuilder) {
+    return (
+      <div className="min-h-screen bg-background">
+        {children}
+      </div>
+    );
+  }
+
   return (
     <div className="flex min-h-screen bg-background">
       <Sidebar />

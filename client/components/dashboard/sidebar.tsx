@@ -298,7 +298,7 @@ export function Sidebar() {
                     <div className="w-1 h-7 rounded-r-2xl bg-transparent"></div>
                     <div className="flex items-center w-full gap-3 px-3 py-2.5">
                       <Skeleton className="w-5 h-5 rounded" />
-                      <Skeleton className="h-4 w-24" />
+                      <Skeleton className="h-4 w-32" />
                     </div>
                   </div>
                 ))}
@@ -315,7 +315,7 @@ export function Sidebar() {
                   <div className="w-1 h-7 rounded-r-2xl bg-transparent"></div>
                   <div className="flex items-center w-full gap-3 px-4 py-2.5">
                     <Skeleton className="w-5 h-5 rounded" />
-                    <Skeleton className="h-4 w-16" />
+                    <Skeleton className="h-4 w-32" />
                   </div>
                 </div>
               </nav>
