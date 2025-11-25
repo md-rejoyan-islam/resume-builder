@@ -22,6 +22,7 @@ import clsx from "clsx";
 import {
   Activity,
   BarChart3,
+  ChevronLeft,
   ChevronRight,
   FileText,
   LayoutDashboard,
@@ -30,19 +31,22 @@ import {
   Moon,
   Settings,
   Users,
-  X,
+  X
 } from "lucide-react";
 import { useTheme } from "next-themes";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
+import { Skeleton } from "../ui/skeleton";
 
 interface SidebarItem {
   label: string;
   href: string;
   icon: React.ReactNode;
   badge?: string;
+  subItems?: { label: string; href: string }[];
 }
 
 const client_url = process.env.NEXT_PUBLIC_BASE_URL!;
@@ -50,6 +54,36 @@ const client_url = process.env.NEXT_PUBLIC_BASE_URL!;
 export function Sidebar() {
   const pathname = usePathname();
   const { setTheme, theme } = useTheme();
+  
+  // Collapsed state with localStorage persistence
+  const [isCollapsed, setIsCollapsed] = useState(false);
+  const [mounted, setMounted] = useState(false);
+  const [expandedMenus, setExpandedMenus] = useState<string[]>([]); // Track expanded accordion menus
+
+  // Handle client-side mounting for portal
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // Load collapsed state from localStorage on mount
+  useEffect(() => {
+    const saved = localStorage.getItem("sidebarCollapsed");
+    if (saved !== null) {
+      setIsCollapsed(saved === "true");
+    }
+  }, []);
+
+  // Save collapsed state to localStorage when it changes
+  const toggleCollapsed = () => {
+    const newState = !isCollapsed;
+    setIsCollapsed(newState);
+    localStorage.setItem("sidebarCollapsed", String(newState));
+    
+    // Dispatch custom event for same-window updates
+    window.dispatchEvent(new CustomEvent("sidebarToggle", { 
+      detail: { isCollapsed: newState }
+    }));
+  };
 
   const { data, isLoading } = useGetMeQuery("");
 
@@ -130,18 +164,30 @@ export function Sidebar() {
       href: "/resumes",
       icon: <FileText className="w-5 h-5" />,
       role: ["user"],
+      subItems: [
+        { label: "All Resumes", href: "/resumes" },
+        { label: "Create Resume", href: "/resumes/new" },
+      ],
     },
     {
       label: "Cover Letters",
       href: "/cover-letters",
       icon: <FileText className="w-5 h-5" />,
       role: ["user"],
+      subItems: [
+        { label: "All Cover Letters", href: "/cover-letters" },
+        { label: "Create Cover Letter", href: "/cover-letters/new" },
+      ],
     },
     {
       label: "Disclosures",
       href: "/disclosures",
       icon: <FileText className="w-5 h-5" />,
       role: ["user"],
+      subItems: [
+        { label: "All Disclosures", href: "/disclosures" },
+        { label: "Create Disclosure", href: "/disclosures/new" },
+      ],
     },
     {
       label: "Users",
@@ -187,6 +233,14 @@ export function Sidebar() {
     return pathname.startsWith(href);
   };
 
+  const toggleMenu = (label: string) => {
+    setExpandedMenus((prev) =>
+      prev.includes(label)
+        ? prev.filter((item) => item !== label)
+        : [...prev, label]
+    );
+  };
+
   useEffect(() => {
     if (!data?.data && !isLoading) {
       router.push(client_url + "/signin");
@@ -194,7 +248,93 @@ export function Sidebar() {
   }, [data, router, isLoading]);
 
   if (isLoading) {
-    return null;
+    return (
+      <>
+        {/* Mobile Header - Loading State */}
+        <div className="lg:hidden fixed top-0 left-0 right-0 h-16 border-b border-border bg-card flex items-center justify-between px-4 z-40">
+          {/* Logo and Name - Always Visible */}
+          <Link
+            href="/"
+            className="flex items-center gap-2 font-bold text-lg hover:opacity-80 transition"
+          >
+            <Image src={"/logo.png"} width={40} height={40} alt="logo" />
+            <span>DocBuilder</span>
+          </Link>
+
+          {/* Skeleton Menu Button */}
+          <Skeleton className="w-10 h-10 rounded-lg" />
+        </div>
+
+        {/* Add padding to main content on mobile */}
+        <div className="lg:hidden h-16" />
+
+        {/* Desktop Sidebar - Loading State */}
+        <aside className="hidden lg:block left-0 top-0 h-screen border-r border-border bg-card dark:bg-card/40 z-40 w-56">
+          <div className="flex flex-col h-full relative overflow-y-auto">
+            {/* Header Section with App Name - Always Visible */}
+            <div className="mb-6 pt-4 border-b px-6">
+              <Link
+                href="/"
+                className="flex items-center gap-3 mb-4 hover:opacity-80 transition"
+              >
+                <div className="w-12 h-12 rounded-lg bg-linear-to-br from-blue-600 to-purple-600 flex items-center justify-center text-white font-bold text-lg shrink-0">
+                  DB
+                </div>
+                <div className="flex-1">
+                  <h1 className="font-bold text-lg leading-tight">DocBuilder</h1>
+                  <p className="text-xs text-muted-foreground">Resume Builder</p>
+                </div>
+              </Link>
+            </div>
+
+            {/* MAIN Section - Skeleton Loading */}
+            <div className="mb-8 pr-2">
+              <h3 className="text-xs font-semibold text-muted-foreground/80 uppercase tracking-wider mb-4 px-2 ml-5">
+                Main
+              </h3>
+              <nav className="space-y-1">
+                {[1, 2, 3, 4].map((i) => (
+                  <div key={i} className="flex justify-between items-center gap-2">
+                    <div className="w-1 h-7 rounded-r-2xl bg-transparent"></div>
+                    <div className="flex items-center w-full gap-3 px-3 py-2.5">
+                      <Skeleton className="w-5 h-5 rounded" />
+                      <Skeleton className="h-4 w-24" />
+                    </div>
+                  </div>
+                ))}
+              </nav>
+            </div>
+
+            {/* OTHERS Section - Skeleton Loading */}
+            <div className="mb-8">
+              <h3 className="text-xs font-semibold text-muted-foreground/80 uppercase tracking-wider mb-4 px-2 ml-5">
+                Others
+              </h3>
+              <nav className="space-y-2">
+                <div className="flex justify-between pr-2 items-center gap-2">
+                  <div className="w-1 h-7 rounded-r-2xl bg-transparent"></div>
+                  <div className="flex items-center w-full gap-3 px-4 py-2.5">
+                    <Skeleton className="w-5 h-5 rounded" />
+                    <Skeleton className="h-4 w-16" />
+                  </div>
+                </div>
+              </nav>
+            </div>
+
+            {/* User Profile Section - Skeleton Loading */}
+            <div className="mt-auto p-2 border-t border-border">
+              <div className="flex items-center gap-3 px-2 py-3 rounded-lg">
+                <Skeleton className="w-10 h-10 rounded-full" />
+                <div className="flex-1 space-y-2">
+                  <Skeleton className="h-4 w-32" />
+                  <Skeleton className="h-3 w-40" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </aside>
+      </>
+    );
   }
 
   return (
@@ -307,95 +447,174 @@ export function Sidebar() {
 
       {/* Sidebar - Desktop */}
       <aside
-        className={`hidden lg:fixed lg:block left-0 top-0 h-screen w-64 border-r border-border bg-card z-40 overflow-y-auto`}
+        className={`hidden lg:block left-0 top-0 h-screen border-r border-border bg-card dark:bg-card/40 z-40 transition-all duration-300 ${
+          isCollapsed ? "w-14" : "w-56"
+        }`}
       >
-        <div className=" flex flex-col h-full">
+        <div className="flex flex-col h-full relative overflow-y-auto">
           {/* Header Section with App Name */}
-          <div className="mb-6 pt-4 px-6  border-b">
-            <Link
-              href="/"
-              className="flex items-center gap-3 mb-4 hover:opacity-80 transition"
-            >
-              <div className="w-12 h-12 rounded-lg bg-linear-to-br from-blue-600 to-purple-600 flex items-center justify-center text-white font-bold text-lg shrink-0">
-                DB
-              </div>
-              <div className="flex-1">
-                <h1 className="font-bold text-lg leading-tight">DocBuilder</h1>
-                <p className="text-xs text-muted-foreground">Resume Builder</p>
-              </div>
-            </Link>
+          <div className={`mb-6 pt-4 border-b ${isCollapsed ? "px-2" : "px-6"}`}>
+            {!isCollapsed && (
+              <Link
+                href="/"
+                className="flex items-center gap-3 mb-4 hover:opacity-80 transition"
+              >
+                <div className="w-12 h-12 rounded-lg bg-linear-to-br from-blue-600 to-purple-600 flex items-center justify-center text-white font-bold text-lg shrink-0">
+                  DB
+                </div>
+                <div className="flex-1">
+                  <h1 className="font-bold text-lg leading-tight">DocBuilder</h1>
+                  <p className="text-xs text-muted-foreground">Resume Builder</p>
+                </div>
+              </Link>
+            )}
+            
+            {/* Collapsed Logo */}
+            {isCollapsed && (
+              <Link
+                href="/"
+                className="flex items-center justify-center mb-4 hover:opacity-80 transition"
+              >
+                <div className="w-10 h-10 rounded-lg bg-linear-to-br from-blue-600 to-purple-600 flex items-center justify-center text-white font-bold text-sm">
+                  DB
+                </div>
+              </Link>
+            )}
           </div>
 
           {/* MAIN Section */}
-          <div className="mb-8 pr-6">
-            <h3 className="text-xs font-semibold text-muted-foreground/80 uppercase tracking-wider mb-4 px-2 ml-5">
-              Main
-            </h3>
-            <nav className="space-y-2">
+          <div className={`mb-8 ${isCollapsed ? "px-2" : "pr-2"}`}>
+            {!isCollapsed && (
+              <h3 className="text-xs font-semibold text-muted-foreground/80 uppercase tracking-wider mb-4 px-2 ml-5">
+                Main
+              </h3>
+            )}
+            <nav className="space-y-1">
               {items.map((item) => (
                 <li
                   key={item.href}
-                  className="flex justify-between items-center gap-2 h-full"
+                  className="flex flex-col gap-1"
                 >
-                  <div
-                    className={clsx(
-                      "w-1 h-7 rounded-r-2xl",
-                      isActive(item.href) ? "bg-primary " : "bg-transparent"
+                  <div className="flex justify-between items-center gap-2">
+                    {!isCollapsed && (
+                      <div
+                        className={clsx(
+                          "w-1 h-7 rounded-r-2xl",
+                          isActive(item.href) ? "bg-primary  " : "bg-transparent"
+                        )}
+                      ></div>
                     )}
-                  ></div>
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    className={`flex items-center w-full gap-3 px-4 py-2.5 rounded-lg transition-all group ${
-                      isActive(item.href)
-                        ? "bg-primary/10  text-foreground"
-                        : "text-foreground hover:bg-primary/10 hover:text-foreground"
-                    }`}
-                  >
-                    <span
-                      className={`transition-transform group-hover:scale-110 shrink-0 ${
-                        isActive(item.href)
-                          ? "text-primary"
-                          : "text-foreground/60"
-                      }`}
-                    >
-                      {item.icon}
-                    </span>
-                    <span className="font-medium text-sm">{item.label}</span>
-                    {/* {item.badge && (
-                      <span className="ml-auto text-xs bg-accent text-accent-foreground px-2 py-1 rounded">
-                        {item.badge}
-                      </span>
-                    )} */}
-                    {isActive(item.href) && (
-                      <ChevronRight className="w-4 h-4 ml-auto opacity-100 transition" />
+                    
+                    {/* Main menu item - clickable if has sub-items, link if not */}
+                    {item.subItems && !isCollapsed ? (
+                      <button
+                        onClick={() => toggleMenu(item.label)}
+                        className={`flex items-center w-full gap-3 rounded-md transition-all group px-3 py-2.5 ${
+                          isActive(item.href)
+                            ? "bg-primary/15  text-primary"
+                            : "text-foreground hover:bg-primary/10 hover:text-foreground"
+                        }`}
+                      >
+                        <span
+                          className={`transition-transform group-hover:scale-110 shrink-0 ${
+                            isActive(item.href)
+                              ? "text-primary"
+                              : "text-foreground/60"
+                          }`}
+                        >
+                          {item.icon}
+                        </span>
+                        <span className="font-medium text-sm flex-1 text-left">{item.label}</span>
+                        <ChevronRight
+                          className={`w-4 h-4 transition-transform ${
+                            expandedMenus.includes(item.label) ? "rotate-90" : ""
+                          }`}
+                        />
+                      </button>
+                    ) : (
+                      <Link
+                        href={item.href}
+                        className={`flex items-center w-full gap-3 rounded-md transition-all group ${
+                          isCollapsed ? "justify-center p-2.5" : "px-3 py-2.5"
+                        } ${
+                          isActive(item.href)
+                            ? "bg-primary/15  text-primary"
+                            : "text-foreground hover:bg-primary/10 hover:text-foreground"
+                        }`}
+                        title={isCollapsed ? item.label : undefined}
+                      >
+                        <span
+                          className={`transition-transform group-hover:scale-110 shrink-0 ${
+                            isActive(item.href)
+                              ? "text-primary"
+                              : "text-foreground/60"
+                          }`}
+                        >
+                          {item.icon}
+                        </span>
+                        {!isCollapsed && (
+                          <>
+                            <span className="font-medium text-sm">{item.label}</span>
+                            {isActive(item.href) && !item.subItems && (
+                              <ChevronRight className="w-4 h-4 ml-auto opacity-100 transition" />
+                            )}
+                          </>
+                        )}
+                      </Link>
                     )}
-                  </Link>
+                  </div>
+                  
+                  {/* Sub-menu items with accordion animation */}
+                  {item.subItems && !isCollapsed && expandedMenus.includes(item.label) && (
+                    <div className="ml-5 pl-4 border-l-2 border-border/50 space-y-1 animate-in slide-in-from-top-2">
+                      {item.subItems.map((subItem) => (
+                        <Link
+                          key={subItem.href}
+                          href={subItem.href}
+                          className={`flex items-center gap-2 px-3 py-2 rounded-md text-sm transition-colors ${
+                            pathname === subItem.href
+                              ? "bg-primary/10 text-primary font-medium"
+                              : "text-muted-foreground hover:text-foreground hover:bg-accent/10"
+                          }`}
+                        >
+                          <span className="w-1.5 h-1.5 rounded-full bg-current opacity-60"></span>
+                          {subItem.label}
+                        </Link>
+                      ))}
+                    </div>
+                  )}
                 </li>
               ))}
             </nav>
           </div>
 
           {/* OTHERS Section */}
-          <div className="mb-8">
-            <h3 className="text-xs font-semibold text-muted-foreground/80 uppercase tracking-wider mb-4 px-2 ml-5">
-              Others
-            </h3>
+          <div className={`mb-8 ${isCollapsed ? "px-2" : ""}`}>
+            {!isCollapsed && (
+              <h3 className="text-xs font-semibold text-muted-foreground/80 uppercase tracking-wider mb-4 px-2 ml-5">
+                Others
+              </h3>
+            )}
             <nav className="space-y-2">
-              <li className="flex justify-between items-center gap-2 h-full">
-                <div
-                  className={clsx(
-                    "w-1 h-7 rounded-r-2xl",
-                    isActive("/settings") ? "bg-primary " : "bg-transparent"
-                  )}
-                ></div>
+              <li className="flex justify-between pr-2 items-center gap-2 h-full">
+                {!isCollapsed && (
+                  <div
+                    className={clsx(
+                      "w-1 h-7 rounded-r-2xl",
+                      isActive("/settings") ? "bg-primary " : "bg-transparent"
+                    )}
+                  ></div>
+                )}
                 <Link
                   href="/settings"
-                  className={`flex items-center w-full gap-3 px-4 py-2.5 rounded-lg transition-all group ${
+                  className={`flex items-center w-full gap-3 rounded-lg transition-all group ${
+                    isCollapsed ? "justify-center p-2.5" : "px-4 py-2.5"
+                  } ${
                     isActive("/settings")
                       ? "bg-primary/10  text-foreground"
                       : "text-foreground hover:bg-primary/10 hover:text-foreground"
                   }`}
+                  title={isCollapsed ? "Settings" : undefined}
                 >
                   <span
                     className={`transition-transform group-hover:scale-110 shrink-0 ${
@@ -411,9 +630,13 @@ export function Sidebar() {
                       )}
                     />
                   </span>
-                  <span className="font-medium text-sm">Settings</span>
-                  {isActive("/settings") && (
-                    <ChevronRight className="w-4 h-4 ml-auto opacity-100 transition" />
+                  {!isCollapsed && (
+                    <>
+                      <span className="font-medium text-sm">Settings</span>
+                      {isActive("/settings") && (
+                        <ChevronRight className="w-4 h-4 ml-auto opacity-100 transition" />
+                      )}
+                    </>
                   )}
                 </Link>
               </li>
@@ -421,23 +644,31 @@ export function Sidebar() {
           </div>
 
           {/* User Profile Section */}
-          <div className="mt-auto p-2 border-t border-border">
+          <div className={`mt-auto p-2 border-t border-border ${isCollapsed ? "px-1" : ""}`}>
             <Popover>
               <PopoverTrigger asChild>
-                <div className="flex items-center gap-3 px-2 py-3 rounded-lg hover:bg-accent/10 transition cursor-pointer">
-                  <div className="w-10 h-10 rounded-full bg-linear-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white font-semibold shrink-0">
-                    {getInitials()}
+                {isCollapsed ? (
+                  <div className="flex items-center justify-center p-2 rounded-lg hover:bg-accent/10 transition cursor-pointer">
+                    <div className="w-8 h-8 rounded-full bg-linear-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white font-semibold text-xs">
+                      {getInitials()}
+                    </div>
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-sm leading-tight truncate">
-                      {data?.data?.first_name} {data?.data?.last_name}
-                    </p>
-                    <p className="text-xs text-muted-foreground truncate">
-                      {data?.data?.email}
-                    </p>
+                ) : (
+                  <div className="flex items-center gap-3 px-2 py-3 rounded-lg hover:bg-accent/10 transition cursor-pointer">
+                    <div className="w-10 h-10 rounded-full bg-linear-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white font-semibold shrink-0">
+                      {getInitials()}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-semibold text-sm leading-tight truncate">
+                        {data?.data?.first_name} {data?.data?.last_name}
+                      </p>
+                      <p className="text-xs text-muted-foreground truncate">
+                        {data?.data?.email}
+                      </p>
+                    </div>
+                    <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0" />
                   </div>
-                  <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0" />
-                </div>
+                )}
               </PopoverTrigger>
               <PopoverContent className="w-56 p-0" align="end" side="left">
                 <div className="flex flex-col">
@@ -490,6 +721,25 @@ export function Sidebar() {
           </div>
         </div>
       </aside>
+
+      {/* Toggle Button using Portal - Rendered outside sidebar to avoid z-index issues */}
+      {mounted && createPortal(
+        <button
+          onClick={toggleCollapsed}
+          className="hidden lg:flex fixed top-6 items-center justify-center w-7 cursor-pointer h-7 rounded-md bg-card border-2 border-primary/40 hover:bg-primary/10 hover:border-primary transition-all shadow-lg z-[100]"
+          style={{
+            left: isCollapsed ? '48px' : '214px', // 14*4 - 10 = 44px collapsed, 56*4 - 10 = 214px expanded
+          }}
+          aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+        >
+          {isCollapsed ? (
+            <ChevronRight className="w-4 h-4 text-primary" />
+          ) : (
+            <ChevronLeft className="w-4 h-4 text-primary" />
+          )}
+        </button>,
+        document.body
+      )}
     </>
   );
 }
