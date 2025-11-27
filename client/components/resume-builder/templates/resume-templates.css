@@ -9,14 +9,18 @@
   background-color: #ffffff;
   margin-left: auto;
   margin-right: auto;
+  width: 100%;
   max-width: 600px;
+  min-height: 848px;
   position: relative;
 }
 
 .rt-container-flex {
   margin-left: auto;
   margin-right: auto;
+  width: 100%;
   max-width: 600px;
+  min-height: 848px;
   position: relative;
   display: flex;
 }
@@ -29,15 +33,35 @@
   position: relative;
 }
 
+/* A4 size: 210mm x 297mm = ratio 1:1.414
+   At 600px width: height = 600 * 1.414 = 848.4px ≈ 848px */
 .rt-page {
   background-color: #ffffff;
   box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
   margin-left: auto;
   margin-right: auto;
+  width: 600px;
   max-width: 600px;
+  height: 848px;
+  min-height: 848px;
+  max-height: 848px;
   position: relative;
   overflow: hidden;
-  aspect-ratio: 8.5 / 11;
+  aspect-ratio: 210 / 297;
+}
+
+/* Print-specific styles */
+@media print {
+  .rt-page {
+    width: 210mm !important;
+    height: 297mm !important;
+    max-width: 210mm !important;
+    max-height: 297mm !important;
+    min-height: 297mm !important;
+    box-shadow: none !important;
+    margin: 0 !important;
+    aspect-ratio: 210 / 297 !important;
+  }
 }
 
 .rt-measure-container {

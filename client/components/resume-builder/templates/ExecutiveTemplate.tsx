@@ -9,6 +9,7 @@ import {
   Phone,
 } from "lucide-react";
 import { TemplateData, TemplateStyles } from "./ModernDarkTemplate";
+import "./resume-templates.css";
 
 interface ExecutiveTemplateProps {
   data: TemplateData;
@@ -54,12 +55,12 @@ export function ExecutiveTemplate({ data, styles }: ExecutiveTemplateProps) {
 
   return (
     <div
-      className="mx-auto max-w-[600px] relative flex"
+      className="rt-container-flex"
       style={{ fontFamily }}
     >
       {/* Left Column - Sidebar (35%) - background handled by ResumePageWrapper */}
       <div
-        className="flex-[35] p-5"
+        className="rt-col-35 rt-p-5"
         style={{
           display: "flex",
           flexDirection: "column",
@@ -69,7 +70,7 @@ export function ExecutiveTemplate({ data, styles }: ExecutiveTemplateProps) {
         {/* Job Title Section */}
         <div>
           <p
-            className="font-medium uppercase tracking-wider"
+            className="rt-font-medium rt-uppercase rt-tracking-wider"
             style={{
               color: accentColor,
               fontSize: `${parseFloat(fontSize.name) * 0.5}px`,
@@ -83,7 +84,7 @@ export function ExecutiveTemplate({ data, styles }: ExecutiveTemplateProps) {
         {projects.length > 0 && (
           <div>
             <h2
-              className="font-bold uppercase tracking-wider pb-1 border-b"
+              className="rt-section-title"
               style={{
                 color: accentColor,
                 fontSize: fontSize.sectionTitle,
@@ -103,7 +104,7 @@ export function ExecutiveTemplate({ data, styles }: ExecutiveTemplateProps) {
               {projects.map((proj, index) => (
                 <div key={proj.id}>
                   <p
-                    className="font-semibold text-slate-800 flex items-start gap-1.5"
+                    className="rt-font-semibold rt-text-slate-800 rt-flex rt-items-start rt-gap-1-5"
                     style={{ fontSize: fontSize.itemTitle }}
                   >
                     <span style={{ color: accentColor }}>
@@ -113,35 +114,35 @@ export function ExecutiveTemplate({ data, styles }: ExecutiveTemplateProps) {
                   </p>
                   {proj.description && (
                     <div
-                      className="text-slate-600 mt-0.5 ml-4"
+                      className="rt-text-slate-600 rt-mt-1 rt-ml-4"
                       style={{ fontSize: fontSize.small, lineHeight }}
                       dangerouslySetInnerHTML={{ __html: proj.description }}
                     />
                   )}
                   {(proj.githubUrl || proj.liveUrl || proj.otherUrl) && (
-                    <div className="flex items-center gap-2 mt-1 ml-4">
+                    <div className="rt-flex rt-gap-2 rt-mt-1 rt-ml-4">
                       {proj.githubUrl && (
                         <a
                           href={proj.githubUrl}
-                          className="flex items-center gap-1 hover:underline"
+                          className="rt-link"
                           style={{
                             color: accentColor,
                             fontSize: fontSize.small,
                           }}
                         >
-                          <Github className="w-3 h-3" />
+                          <Github className="rt-icon-sm" />
                         </a>
                       )}
                       {proj.liveUrl && (
                         <a
                           href={proj.liveUrl}
-                          className="flex items-center gap-1 hover:underline"
+                          className="rt-link"
                           style={{
                             color: accentColor,
                             fontSize: fontSize.small,
                           }}
                         >
-                          <ExternalLink className="w-3 h-3" />
+                          <ExternalLink className="rt-icon-sm" />
                         </a>
                       )}
                     </div>
@@ -156,7 +157,7 @@ export function ExecutiveTemplate({ data, styles }: ExecutiveTemplateProps) {
         {certifications.length > 0 && (
           <div>
             <h2
-              className="font-bold uppercase tracking-wider pb-1 border-b"
+              className="rt-section-title"
               style={{
                 color: accentColor,
                 fontSize: fontSize.sectionTitle,
@@ -176,21 +177,21 @@ export function ExecutiveTemplate({ data, styles }: ExecutiveTemplateProps) {
               {certifications.map((cert) => (
                 <div key={cert.id}>
                   <p
-                    className="font-semibold text-slate-800"
+                    className="rt-font-semibold rt-text-slate-800"
                     style={{ fontSize: fontSize.itemTitle }}
                   >
                     {cert.name}
                   </p>
                   {cert.description && (
                     <p
-                      className="text-slate-600 mt-0.5"
+                      className="rt-text-slate-600 rt-mt-1"
                       style={{ fontSize: fontSize.small, lineHeight }}
                     >
                       {cert.description}
                     </p>
                   )}
                   <p
-                    className="text-slate-500 mt-0.5"
+                    className="rt-text-slate-500 rt-mt-1"
                     style={{ fontSize: fontSize.small }}
                   >
                     {cert.issuer}
@@ -205,7 +206,7 @@ export function ExecutiveTemplate({ data, styles }: ExecutiveTemplateProps) {
         {volunteers.length > 0 && (
           <div>
             <h2
-              className="font-bold uppercase tracking-wider pb-1 border-b"
+              className="rt-section-title"
               style={{
                 color: accentColor,
                 fontSize: fontSize.sectionTitle,
@@ -225,7 +226,7 @@ export function ExecutiveTemplate({ data, styles }: ExecutiveTemplateProps) {
               {volunteers.map((vol, index) => (
                 <div key={vol.id}>
                   <p
-                    className="font-semibold text-slate-800 flex items-start gap-1.5"
+                    className="rt-font-semibold rt-text-slate-800 rt-flex rt-items-start rt-gap-1-5"
                     style={{ fontSize: fontSize.itemTitle }}
                   >
                     <span style={{ color: accentColor }}>
@@ -235,7 +236,7 @@ export function ExecutiveTemplate({ data, styles }: ExecutiveTemplateProps) {
                   </p>
                   {vol.description && (
                     <div
-                      className="text-slate-600 mt-0.5 ml-4"
+                      className="rt-text-slate-600 rt-mt-1 rt-ml-4"
                       style={{ fontSize: fontSize.small, lineHeight }}
                       dangerouslySetInnerHTML={{ __html: vol.description }}
                     />
@@ -250,7 +251,7 @@ export function ExecutiveTemplate({ data, styles }: ExecutiveTemplateProps) {
         {languages.length > 0 && (
           <div>
             <h2
-              className="font-bold uppercase tracking-wider pb-1 border-b"
+              className="rt-section-title"
               style={{
                 color: accentColor,
                 fontSize: fontSize.sectionTitle,
@@ -270,27 +271,27 @@ export function ExecutiveTemplate({ data, styles }: ExecutiveTemplateProps) {
               {languages.map((lang) => (
                 <div
                   key={lang.id}
-                  className="flex items-center justify-between"
+                  className="rt-flex-between"
                 >
                   <span
-                    className="text-slate-700"
+                    className="rt-text-slate-700"
                     style={{ fontSize: fontSize.itemTitle }}
                   >
                     {lang.language}
                   </span>
-                  <div className="flex items-center gap-2">
+                  <div className="rt-flex rt-items-center rt-gap-2">
                     <span
-                      className="text-slate-500"
+                      className="rt-text-slate-500"
                       style={{ fontSize: fontSize.small }}
                     >
                       {lang.proficiency}
                     </span>
-                    <div className="flex gap-0.5">
+                    <div className="rt-proficiency-dots">
                       {getProficiencyDots(lang.proficiency).map(
                         (filled, idx) => (
                           <span
                             key={idx}
-                            className="w-2 h-2 rounded-full"
+                            className="rt-proficiency-dot"
                             style={{
                               backgroundColor: filled ? accentColor : "#e2e8f0",
                             }}
@@ -309,7 +310,7 @@ export function ExecutiveTemplate({ data, styles }: ExecutiveTemplateProps) {
         {references.length > 0 && (
           <div>
             <h2
-              className="font-bold uppercase tracking-wider pb-1 border-b"
+              className="rt-section-title"
               style={{
                 color: accentColor,
                 fontSize: fontSize.sectionTitle,
@@ -329,13 +330,13 @@ export function ExecutiveTemplate({ data, styles }: ExecutiveTemplateProps) {
               {references.map((ref) => (
                 <div key={ref.id}>
                   <p
-                    className="font-semibold text-slate-800"
+                    className="rt-font-semibold rt-text-slate-800"
                     style={{ fontSize: fontSize.itemTitle }}
                   >
                     {ref.name}
                   </p>
                   <p
-                    className="text-slate-500"
+                    className="rt-text-slate-500"
                     style={{ fontSize: fontSize.small }}
                   >
                     {ref.position} at {ref.company}
@@ -349,7 +350,7 @@ export function ExecutiveTemplate({ data, styles }: ExecutiveTemplateProps) {
 
       {/* Right Column - Main Content (65%) */}
       <div
-        className="flex-[65] p-5 pl-4"
+        className="rt-col-65 rt-p-5 rt-pl-4"
         style={{
           display: "flex",
           flexDirection: "column",
@@ -358,12 +359,12 @@ export function ExecutiveTemplate({ data, styles }: ExecutiveTemplateProps) {
       >
         {/* Header with Name and Contact */}
         <div
-          className="border-b pb-3"
+          className="rt-border-b rt-pb-3"
           style={{ borderColor: `${accentColor}30` }}
         >
           {/* Name */}
           <h1
-            className="font-bold tracking-wide"
+            className="rt-font-bold rt-tracking-wide"
             style={{
               fontSize: `${parseFloat(fontSize.name) * 0.7}px`,
               color: accentColor,
@@ -374,30 +375,30 @@ export function ExecutiveTemplate({ data, styles }: ExecutiveTemplateProps) {
           </h1>
           {/* Contact Info */}
           <div
-            className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-2 text-slate-600"
+            className="rt-contact-row rt-mt-2 rt-text-slate-600"
             style={{ fontSize: fontSize.small }}
           >
             {formData.phone && (
-              <span className="flex items-center gap-1">
-                <Phone className="w-3 h-3" style={{ color: accentColor }} />
+              <span className="rt-contact-item">
+                <Phone className="rt-icon-sm" style={{ color: accentColor }} />
                 {formData.phone}
               </span>
             )}
             {formData.email && (
-              <span className="flex items-center gap-1">
-                <Mail className="w-3 h-3" style={{ color: accentColor }} />
+              <span className="rt-contact-item">
+                <Mail className="rt-icon-sm" style={{ color: accentColor }} />
                 {formData.email}
               </span>
             )}
             {formData.linkedin && (
-              <span className="flex items-center gap-1">
-                <Linkedin className="w-3 h-3" style={{ color: accentColor }} />
+              <span className="rt-contact-item">
+                <Linkedin className="rt-icon-sm" style={{ color: accentColor }} />
                 {formData.linkedin}
               </span>
             )}
             {(formData.city || formData.state) && (
-              <span className="flex items-center gap-1">
-                <MapPin className="w-3 h-3" style={{ color: accentColor }} />
+              <span className="rt-contact-item">
+                <MapPin className="rt-icon-sm" style={{ color: accentColor }} />
                 {[formData.city, formData.state].filter(Boolean).join(", ")}
               </span>
             )}
@@ -408,7 +409,7 @@ export function ExecutiveTemplate({ data, styles }: ExecutiveTemplateProps) {
         {formData.summary && (
           <div>
             <h2
-              className="font-bold uppercase tracking-wider text-slate-800 border-b pb-1"
+              className="rt-font-bold rt-uppercase rt-tracking-wider rt-text-slate-800 rt-border-b rt-pb-1"
               style={{
                 fontSize: fontSize.sectionTitle,
                 borderColor: `${accentColor}30`,
@@ -418,7 +419,7 @@ export function ExecutiveTemplate({ data, styles }: ExecutiveTemplateProps) {
               Summary
             </h2>
             <div
-              className="text-slate-600"
+              className="rt-text-slate-600"
               style={{ fontSize: fontSize.body, lineHeight }}
               dangerouslySetInnerHTML={{ __html: formData.summary }}
             />
@@ -429,7 +430,7 @@ export function ExecutiveTemplate({ data, styles }: ExecutiveTemplateProps) {
         {experiences.length > 0 && (
           <div>
             <h2
-              className="font-bold uppercase tracking-wider text-slate-800 border-b pb-1"
+              className="rt-font-bold rt-uppercase rt-tracking-wider rt-text-slate-800 rt-border-b rt-pb-1"
               style={{
                 fontSize: fontSize.sectionTitle,
                 borderColor: `${accentColor}30`,
@@ -447,22 +448,22 @@ export function ExecutiveTemplate({ data, styles }: ExecutiveTemplateProps) {
             >
               {experiences.map((exp) => (
                 <div key={exp.id}>
-                  <div className="flex justify-between items-start">
+                  <div className="rt-item-header">
                     <p
-                      className="font-semibold text-slate-800"
+                      className="rt-font-semibold rt-text-slate-800"
                       style={{ fontSize: fontSize.itemTitle }}
                     >
                       {exp.jobTitle}
                     </p>
                     <span
-                      className="text-slate-500 shrink-0"
+                      className="rt-text-slate-500 rt-shrink-0"
                       style={{ fontSize: fontSize.small }}
                     >
                       {exp.startDate} -{" "}
                       {exp.currentlyWorking ? "Present" : exp.endDate}
                     </span>
                   </div>
-                  <div className="flex justify-between items-start">
+                  <div className="rt-item-header">
                     <p
                       style={{
                         color: accentColor,
@@ -474,7 +475,7 @@ export function ExecutiveTemplate({ data, styles }: ExecutiveTemplateProps) {
                     </p>
                     {exp.city && (
                       <span
-                        className="text-slate-500 shrink-0"
+                        className="rt-text-slate-500 rt-shrink-0"
                         style={{ fontSize: fontSize.small }}
                       >
                         {exp.city}
@@ -484,7 +485,7 @@ export function ExecutiveTemplate({ data, styles }: ExecutiveTemplateProps) {
                   </div>
                   {exp.description && (
                     <div
-                      className="text-slate-600 mt-1 [&_ul]:list-disc [&_ul]:ml-4 [&_li]:mb-0.5"
+                      className="rt-text-slate-600 rt-mt-1 rt-rich-text"
                       style={{ fontSize: fontSize.small, lineHeight }}
                       dangerouslySetInnerHTML={{ __html: exp.description }}
                     />
@@ -499,7 +500,7 @@ export function ExecutiveTemplate({ data, styles }: ExecutiveTemplateProps) {
         {skills.length > 0 && (
           <div>
             <h2
-              className="font-bold uppercase tracking-wider text-slate-800 border-b pb-1"
+              className="rt-font-bold rt-uppercase rt-tracking-wider rt-text-slate-800 rt-border-b rt-pb-1"
               style={{
                 fontSize: fontSize.sectionTitle,
                 borderColor: `${accentColor}30`,
@@ -509,7 +510,7 @@ export function ExecutiveTemplate({ data, styles }: ExecutiveTemplateProps) {
               Skills
             </h2>
             <p
-              className="text-slate-600"
+              className="rt-text-slate-600"
               style={{ fontSize: fontSize.small, lineHeight }}
             >
               {skills.map((s) => s.name).join(" · ")}
@@ -521,7 +522,7 @@ export function ExecutiveTemplate({ data, styles }: ExecutiveTemplateProps) {
         {educations.length > 0 && (
           <div>
             <h2
-              className="font-bold uppercase tracking-wider text-slate-800 border-b pb-1"
+              className="rt-font-bold rt-uppercase rt-tracking-wider rt-text-slate-800 rt-border-b rt-pb-1"
               style={{
                 fontSize: fontSize.sectionTitle,
                 borderColor: `${accentColor}30`,
@@ -539,22 +540,22 @@ export function ExecutiveTemplate({ data, styles }: ExecutiveTemplateProps) {
             >
               {educations.map((edu) => (
                 <div key={edu.id}>
-                  <div className="flex justify-between items-start">
+                  <div className="rt-item-header">
                     <p
-                      className="font-semibold text-slate-800"
+                      className="rt-font-semibold rt-text-slate-800"
                       style={{ fontSize: fontSize.itemTitle }}
                     >
                       {edu.degree} in {edu.fieldOfStudy}
                     </p>
                     <span
-                      className="text-slate-500 shrink-0"
+                      className="rt-text-slate-500 rt-shrink-0"
                       style={{ fontSize: fontSize.small }}
                     >
                       {edu.startDate} -{" "}
                       {edu.currentlyStudying ? "Present" : edu.endDate}
                     </span>
                   </div>
-                  <div className="flex justify-between items-start">
+                  <div className="rt-item-header">
                     <p
                       style={{
                         color: accentColor,
@@ -566,7 +567,7 @@ export function ExecutiveTemplate({ data, styles }: ExecutiveTemplateProps) {
                     </p>
                     {edu.location && (
                       <span
-                        className="text-slate-500 shrink-0"
+                        className="rt-text-slate-500 rt-shrink-0"
                         style={{ fontSize: fontSize.small }}
                       >
                         {edu.location}
@@ -583,7 +584,7 @@ export function ExecutiveTemplate({ data, styles }: ExecutiveTemplateProps) {
         {publications.length > 0 && (
           <div>
             <h2
-              className="font-bold uppercase tracking-wider text-slate-800 border-b pb-1"
+              className="rt-font-bold rt-uppercase rt-tracking-wider rt-text-slate-800 rt-border-b rt-pb-1"
               style={{
                 fontSize: fontSize.sectionTitle,
                 borderColor: `${accentColor}30`,
@@ -602,13 +603,13 @@ export function ExecutiveTemplate({ data, styles }: ExecutiveTemplateProps) {
               {publications.map((pub) => (
                 <div key={pub.id}>
                   <p
-                    className="font-semibold text-slate-800"
+                    className="rt-font-semibold rt-text-slate-800"
                     style={{ fontSize: fontSize.itemTitle }}
                   >
                     {pub.title}
                   </p>
                   <p
-                    className="text-slate-500"
+                    className="rt-text-slate-500"
                     style={{ fontSize: fontSize.small }}
                   >
                     {pub.publisher} · {pub.publicationDate}

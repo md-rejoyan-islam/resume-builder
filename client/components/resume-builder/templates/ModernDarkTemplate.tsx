@@ -10,6 +10,7 @@ import { Publication } from "../PublicationForm";
 import { Reference } from "../ReferenceForm";
 import { Skill } from "../SkillsForm";
 import { Volunteer } from "../VolunteerForm";
+import "./resume-templates.css";
 
 export interface TemplateStyles {
   fontFamily: string;
@@ -62,29 +63,38 @@ export function ModernDarkTemplate({ data, styles }: ModernDarkTemplateProps) {
 
   return (
     <div
-      className="bg-white mx-auto max-w-[600px] relative"
+      className="rt-container"
       style={{ fontFamily }}
     >
       {/* Header Banner */}
       <div
-        className="h-32 bg-cover bg-center relative"
+        className="rt-header-banner"
         style={{
           backgroundColor: accentColor,
           backgroundImage:
             "linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), url('https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=800')",
         }}
       >
-        <div className="absolute inset-0 flex items-center justify-center">
+        <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
           <h1
-            className="font-bold text-white tracking-wider uppercase"
+            className="rt-font-bold rt-text-white rt-tracking-wider rt-uppercase"
             style={{ fontSize: fontSize.name }}
           >
             {formData.firstName} {formData.lastName}
           </h1>
         </div>
         <p
-          className="absolute bottom-4 left-0 right-0 text-center text-white/80 tracking-[0.3em] uppercase"
-          style={{ fontSize: fontSize.body }}
+          style={{
+            position: "absolute",
+            bottom: "16px",
+            left: 0,
+            right: 0,
+            textAlign: "center",
+            color: "rgba(255,255,255,0.8)",
+            letterSpacing: "0.3em",
+            textTransform: "uppercase",
+            fontSize: fontSize.body,
+          }}
         >
           {formData.jobTitle || "Professional"}
         </p>
@@ -92,8 +102,8 @@ export function ModernDarkTemplate({ data, styles }: ModernDarkTemplateProps) {
 
       {/* Content */}
       <div
-        className="p-6 grid grid-cols-2"
-        style={{ gap: `${sectionGap}px` }}
+        className="rt-p-6"
+        style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: `${sectionGap}px` }}
       >
         {/* Left Column */}
         <div style={{ display: "flex", flexDirection: "column", gap: `${sectionGap}px` }}>
@@ -101,7 +111,7 @@ export function ModernDarkTemplate({ data, styles }: ModernDarkTemplateProps) {
           {formData.summary && (
             <div>
               <h2
-                className="font-bold uppercase tracking-wider"
+                className="rt-font-bold rt-uppercase rt-tracking-wider"
                 style={{
                   color: accentColor,
                   fontSize: fontSize.sectionTitle,
@@ -111,7 +121,7 @@ export function ModernDarkTemplate({ data, styles }: ModernDarkTemplateProps) {
                 Professional Summary
               </h2>
               <div
-                className="text-slate-600"
+                className="rt-text-slate-600"
                 style={{ fontSize: fontSize.body, lineHeight }}
                 dangerouslySetInnerHTML={{ __html: formData.summary }}
               />
@@ -122,7 +132,7 @@ export function ModernDarkTemplate({ data, styles }: ModernDarkTemplateProps) {
           {experiences.length > 0 && (
             <div>
               <h2
-                className="font-bold uppercase tracking-wider"
+                className="rt-font-bold rt-uppercase rt-tracking-wider"
                 style={{
                   color: accentColor,
                   fontSize: fontSize.sectionTitle,
@@ -135,18 +145,18 @@ export function ModernDarkTemplate({ data, styles }: ModernDarkTemplateProps) {
                 {experiences.map((exp) => (
                   <div key={exp.id}>
                     <p
-                      className="font-medium"
+                      className="rt-font-medium"
                       style={{ color: accentColor, fontSize: fontSize.itemTitle }}
                     >
                       {exp.jobTitle}
                     </p>
-                    <p className="text-slate-500" style={{ fontSize: fontSize.small }}>
+                    <p className="rt-text-slate-500" style={{ fontSize: fontSize.small }}>
                       {exp.startDate} - {exp.currentlyWorking ? "Present" : exp.endDate} |{" "}
                       {exp.employer}
                     </p>
                     {exp.description && (
                       <div
-                        className="text-slate-500 mt-1"
+                        className="rt-text-slate-500 rt-mt-1"
                         style={{ fontSize: fontSize.small, lineHeight }}
                         dangerouslySetInnerHTML={{ __html: exp.description }}
                       />
@@ -161,7 +171,7 @@ export function ModernDarkTemplate({ data, styles }: ModernDarkTemplateProps) {
           {educations.length > 0 && (
             <div>
               <h2
-                className="font-bold uppercase tracking-wider"
+                className="rt-font-bold rt-uppercase rt-tracking-wider"
                 style={{
                   color: accentColor,
                   fontSize: fontSize.sectionTitle,
@@ -174,12 +184,12 @@ export function ModernDarkTemplate({ data, styles }: ModernDarkTemplateProps) {
                 {educations.map((edu) => (
                   <div key={edu.id}>
                     <p
-                      className="font-medium"
+                      className="rt-font-medium"
                       style={{ color: accentColor, fontSize: fontSize.itemTitle }}
                     >
                       {edu.degree} in {edu.fieldOfStudy}
                     </p>
-                    <p className="text-slate-500" style={{ fontSize: fontSize.small }}>
+                    <p className="rt-text-slate-500" style={{ fontSize: fontSize.small }}>
                       {edu.currentlyStudying ? "Expected " : ""}
                       {edu.endDate || edu.startDate} | {edu.school}
                     </p>
@@ -193,7 +203,7 @@ export function ModernDarkTemplate({ data, styles }: ModernDarkTemplateProps) {
           {skills.length > 0 && (
             <div>
               <h2
-                className="font-bold uppercase tracking-wider"
+                className="rt-font-bold rt-uppercase rt-tracking-wider"
                 style={{
                   color: accentColor,
                   fontSize: fontSize.sectionTitle,
@@ -202,15 +212,16 @@ export function ModernDarkTemplate({ data, styles }: ModernDarkTemplateProps) {
               >
                 Skills
               </h2>
-              <div className="flex flex-wrap gap-1">
+              <div className="rt-skill-tags-container" style={{ gap: "4px" }}>
                 {skills.map((skill) => (
                   <span
                     key={skill.id}
-                    className="px-1.5 py-0.5 rounded"
+                    className="rt-skill-tag"
                     style={{
                       backgroundColor: `${accentColor}20`,
                       color: accentColor,
                       fontSize: fontSize.small,
+                      padding: "2px 6px",
                     }}
                   >
                     {skill.name}
@@ -224,7 +235,7 @@ export function ModernDarkTemplate({ data, styles }: ModernDarkTemplateProps) {
           {languages.length > 0 && (
             <div>
               <h2
-                className="font-bold uppercase tracking-wider"
+                className="rt-font-bold rt-uppercase rt-tracking-wider"
                 style={{
                   color: accentColor,
                   fontSize: fontSize.sectionTitle,
@@ -241,13 +252,13 @@ export function ModernDarkTemplate({ data, styles }: ModernDarkTemplateProps) {
                 }}
               >
                 {languages.map((lang) => (
-                  <div key={lang.id} className="flex items-center gap-1">
+                  <div key={lang.id} className="rt-flex rt-items-center rt-gap-1">
                     <span
-                      className="w-1 h-1 rounded-full"
-                      style={{ backgroundColor: accentColor }}
+                      className="rt-rounded-full"
+                      style={{ width: "4px", height: "4px", backgroundColor: accentColor }}
                     ></span>
                     <span style={{ fontSize: fontSize.itemTitle }}>{lang.language}</span>
-                    <span className="text-slate-400" style={{ fontSize: fontSize.small }}>
+                    <span className="rt-text-slate-400" style={{ fontSize: fontSize.small }}>
                       ({lang.proficiency})
                     </span>
                   </div>
@@ -260,7 +271,7 @@ export function ModernDarkTemplate({ data, styles }: ModernDarkTemplateProps) {
           {references.length > 0 && (
             <div>
               <h2
-                className="font-bold uppercase tracking-wider"
+                className="rt-font-bold rt-uppercase rt-tracking-wider"
                 style={{
                   color: accentColor,
                   fontSize: fontSize.sectionTitle,
@@ -274,18 +285,18 @@ export function ModernDarkTemplate({ data, styles }: ModernDarkTemplateProps) {
               >
                 {references.map((ref) => (
                   <div key={ref.id}>
-                    <p className="font-medium" style={{ fontSize: fontSize.itemTitle }}>
-                      {ref.name} <span className="text-slate-400">—</span> {ref.company}
+                    <p className="rt-font-medium" style={{ fontSize: fontSize.itemTitle }}>
+                      {ref.name} <span className="rt-text-slate-400">—</span> {ref.company}
                     </p>
-                    <p className="text-slate-500" style={{ fontSize: fontSize.small }}>
+                    <p className="rt-text-slate-500" style={{ fontSize: fontSize.small }}>
                       {ref.position}
                     </p>
                     {ref.email && (
                       <p
-                        className="flex items-center gap-1 mt-0.5"
+                        className="rt-contact-item rt-mt-1"
                         style={{ fontSize: fontSize.small }}
                       >
-                        <Mail className="w-2.5 h-2.5" style={{ color: accentColor }} />
+                        <Mail className="rt-icon-sm" style={{ color: accentColor, width: "10px", height: "10px" }} />
                         {ref.email}
                       </p>
                     )}
@@ -301,7 +312,7 @@ export function ModernDarkTemplate({ data, styles }: ModernDarkTemplateProps) {
           {/* Contact */}
           <div>
             <h2
-              className="font-bold uppercase tracking-wider"
+              className="rt-font-bold rt-uppercase rt-tracking-wider"
               style={{
                 color: accentColor,
                 fontSize: fontSize.sectionTitle,
@@ -318,34 +329,55 @@ export function ModernDarkTemplate({ data, styles }: ModernDarkTemplateProps) {
               }}
             >
               {formData.phone && (
-                <p className="flex items-center gap-2" style={{ fontSize: fontSize.itemTitle }}>
+                <p className="rt-contact-item" style={{ fontSize: fontSize.itemTitle }}>
                   <span
-                    className="w-4 h-4 rounded-full flex items-center justify-center shrink-0"
-                    style={{ backgroundColor: accentColor }}
+                    className="rt-rounded-full rt-shrink-0"
+                    style={{
+                      width: "16px",
+                      height: "16px",
+                      backgroundColor: accentColor,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
                   >
-                    <Phone className="w-2 h-2 text-white" />
+                    <Phone style={{ width: "8px", height: "8px", color: "#ffffff" }} />
                   </span>
                   {formData.phone}
                 </p>
               )}
               {formData.email && (
-                <p className="flex items-center gap-2" style={{ fontSize: fontSize.itemTitle }}>
+                <p className="rt-contact-item" style={{ fontSize: fontSize.itemTitle }}>
                   <span
-                    className="w-4 h-4 rounded-full flex items-center justify-center shrink-0"
-                    style={{ backgroundColor: accentColor }}
+                    className="rt-rounded-full rt-shrink-0"
+                    style={{
+                      width: "16px",
+                      height: "16px",
+                      backgroundColor: accentColor,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
                   >
-                    <Mail className="w-2 h-2 text-white" />
+                    <Mail style={{ width: "8px", height: "8px", color: "#ffffff" }} />
                   </span>
                   {formData.email}
                 </p>
               )}
               {(formData.city || formData.country || formData.postalCode) && (
-                <p className="flex items-center gap-2" style={{ fontSize: fontSize.itemTitle }}>
+                <p className="rt-contact-item" style={{ fontSize: fontSize.itemTitle }}>
                   <span
-                    className="w-4 h-4 rounded-full flex items-center justify-center shrink-0"
-                    style={{ backgroundColor: accentColor }}
+                    className="rt-rounded-full rt-shrink-0"
+                    style={{
+                      width: "16px",
+                      height: "16px",
+                      backgroundColor: accentColor,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
                   >
-                    <MapPin className="w-2 h-2 text-white" />
+                    <MapPin style={{ width: "8px", height: "8px", color: "#ffffff" }} />
                   </span>
                   {[formData.city, formData.state, formData.postalCode]
                     .filter(Boolean)
@@ -359,7 +391,7 @@ export function ModernDarkTemplate({ data, styles }: ModernDarkTemplateProps) {
           {certifications.length > 0 && (
             <div>
               <h2
-                className="font-bold uppercase tracking-wider"
+                className="rt-font-bold rt-uppercase rt-tracking-wider"
                 style={{
                   color: accentColor,
                   fontSize: fontSize.sectionTitle,
@@ -378,12 +410,12 @@ export function ModernDarkTemplate({ data, styles }: ModernDarkTemplateProps) {
                 {certifications.map((cert) => (
                   <div key={cert.id}>
                     <p
-                      className="font-medium"
+                      className="rt-font-medium"
                       style={{ color: accentColor, fontSize: fontSize.itemTitle }}
                     >
                       {cert.name}
                     </p>
-                    <p className="text-slate-500" style={{ fontSize: fontSize.small }}>
+                    <p className="rt-text-slate-500" style={{ fontSize: fontSize.small }}>
                       {cert.issuer} • {cert.issueDate}
                     </p>
                   </div>
@@ -396,7 +428,7 @@ export function ModernDarkTemplate({ data, styles }: ModernDarkTemplateProps) {
           {projects.length > 0 && (
             <div>
               <h2
-                className="font-bold uppercase tracking-wider"
+                className="rt-font-bold rt-uppercase rt-tracking-wider"
                 style={{
                   color: accentColor,
                   fontSize: fontSize.sectionTitle,
@@ -415,47 +447,47 @@ export function ModernDarkTemplate({ data, styles }: ModernDarkTemplateProps) {
                 {projects.map((proj) => (
                   <div key={proj.id}>
                     <p
-                      className="font-medium"
+                      className="rt-font-medium"
                       style={{ color: accentColor, fontSize: fontSize.itemTitle }}
                     >
                       {proj.name}
                     </p>
                     {proj.description && (
                       <div
-                        className="text-slate-500"
+                        className="rt-text-slate-500"
                         style={{ fontSize: fontSize.small, lineHeight }}
                         dangerouslySetInnerHTML={{ __html: proj.description }}
                       />
                     )}
                     {(proj.githubUrl || proj.liveUrl || proj.otherUrl) && (
-                      <div className="flex items-center gap-2 mt-1">
+                      <div className="rt-flex rt-gap-2 rt-mt-1">
                         {proj.githubUrl && (
                           <a
                             href={proj.githubUrl}
-                            className="flex items-center gap-1 hover:underline"
+                            className="rt-link"
                             style={{ color: accentColor, fontSize: fontSize.small }}
                           >
-                            <Github className="w-3 h-3" />
+                            <Github className="rt-icon-sm" />
                             GitHub
                           </a>
                         )}
                         {proj.liveUrl && (
                           <a
                             href={proj.liveUrl}
-                            className="flex items-center gap-1 hover:underline"
+                            className="rt-link"
                             style={{ color: accentColor, fontSize: fontSize.small }}
                           >
-                            <ExternalLink className="w-3 h-3" />
+                            <ExternalLink className="rt-icon-sm" />
                             Live
                           </a>
                         )}
                         {proj.otherUrl && (
                           <a
                             href={proj.otherUrl}
-                            className="flex items-center gap-1 hover:underline"
+                            className="rt-link"
                             style={{ color: accentColor, fontSize: fontSize.small }}
                           >
-                            <ExternalLink className="w-3 h-3" />
+                            <ExternalLink className="rt-icon-sm" />
                             Link
                           </a>
                         )}
@@ -471,7 +503,7 @@ export function ModernDarkTemplate({ data, styles }: ModernDarkTemplateProps) {
           {volunteers.length > 0 && (
             <div>
               <h2
-                className="font-bold uppercase tracking-wider"
+                className="rt-font-bold rt-uppercase rt-tracking-wider"
                 style={{
                   color: accentColor,
                   fontSize: fontSize.sectionTitle,
@@ -490,12 +522,12 @@ export function ModernDarkTemplate({ data, styles }: ModernDarkTemplateProps) {
                 {volunteers.map((vol) => (
                   <div key={vol.id}>
                     <p
-                      className="font-medium"
+                      className="rt-font-medium"
                       style={{ color: accentColor, fontSize: fontSize.itemTitle }}
                     >
                       {vol.role}
                     </p>
-                    <p className="text-slate-500" style={{ fontSize: fontSize.small }}>
+                    <p className="rt-text-slate-500" style={{ fontSize: fontSize.small }}>
                       {vol.organization} • {vol.startDate} -{" "}
                       {vol.currentlyVolunteering ? "Present" : vol.endDate}
                     </p>
@@ -509,7 +541,7 @@ export function ModernDarkTemplate({ data, styles }: ModernDarkTemplateProps) {
           {publications.length > 0 && (
             <div>
               <h2
-                className="font-bold uppercase tracking-wider"
+                className="rt-font-bold rt-uppercase rt-tracking-wider"
                 style={{
                   color: accentColor,
                   fontSize: fontSize.sectionTitle,
@@ -528,12 +560,12 @@ export function ModernDarkTemplate({ data, styles }: ModernDarkTemplateProps) {
                 {publications.map((pub) => (
                   <div key={pub.id}>
                     <p
-                      className="font-medium"
+                      className="rt-font-medium"
                       style={{ color: accentColor, fontSize: fontSize.itemTitle }}
                     >
                       {pub.title}
                     </p>
-                    <p className="text-slate-500" style={{ fontSize: fontSize.small }}>
+                    <p className="rt-text-slate-500" style={{ fontSize: fontSize.small }}>
                       {pub.publisher} • {pub.publicationDate}
                     </p>
                   </div>

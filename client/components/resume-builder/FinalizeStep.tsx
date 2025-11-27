@@ -186,77 +186,190 @@ export function FinalizeStep({
     setLineSpacing(25);
   };
 
-  // Handle PDF download using html2canvas-pro (preserves all styling)
-  const handleDownloadPDF = async () => {
+  // Handle PDF download using browser print
+  const handleDownloadPDF = () => {
     if (!resumeRef.current) return;
 
     setIsDownloading(true);
 
     try {
-      // Dynamically import html2canvas-pro and jspdf to avoid SSR issues
-      const html2canvas = (await import("html2canvas-pro")).default;
-      const { jsPDF } = await import("jspdf");
-
       // Get all page elements
-      const pages = resumeRef.current.querySelectorAll(".bg-white.shadow-lg");
+      const pages = resumeRef.current.querySelectorAll(".rt-page");
 
       if (pages.length === 0) {
-        // Fallback: capture the entire content
-        const canvas = await html2canvas(resumeRef.current, {
-          scale: 2,
-          useCORS: true,
-          allowTaint: true,
-          backgroundColor: "#ffffff",
-        });
-
-        const imgData = canvas.toDataURL("image/png", 1.0);
-        const pdf = new jsPDF({
-          orientation: "portrait",
-          unit: "in",
-          format: "letter",
-        });
-
-        const pageWidth = 8.5;
-        const imgWidth = pageWidth;
-        const imgHeight = (canvas.height * imgWidth) / canvas.width;
-
-        pdf.addImage(imgData, "PNG", 0, 0, imgWidth, imgHeight);
-        pdf.save(`${resumeName}.pdf`);
-      } else {
-        // Multiple pages: capture each page separately
-        const pdf = new jsPDF({
-          orientation: "portrait",
-          unit: "in",
-          format: "letter",
-        });
-
-        const pageWidth = 8.5;
-        const pageHeight = 11;
-
-        for (let i = 0; i < pages.length; i++) {
-          const page = pages[i] as HTMLElement;
-
-          const canvas = await html2canvas(page, {
-            scale: 2,
-            useCORS: true,
-            allowTaint: true,
-            backgroundColor: "#ffffff",
-          });
-
-          const imgData = canvas.toDataURL("image/png", 1.0);
-
-          if (i > 0) {
-            pdf.addPage();
-          }
-
-          pdf.addImage(imgData, "PNG", 0, 0, pageWidth, pageHeight);
-        }
-
-        pdf.save(`${resumeName}.pdf`);
+        console.error("No pages found to export");
+        setIsDownloading(false);
+        return;
       }
+
+      // Create a new window for printing
+      const printWindow = window.open("", "_blank");
+      if (!printWindow) {
+        console.error("Could not open print window");
+        setIsDownloading(false);
+        return;
+      }
+
+      // Get all stylesheets from the current document
+      const styleSheets = Array.from(document.styleSheets)
+        .map((sheet) => {
+          try {
+            if (sheet.cssRules) {
+              return Array.from(sheet.cssRules)
+                .map((rule) => rule.cssText)
+                .join("\n");
+            }
+          } catch (e) {
+            // Handle cross-origin stylesheets
+            if (sheet.href) {
+              return `@import url("${sheet.href}");`;
+            }
+          }
+          return "";
+        })
+        .join("\n");
+
+      // Clone the pages content
+      const pagesHtml = Array.from(pages)
+        .map((page, index) => {
+          const clone = page.cloneNode(true) as HTMLElement;
+          // Reset all inline styles - let CSS handle sizing
+          clone.removeAttribute("style");
+          clone.classList.add("print-rt-page");
+
+          // Wrap in container for page break
+          const isLast = index === pages.length - 1;
+          return `<div class="print-page" ${
+            isLast ? "" : 'style="page-break-after: always;"'
+          }>${clone.outerHTML}</div>`;
+        })
+        .join("");
+
+      // Write the print document
+      printWindow.document.write(`
+        <!DOCTYPE html>
+        <html>
+          <head>
+            <title>${resumeName}</title>
+            <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;500;700&family=Montserrat:wght@400;500;700&family=Open+Sans:wght@400;500;700&family=Poppins:wght@400;500;700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+            <style>
+              ${styleSheets}
+
+              * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+              }
+
+              html, body {
+                margin: 0;
+                padding: 0;
+                background: white;
+              }
+
+              .print-page {
+                width: 210mm;
+                height: 297mm;
+                overflow: hidden;
+                position: relative;
+                background: white;
+              }
+
+              .print-rt-page,
+              .rt-page {
+                width: 210mm !important;
+                height: 297mm !important;
+                max-width: 210mm !important;
+                max-height: 297mm !important;
+                min-width: 210mm !important;
+                min-height: 297mm !important;
+                box-shadow: none !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                overflow: hidden !important;
+                background: white !important;
+              }
+
+              .rt-container,
+              .rt-container-flex {
+                width: 100% !important;
+                max-width: 100% !important;
+                min-height: 297mm !important;
+                height: 297mm !important;
+              }
+
+              .rt-content-viewport {
+                height: 297mm !important;
+                top: 0 !important;
+                position: absolute !important;
+                left: 0 !important;
+                right: 0 !important;
+              }
+
+              .rt-scrolling-container {
+                min-height: 297mm !important;
+                height: 297mm !important;
+              }
+
+              /* Hide page numbers in print */
+              .rt-page-number {
+                display: none !important;
+              }
+
+              /* Hide measure container in print */
+              .rt-measure-container {
+                display: none !important;
+              }
+
+              /* Sidebar background should fill full height */
+              .rt-sidebar-bg {
+                height: 297mm !important;
+              }
+
+              @media print {
+                @page {
+                  size: A4;
+                  margin: 0;
+                }
+
+                html, body {
+                  -webkit-print-color-adjust: exact !important;
+                  print-color-adjust: exact !important;
+                }
+
+                .print-page {
+                  page-break-inside: avoid;
+                }
+              }
+            </style>
+          </head>
+          <body>
+            ${pagesHtml}
+          </body>
+        </html>
+      `);
+
+      printWindow.document.close();
+
+      // Wait for fonts and images to load
+      printWindow.onload = () => {
+        setTimeout(() => {
+          printWindow.print();
+          printWindow.close();
+          setIsDownloading(false);
+        }, 500);
+      };
+
+      // Fallback if onload doesn't fire
+      setTimeout(() => {
+        if (printWindow && !printWindow.closed) {
+          printWindow.print();
+          printWindow.close();
+        }
+        setIsDownloading(false);
+      }, 2000);
     } catch (error) {
       console.error("Error generating PDF:", error);
-    } finally {
       setIsDownloading(false);
     }
   };
@@ -297,7 +410,7 @@ export function FinalizeStep({
 
       {/* Scrollable Content */}
       <div className="flex-1 overflow-y-auto pt-4">
-        <div className="flex flex-col lg:flex-row gap-6">
+        <div className="flex flex-col lg:flex-row gap-6 lg:items-start">
           {/* Resume Preview Card */}
           <div className="flex-1 overflow-hidden">
             <div className="h-full overflow-auto p-4">
@@ -443,8 +556,8 @@ export function FinalizeStep({
             </div>
           </div>
 
-          {/* Right Sidebar - Templates & Formatting */}
-          <div className="w-full lg:w-80 bg-card rounded-xl border border-border p-4 h-[650px] flex flex-col">
+          {/* Right Sidebar - Templates & Formatting (Sticky on desktop) */}
+          <div className="w-full lg:w-80 lg:sticky lg:top-4 bg-card rounded-xl border border-border p-4 h-[650px] flex flex-col lg:shrink-0">
             {/* Tabs */}
             <div className="flex border-b border-border mb-4">
               <button

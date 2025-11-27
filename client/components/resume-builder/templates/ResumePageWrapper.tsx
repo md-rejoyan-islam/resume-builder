@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, ReactNode } from "react";
+import "./resume-templates.css";
 
 interface SidebarConfig {
   position: "left" | "right";
@@ -20,32 +21,42 @@ export function ResumePageWrapper({ children, fontFamily, accentColor, sidebar }
   const [pageCount, setPageCount] = useState<number>(1);
   const [contentHeight, setContentHeight] = useState<number>(0);
 
-  // Page height in pixels (approximate for 8.5x11 aspect ratio at max-w-[600px])
-  const PAGE_HEIGHT = 776; // 600 * 11 / 8.5 ≈ 776px
-  const CONTENT_HEIGHT = PAGE_HEIGHT - 32; // Leave room for page number
-  const PAGE_TOP_PADDING = 24; // Top padding for page 2 and beyond
+  // Page height in pixels (A4 aspect ratio at 600px width)
+  // A4: 210mm x 297mm = ratio 1:1.414
+  // 600 * 1.414 = 848.4px ≈ 848px
+  const PAGE_HEIGHT = 848;
+  const PAGE_NUMBER_HEIGHT = 24;
+  const PAGE_TOP_PADDING = 24; // Top padding for page 2+
+
+  // Content height per page when there are multiple pages (leave room for page number)
+  const CONTENT_PER_PAGE = PAGE_HEIGHT - PAGE_NUMBER_HEIGHT;
 
   useEffect(() => {
     const checkOverflow = () => {
       if (measureRef.current) {
-        // Find the actual content inside the template (skip the template's outer container)
         const templateContainer = measureRef.current.firstElementChild as HTMLElement;
         if (templateContainer) {
           const height = templateContainer.scrollHeight;
           setContentHeight(height);
-          const calculatedPages = Math.ceil(height / CONTENT_HEIGHT);
-          setPageCount(Math.max(1, calculatedPages));
+
+          // Simple calculation: if content fits in one page, show 1 page
+          // Otherwise, calculate how many pages needed using CONTENT_PER_PAGE
+          if (height <= PAGE_HEIGHT) {
+            setPageCount(1);
+          } else {
+            // For multi-page, use consistent content height per page
+            const calculatedPages = Math.ceil(height / CONTENT_PER_PAGE);
+            setPageCount(calculatedPages);
+          }
         }
       }
     };
 
-    // Check on mount and after delays for fonts/images to load
     checkOverflow();
     const timer1 = setTimeout(checkOverflow, 100);
     const timer2 = setTimeout(checkOverflow, 500);
     const timer3 = setTimeout(checkOverflow, 1000);
 
-    // Also check on window resize
     window.addEventListener('resize', checkOverflow);
 
     return () => {
@@ -54,16 +65,19 @@ export function ResumePageWrapper({ children, fontFamily, accentColor, sidebar }
       clearTimeout(timer3);
       window.removeEventListener('resize', checkOverflow);
     };
-  }, [children, CONTENT_HEIGHT]);
+  }, [children, PAGE_HEIGHT, CONTENT_PER_PAGE]);
+
+  // Calculate the offset for each page
+  const getPageOffset = (pageIndex: number): number => {
+    if (pageCount === 1) return 0;
+    // For multi-page: each page shows CONTENT_PER_PAGE worth of content
+    return pageIndex * CONTENT_PER_PAGE;
+  };
 
   return (
-    <div className="flex flex-col gap-8 relative">
-      {/* Hidden measure container - full height to measure actual content */}
-      <div
-        ref={measureRef}
-        className="absolute left-[-9999px] top-0 opacity-0 pointer-events-none overflow-visible"
-        style={{ width: "600px" }}
-      >
+    <div className="rt-page-wrapper">
+      {/* Hidden measure container */}
+      <div ref={measureRef} className="rt-measure-container">
         {children}
       </div>
 
@@ -71,18 +85,17 @@ export function ResumePageWrapper({ children, fontFamily, accentColor, sidebar }
       {Array.from({ length: pageCount }, (_, pageIndex) => (
         <div
           key={pageIndex}
-          className="bg-white shadow-lg mx-auto max-w-[600px] relative overflow-hidden"
+          className="rt-page"
           style={{
-            aspectRatio: "8.5/11",
             fontFamily,
             minHeight: `${PAGE_HEIGHT}px`,
             maxHeight: `${PAGE_HEIGHT}px`,
           }}
         >
-          {/* Full-height sidebar background - renders behind content */}
+          {/* Sidebar background */}
           {sidebar && (
             <div
-              className="absolute top-0 bottom-0"
+              className="rt-sidebar-bg"
               style={{
                 [sidebar.position]: 0,
                 width: sidebar.width,
@@ -91,34 +104,35 @@ export function ResumePageWrapper({ children, fontFamily, accentColor, sidebar }
             />
           )}
 
-          {/* Top padding overlay for page 2+ - creates visual margin at top */}
+          {/* Top padding overlay for page 2+ */}
           {pageIndex > 0 && (
             <div
-              className="absolute top-0 z-10"
+              className="rt-top-padding-overlay"
               style={{
                 height: `${PAGE_TOP_PADDING}px`,
-                // Only cover the non-sidebar portion
                 left: sidebar?.position === "left" ? sidebar.width : 0,
                 right: sidebar?.position === "right" ? sidebar.width : 0,
-                backgroundColor: "white",
               }}
             />
           )}
 
-          {/* Content viewport - clips to page height */}
+          {/* Content viewport */}
           <div
-            className="absolute left-0 right-0 overflow-hidden"
+            className="rt-content-viewport"
             style={{
               top: pageIndex > 0 ? `${PAGE_TOP_PADDING}px` : 0,
-              height: pageIndex > 0 ? `${CONTENT_HEIGHT - PAGE_TOP_PADDING}px` : `${CONTENT_HEIGHT}px`,
+              height: pageCount === 1
+                ? `${PAGE_HEIGHT}px`
+                : pageIndex > 0
+                  ? `${CONTENT_PER_PAGE - PAGE_TOP_PADDING}px`
+                  : `${CONTENT_PER_PAGE}px`,
             }}
           >
-            {/* Scrolling container that positions content for each page */}
             <div
-              className="relative"
+              className="rt-scrolling-container"
               style={{
-                transform: `translateY(-${pageIndex * CONTENT_HEIGHT}px)`,
-                minHeight: `${Math.max(contentHeight, CONTENT_HEIGHT)}px`,
+                transform: `translateY(-${getPageOffset(pageIndex)}px)`,
+                minHeight: `${Math.max(contentHeight, PAGE_HEIGHT)}px`,
               }}
             >
               {children}
@@ -128,7 +142,7 @@ export function ResumePageWrapper({ children, fontFamily, accentColor, sidebar }
           {/* Page number footer */}
           {pageCount > 1 && (
             <div
-              className="absolute bottom-2 left-0 right-0 text-center text-xs z-20"
+              className="rt-page-number"
               style={{ color: `${accentColor}80` }}
             >
               Page {pageIndex + 1} of {pageCount}
