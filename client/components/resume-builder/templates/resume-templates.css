@@ -1,0 +1,612 @@
+/* Resume Templates Styles - Pure CSS for PDF compatibility */
+
+/* ============================================
+   BASE TEMPLATE STYLES
+   ============================================ */
+
+/* Container */
+.rt-container {
+  background-color: #ffffff;
+  margin-left: auto;
+  margin-right: auto;
+  max-width: 600px;
+  position: relative;
+}
+
+.rt-container-flex {
+  margin-left: auto;
+  margin-right: auto;
+  max-width: 600px;
+  position: relative;
+  display: flex;
+}
+
+/* Page Wrapper */
+.rt-page-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  position: relative;
+}
+
+.rt-page {
+  background-color: #ffffff;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+  margin-left: auto;
+  margin-right: auto;
+  max-width: 600px;
+  position: relative;
+  overflow: hidden;
+  aspect-ratio: 8.5 / 11;
+}
+
+.rt-measure-container {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  opacity: 0;
+  pointer-events: none;
+  overflow: visible;
+  width: 600px;
+}
+
+.rt-sidebar-bg {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+}
+
+.rt-top-padding-overlay {
+  position: absolute;
+  top: 0;
+  z-index: 10;
+  background-color: #ffffff;
+}
+
+.rt-content-viewport {
+  position: absolute;
+  left: 0;
+  right: 0;
+  overflow: hidden;
+}
+
+.rt-scrolling-container {
+  position: relative;
+}
+
+.rt-page-number {
+  position: absolute;
+  bottom: 8px;
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-size: 12px;
+  z-index: 20;
+}
+
+/* ============================================
+   LAYOUT STYLES
+   ============================================ */
+
+/* Flex utilities */
+.rt-flex {
+  display: flex;
+}
+
+.rt-flex-col {
+  display: flex;
+  flex-direction: column;
+}
+
+.rt-flex-wrap {
+  flex-wrap: wrap;
+}
+
+.rt-flex-center {
+  display: flex;
+  align-items: center;
+}
+
+.rt-flex-between {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.rt-justify-center {
+  justify-content: center;
+}
+
+.rt-items-center {
+  align-items: center;
+}
+
+.rt-items-start {
+  align-items: flex-start;
+}
+
+/* Grid */
+.rt-grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px 16px;
+}
+
+/* Column layouts */
+.rt-col-65 {
+  flex: 65;
+}
+
+.rt-col-35 {
+  flex: 35;
+}
+
+/* Spacing */
+.rt-p-8 {
+  padding: 32px;
+}
+
+.rt-p-6 {
+  padding: 24px;
+}
+
+.rt-p-5 {
+  padding: 20px;
+}
+
+.rt-p-4 {
+  padding: 16px;
+}
+
+.rt-pr-3 {
+  padding-right: 12px;
+}
+
+.rt-pl-4 {
+  padding-left: 16px;
+}
+
+.rt-pb-1 {
+  padding-bottom: 4px;
+}
+
+.rt-pb-3 {
+  padding-bottom: 12px;
+}
+
+.rt-pb-4 {
+  padding-bottom: 16px;
+}
+
+.rt-mt-1 {
+  margin-top: 4px;
+}
+
+.rt-mt-2 {
+  margin-top: 8px;
+}
+
+.rt-ml-4 {
+  margin-left: 16px;
+}
+
+.rt-gap-1 {
+  gap: 4px;
+}
+
+.rt-gap-2 {
+  gap: 8px;
+}
+
+.rt-gap-3 {
+  gap: 12px;
+}
+
+.rt-gap-x-2 {
+  column-gap: 8px;
+}
+
+.rt-gap-x-3 {
+  column-gap: 12px;
+}
+
+.rt-gap-y-1 {
+  row-gap: 4px;
+}
+
+.rt-gap-half {
+  gap: 2px;
+}
+
+.rt-gap-1-5 {
+  gap: 6px;
+}
+
+/* ============================================
+   TYPOGRAPHY STYLES
+   ============================================ */
+
+/* Text alignment */
+.rt-text-center {
+  text-align: center;
+}
+
+/* Font weights */
+.rt-font-bold {
+  font-weight: 700;
+}
+
+.rt-font-semibold {
+  font-weight: 600;
+}
+
+.rt-font-medium {
+  font-weight: 500;
+}
+
+.rt-font-normal {
+  font-weight: 400;
+}
+
+/* Text transform */
+.rt-uppercase {
+  text-transform: uppercase;
+}
+
+/* Letter spacing */
+.rt-tracking-wide {
+  letter-spacing: 0.025em;
+}
+
+.rt-tracking-wider {
+  letter-spacing: 0.05em;
+}
+
+/* Text colors */
+.rt-text-white {
+  color: #ffffff;
+}
+
+.rt-text-slate-900 {
+  color: #0f172a;
+}
+
+.rt-text-slate-800 {
+  color: #1e293b;
+}
+
+.rt-text-slate-700 {
+  color: #334155;
+}
+
+.rt-text-slate-600 {
+  color: #475569;
+}
+
+.rt-text-slate-500 {
+  color: #64748b;
+}
+
+.rt-text-slate-400 {
+  color: #94a3b8;
+}
+
+.rt-text-slate-300 {
+  color: #cbd5e1;
+}
+
+/* ============================================
+   BORDER STYLES
+   ============================================ */
+
+.rt-border-b {
+  border-bottom-width: 1px;
+  border-bottom-style: solid;
+}
+
+.rt-border-l-4 {
+  border-left-width: 4px;
+  border-left-style: solid;
+}
+
+.rt-border-gray {
+  border-color: #e5e7eb;
+}
+
+.rt-border-slate-200 {
+  border-color: #e2e8f0;
+}
+
+/* ============================================
+   VISUAL STYLES
+   ============================================ */
+
+/* Backgrounds */
+.rt-bg-white {
+  background-color: #ffffff;
+}
+
+.rt-bg-slate-50 {
+  background-color: #f8fafc;
+}
+
+/* Border radius */
+.rt-rounded {
+  border-radius: 4px;
+}
+
+.rt-rounded-full {
+  border-radius: 9999px;
+}
+
+.rt-rounded-lg {
+  border-radius: 8px;
+}
+
+/* Sizing */
+.rt-w-2 {
+  width: 8px;
+}
+
+.rt-h-2 {
+  height: 8px;
+}
+
+.rt-w-3 {
+  width: 12px;
+}
+
+.rt-h-3 {
+  height: 12px;
+}
+
+.rt-w-12 {
+  width: 48px;
+}
+
+.rt-h-12 {
+  height: 48px;
+}
+
+.rt-w-16 {
+  width: 64px;
+}
+
+.rt-h-16 {
+  height: 64px;
+}
+
+.rt-w-20 {
+  width: 80px;
+}
+
+.rt-h-20 {
+  height: 80px;
+}
+
+.rt-shrink-0 {
+  flex-shrink: 0;
+}
+
+/* ============================================
+   HEADER BANNER (Modern Dark Template)
+   ============================================ */
+
+.rt-header-banner {
+  height: 128px;
+  background-size: cover;
+  background-position: center;
+  position: relative;
+}
+
+.rt-header-banner-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.4));
+}
+
+.rt-header-banner-content {
+  position: absolute;
+  bottom: 16px;
+  left: 24px;
+  right: 24px;
+}
+
+/* ============================================
+   PROFILE IMAGE
+   ============================================ */
+
+.rt-profile-container {
+  display: flex;
+  justify-content: center;
+}
+
+.rt-profile-image-wrapper {
+  border-radius: 9999px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.rt-profile-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.rt-profile-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ============================================
+   SECTION STYLES
+   ============================================ */
+
+.rt-section-title {
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding-bottom: 4px;
+  border-bottom-width: 1px;
+  border-bottom-style: solid;
+}
+
+.rt-section-title-centered {
+  font-weight: 400;
+  text-align: center;
+  padding-bottom: 4px;
+  border-bottom-width: 1px;
+  border-bottom-style: solid;
+  border-color: #e5e7eb;
+}
+
+/* ============================================
+   SKILL TAGS
+   ============================================ */
+
+.rt-skill-tag {
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+.rt-skill-tags-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+/* ============================================
+   PROFICIENCY DOTS
+   ============================================ */
+
+.rt-proficiency-dots {
+  display: flex;
+  gap: 2px;
+}
+
+.rt-proficiency-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 9999px;
+}
+
+.rt-proficiency-dot-empty {
+  background-color: #e2e8f0;
+}
+
+/* ============================================
+   RICH TEXT CONTENT
+   ============================================ */
+
+.rt-rich-text ul {
+  list-style-type: disc;
+  margin-left: 16px;
+}
+
+.rt-rich-text li {
+  margin-bottom: 2px;
+}
+
+/* ============================================
+   LINKS
+   ============================================ */
+
+.rt-link {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.rt-link:hover {
+  text-decoration: underline;
+}
+
+/* ============================================
+   ICON STYLES
+   ============================================ */
+
+.rt-icon-sm {
+  width: 12px;
+  height: 12px;
+}
+
+.rt-icon-md {
+  width: 16px;
+  height: 16px;
+}
+
+/* ============================================
+   CONTACT INFO ROW
+   ============================================ */
+
+.rt-contact-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 8px;
+}
+
+.rt-contact-row-centered {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 4px 8px;
+}
+
+.rt-contact-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* ============================================
+   EXPERIENCE/EDUCATION ITEMS
+   ============================================ */
+
+.rt-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.rt-item-title {
+  font-weight: 600;
+}
+
+.rt-item-subtitle {
+  font-weight: 500;
+}
+
+.rt-item-date {
+  flex-shrink: 0;
+}
+
+/* ============================================
+   TWO-COLUMN LAYOUT
+   ============================================ */
+
+.rt-two-col-left {
+  flex: 65;
+  padding: 24px;
+  padding-right: 12px;
+}
+
+.rt-two-col-right {
+  flex: 35;
+  padding: 16px;
+}
+
+.rt-two-col-left-exec {
+  flex: 35;
+  padding: 20px;
+}
+
+.rt-two-col-right-exec {
+  flex: 65;
+  padding: 20px;
+  padding-left: 16px;
+}

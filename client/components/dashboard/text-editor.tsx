@@ -51,7 +51,7 @@ export function TextEditor({ value, onChange }: TextEditorProps) {
 
   return (
     <div className="border border-border rounded-lg overflow-hidden">
-      <div className="flex gap-1 p-2 border-b border-border bg-muted/30 flex-wrap">
+      <div className="flex gap-1 p-2 border-b border-border bg-card flex-wrap">
         <Button
           size="sm"
           variant={editor.isActive("bold") ? "default" : "outline"}
@@ -160,7 +160,7 @@ export function TextEditor({ value, onChange }: TextEditorProps) {
 
       <EditorContent
         editor={editor}
-        className="max-w-none p-3 text-sm focus:outline-none"
+        className="max-w-none p-3 text-sm bg-card focus:outline-none"
         style={{ minHeight: "128px" }}
       />
     </div>
