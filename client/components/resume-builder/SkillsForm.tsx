@@ -12,15 +12,10 @@ import { DraggableList } from "@/components/ui/draggable-list";
 import { Input } from "@/components/ui/input";
 import { Slider } from "@/components/ui/slider";
 import { cn } from "@/lib/utils";
+import type { Skill } from "@/lib/resume-format";
 import { Edit2, GripVertical, Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
-
-export interface Skill {
-  id: string;
-  name: string;
-  level: number; // 1-5
-}
 
 interface SkillsFormProps {
   skills: Skill[];

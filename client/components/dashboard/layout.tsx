@@ -14,7 +14,10 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
   const { isLoading } = useGetMeQuery("");
 
   const pathname = usePathname();
-  const isResumeBuilder = pathname?.includes("/resumes/from-scratch/");
+  // Match /resumes/[id] or /resumes/[id]/new but NOT /resumes/new (selection page)
+  const isResumeBuilder = pathname?.match(/\/resumes\/[a-f0-9]{24}(\/new)?$/) !== null;
+  // Match /cover-letters/[id] or /cover-letters/[id]/new but NOT /cover-letters/new
+  const isCoverLetterBuilder = pathname?.match(/\/cover-letters\/[a-f0-9]{24}(\/new)?$/) !== null;
 
   if (isLoading) {
     return (
@@ -24,7 +27,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
     );
   }
 
-  if (isResumeBuilder) {
+  if (isResumeBuilder || isCoverLetterBuilder) {
     return <div className="min-h-screen bg-background">{children}</div>;
   }
 

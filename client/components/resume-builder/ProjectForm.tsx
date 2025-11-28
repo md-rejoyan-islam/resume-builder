@@ -16,17 +16,9 @@ import { HtmlContent } from "@/components/ui/html-content";
 import { Input } from "@/components/ui/input";
 import { TextEditor } from "@/components/dashboard/text-editor";
 import { cn } from "@/lib/utils";
+import type { Project } from "@/lib/resume-format";
 import { Edit2, FolderGit2, Plus, Trash2 } from "lucide-react";
 import { useRef, useState } from "react";
-
-export interface Project {
-  id: string;
-  name: string;
-  description: string;
-  githubUrl: string;
-  liveUrl: string;
-  otherUrl: string;
-}
 
 interface ProjectFormProps {
   projects: Project[];

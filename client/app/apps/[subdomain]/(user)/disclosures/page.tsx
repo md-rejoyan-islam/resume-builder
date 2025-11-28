@@ -40,14 +40,6 @@ const DisclosuresPage = () => {
     setDisclosures(disclosures.filter((disclosure) => disclosure.id !== id));
   };
 
-  const handleEdit = (id: number | string, newTitle: string) => {
-    setDisclosures(
-      disclosures.map((disclosure) =>
-        disclosure.id === id ? { ...disclosure, title: newTitle } : disclosure
-      )
-    );
-  };
-
   const filteredDisclosures = disclosures.filter(
     (disclosure) =>
       disclosure.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -82,9 +74,8 @@ const DisclosuresPage = () => {
       key={disclosure.id}
       id={disclosure.id}
       title={disclosure.title}
-      viewLink={`/disclosure/${disclosure.id}`}
+      detailsLink={`/disclosure/${disclosure.id}`}
       onDelete={handleDelete}
-      onEdit={handleEdit}
     />,
   ]);
 

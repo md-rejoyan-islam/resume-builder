@@ -3,6 +3,17 @@
 import { Button } from "@/components/ui/button";
 import { CircularProgress } from "@/components/ui/circular-progress";
 import { cn } from "@/lib/utils";
+import type {
+  Skill,
+  Experience,
+  Education,
+  Certification,
+  Project,
+  Reference,
+  Language,
+  Volunteer,
+  Publication,
+} from "@/lib/resume-format";
 import {
   Download,
   FileText,
@@ -13,15 +24,6 @@ import {
   X,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import { Certification } from "./CertificationForm";
-import { Education } from "./EducationForm";
-import { Experience } from "./ExperienceForm";
-import { Language } from "./LanguageForm";
-import { Project } from "./ProjectForm";
-import { Publication } from "./PublicationForm";
-import { Reference } from "./ReferenceForm";
-import { Skill } from "./SkillsForm";
-import { Volunteer } from "./VolunteerForm";
 import {
   CenteredTemplate,
   ClassicTemplate,

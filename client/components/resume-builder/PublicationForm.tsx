@@ -16,18 +16,9 @@ import { HtmlContent } from "@/components/ui/html-content";
 import { Input } from "@/components/ui/input";
 import { TextEditor } from "@/components/dashboard/text-editor";
 import { cn } from "@/lib/utils";
+import type { Publication } from "@/lib/resume-format";
 import { BookOpen, Edit2, Plus, Trash2 } from "lucide-react";
 import { useRef, useState } from "react";
-
-export interface Publication {
-  id: string;
-  title: string;
-  publisher: string;
-  authors: string;
-  publicationDate: string;
-  url: string;
-  description: string;
-}
 
 interface PublicationFormProps {
   publications: Publication[];

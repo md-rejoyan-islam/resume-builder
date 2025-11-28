@@ -16,20 +16,10 @@ import {
 } from "@/components/ui/draggable-list";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
+import type { Volunteer } from "@/lib/resume-format";
 import { HtmlContent } from "@/components/ui/html-content";
 import { Edit2, Heart, Plus, Trash2 } from "lucide-react";
 import { useRef, useState } from "react";
-
-export interface Volunteer {
-  id: string;
-  organization: string;
-  role: string;
-  location: string;
-  startDate: string;
-  endDate: string;
-  currentlyVolunteering: boolean;
-  description: string;
-}
 
 interface VolunteerFormProps {
   volunteers: Volunteer[];
@@ -290,7 +280,7 @@ export function VolunteerForm({
                   {formatDate(volunteer.startDate)} -{" "}
                   {volunteer.currentlyVolunteering
                     ? "Present"
-                    : formatDate(volunteer.endDate)}
+                    : volunteer.endDate ? formatDate(volunteer.endDate) : ""}
                 </p>
                 {volunteer.description && (
                   <HtmlContent

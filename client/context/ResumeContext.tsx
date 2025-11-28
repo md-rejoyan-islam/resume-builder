@@ -3,11 +3,12 @@
 import {
   calculateProgress,
   ContactData,
-  defaultResumeData,
+  emptyResumeData,
   getAllSectionCompletions,
   isSectionCompleted,
   ResumeData,
   SectionId,
+  SectionTitle,
   Certification,
   Education,
   Experience,
@@ -17,6 +18,8 @@ import {
   Reference,
   Skill,
   Volunteer,
+  getSectionTitle,
+  defaultSectionTitles,
 } from "@/lib/resume-data";
 import {
   createContext,
@@ -63,6 +66,7 @@ export const defaultTemplateStyles: TemplateStyles = {
 interface ResumeContextValue {
   // Resume data
   resumeData: ResumeData;
+  setResumeData: (data: ResumeData) => void;
 
   // Form data as Record for legacy compatibility
   formData: Record<string, string>;
@@ -114,6 +118,11 @@ interface ResumeContextValue {
   touchedFields: Set<string>;
   setTouchedFields: (fields: Set<string>) => void;
   markFieldTouched: (fieldName: string) => void;
+
+  // Section titles (customizable)
+  sectionTitles: SectionTitle[];
+  getSectionTitleById: (sectionId: string) => string;
+  updateSectionTitle: (sectionId: string, title: string) => void;
 }
 
 // Create context
@@ -127,9 +136,9 @@ interface ResumeProviderProps {
 
 // Provider component
 export function ResumeProvider({ children, initialData }: ResumeProviderProps) {
-  // Initialize resume data with defaults and any initial data
+  // Initialize resume data with empty data and any initial data
   const [resumeData, setResumeData] = useState<ResumeData>(() => ({
-    ...defaultResumeData,
+    ...emptyResumeData,
     ...initialData,
   }));
 
@@ -236,11 +245,34 @@ export function ResumeProvider({ children, initialData }: ResumeProviderProps) {
     setTouchedFields((prev) => new Set([...prev, fieldName]));
   }, []);
 
+  // Section titles - use from resumeData or default
+  const sectionTitles = useMemo(
+    () => resumeData.sectionTitles || defaultSectionTitles,
+    [resumeData.sectionTitles]
+  );
+
+  // Get section title by ID
+  const getSectionTitleById = useCallback(
+    (sectionId: string) => getSectionTitle(sectionTitles, sectionId),
+    [sectionTitles]
+  );
+
+  // Update section title
+  const updateSectionTitle = useCallback((sectionId: string, title: string) => {
+    setResumeData((prev) => ({
+      ...prev,
+      sectionTitles: (prev.sectionTitles || defaultSectionTitles).map((st) =>
+        st.id === sectionId ? { ...st, title } : st
+      ),
+    }));
+  }, []);
+
   // Context value
   const value = useMemo<ResumeContextValue>(
     () => ({
       // Resume data
       resumeData,
+      setResumeData,
       formData,
 
       // Individual section data
@@ -290,6 +322,11 @@ export function ResumeProvider({ children, initialData }: ResumeProviderProps) {
       touchedFields,
       setTouchedFields,
       markFieldTouched,
+
+      // Section titles
+      sectionTitles,
+      getSectionTitleById,
+      updateSectionTitle,
     }),
     [
       resumeData,
@@ -315,6 +352,9 @@ export function ResumeProvider({ children, initialData }: ResumeProviderProps) {
       removeOptionalField,
       touchedFields,
       markFieldTouched,
+      sectionTitles,
+      getSectionTitleById,
+      updateSectionTitle,
     ]
   );
 

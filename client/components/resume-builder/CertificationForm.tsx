@@ -15,21 +15,10 @@ import {
 import { Input } from "@/components/ui/input";
 import { TextEditor } from "@/components/dashboard/text-editor";
 import { cn } from "@/lib/utils";
+import type { Certification } from "@/lib/resume-format";
 import { HtmlContent } from "@/components/ui/html-content";
 import { Award, Edit2, Plus, Trash2 } from "lucide-react";
 import { useRef, useState } from "react";
-
-export interface Certification {
-  id: string;
-  name: string;
-  issuer: string;
-  issueDate: string;
-  expirationDate: string;
-  noExpiration: boolean;
-  credentialId: string;
-  credentialUrl: string;
-  description: string;
-}
 
 interface CertificationFormProps {
   certifications: Certification[];
@@ -268,7 +257,7 @@ export function CertificationForm({
             Description
           </label>
           <TextEditor
-            value={formData.description}
+            value={formData.description || ""}
             onChange={(value) => handleInputChange("description", value)}
           />
         </div>
@@ -526,7 +515,7 @@ export function CertificationForm({
                   Description
                 </label>
                 <TextEditor
-                  value={editingCertification.description}
+                  value={editingCertification.description || ""}
                   onChange={(value) =>
                     handleEditInputChange("description", value)
                   }

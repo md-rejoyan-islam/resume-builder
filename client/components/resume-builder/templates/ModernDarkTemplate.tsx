@@ -1,15 +1,17 @@
 "use client";
 
 import { ExternalLink, Github, Mail, MapPin, Phone } from "lucide-react";
-import { Certification } from "../CertificationForm";
-import { Education } from "../EducationForm";
-import { Experience } from "../ExperienceForm";
-import { Language } from "../LanguageForm";
-import { Project } from "../ProjectForm";
-import { Publication } from "../PublicationForm";
-import { Reference } from "../ReferenceForm";
-import { Skill } from "../SkillsForm";
-import { Volunteer } from "../VolunteerForm";
+import type {
+  Skill,
+  Experience,
+  Education,
+  Certification,
+  Project,
+  Reference,
+  Language,
+  Volunteer,
+  Publication,
+} from "@/lib/resume-format";
 import "./resume-templates.css";
 
 export interface TemplateStyles {

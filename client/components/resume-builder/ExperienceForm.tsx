@@ -23,21 +23,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
+import type { Experience } from "@/lib/resume-format";
 import { Briefcase, Edit2, Plus, Trash2 } from "lucide-react";
 import { useRef, useState } from "react";
-
-export interface Experience {
-  id: string;
-  jobTitle: string;
-  employer: string;
-  city: string;
-  country: string;
-  jobType: string;
-  startDate: string;
-  endDate: string;
-  currentlyWorking: boolean;
-  description: string;
-}
 
 interface ExperienceFormProps {
   experiences: Experience[];

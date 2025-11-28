@@ -70,12 +70,6 @@ const AdminUsersPage = () => {
     setUsers(users.filter((user) => user.id !== id));
   };
 
-  const handleEdit = (id: number | string, newName: string) => {
-    setUsers(
-      users.map((user) => (user.id === id ? { ...user, name: newName } : user))
-    );
-  };
-
   const filteredUsers = users.filter(
     (user) =>
       `${user.first_name} ${user.last_name}`
@@ -123,9 +117,8 @@ const AdminUsersPage = () => {
       key={user.id}
       id={user.id}
       title={user.name}
-      viewLink={`/user/${user.id}`}
+      detailsLink={`/user/${user.id}`}
       onDelete={handleDelete}
-      onEdit={handleEdit}
     />,
   ]);
 

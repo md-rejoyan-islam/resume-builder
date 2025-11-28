@@ -4,6 +4,8 @@ import createError from 'http-errors';
 import errorHandler from '../middlewares/error-handler';
 import { register } from '../middlewares/matrics-middleware';
 import authRouter from '../modules/auth/auth.route';
+import coverLetterRouter from '../modules/cover-letter/cover-letter.route';
+import resumeRouter from '../modules/resume/resume.route';
 import userRouter from '../modules/user/user.route';
 import { asyncHandler } from '../utils/async-handler';
 import { successResponse } from '../utils/response-handler';
@@ -49,6 +51,10 @@ router.get('/api-docs-redoc', (_: Request, res: Response) => {
 router.use('/api/v1/auth', authRouter);
 // users routes
 router.use('/api/v1/users', userRouter);
+// resume routes
+router.use('/api/v1/resumes', resumeRouter);
+// cover letter routes
+router.use('/api/v1/cover-letters', coverLetterRouter);
 
 // 404 route
 router.use('', (req: Request, _res: Response) => {

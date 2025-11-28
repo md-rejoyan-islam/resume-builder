@@ -154,14 +154,14 @@ export const stepsConfig: StepConfig[] = [
     ],
     optionalFields: [
       {
-        name: "linkedIn",
+        name: "linkedinUrl",
         label: "LinkedIn",
         type: "url",
         width: "full",
         placeholder: "e.g. https://linkedin.com/in/johndoe",
       },
       {
-        name: "github",
+        name: "githubUrl",
         label: "GitHub",
         type: "url",
         width: "full",
@@ -188,14 +188,14 @@ export const stepsConfig: StepConfig[] = [
         placeholder: "e.g. American",
       },
       {
-        name: "twitter",
+        name: "twitterUrl",
         label: "Twitter",
         type: "url",
         width: "half",
         placeholder: "e.g. https://twitter.com/johndoe",
       },
       {
-        name: "website",
+        name: "websiteUrl",
         label: "Website",
         type: "url",
         width: "full",
@@ -241,7 +241,7 @@ export const stepsConfig: StepConfig[] = [
     component: "education", // Custom component for multi-education
   },
   {
-    id: "certification",
+    id: "certifications",
     label: "Certification",
     icon: Award,
     title: "Certifications & Achievements",
@@ -320,7 +320,7 @@ export const stepsConfig: StepConfig[] = [
     component: "references", // Custom component for multi-references
   },
   {
-    id: "language",
+    id: "languages",
     label: "Language",
     icon: LanguagesIcon,
     title: "Languages",

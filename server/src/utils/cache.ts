@@ -31,10 +31,13 @@ export function generateCacheKey(params: CacheKeyParams): string {
   try {
     const serializedData = JSON.stringify(keyData);
 
-    const cacheKey = crypto
+    const hash = crypto
       .createHash('sha256')
       .update(serializedData)
       .digest('hex');
+
+    // Use prefix:hash format for easier pattern-based invalidation
+    const cacheKey = `${params.resource}:${hash}`;
 
     return cacheKey;
   } catch (error) {
@@ -73,6 +76,21 @@ export async function deleteCache(key: string): Promise<void> {
     await redisClient.del(key);
   } catch (error) {
     logger.warn(`Failed to delete cache for key: ${key}. Error: ${error}`);
+  }
+}
+
+/**
+ * Delete all cache keys matching a pattern
+ * Use this for invalidating all related cache entries (e.g., all paginated lists)
+ */
+export async function deleteCacheByPattern(pattern: string): Promise<void> {
+  try {
+    const keys = await redisClient.keys(pattern);
+    if (keys.length > 0) {
+      await redisClient.del(keys);
+    }
+  } catch (error) {
+    logger.warn(`Failed to delete cache by pattern: ${pattern}. Error: ${error}`);
   }
 }
 

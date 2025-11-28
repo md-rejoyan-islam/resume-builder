@@ -5,7 +5,8 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Create New Resume | Professional Resume Builder",
-  description: "Create professional resumes from scratch, use existing templates, or generate with AI. Build your perfect resume in minutes.",
+  description:
+    "Create professional resumes from scratch, use existing templates, or generate with AI. Build your perfect resume in minutes.",
 };
 
 export default function ResumeCreatePage() {
@@ -21,7 +22,8 @@ export default function ResumeCreatePage() {
           Choose Your Method
         </h1>
         <p className="text-base sm:text-lg text-muted-foreground max-w-2xl">
-          Select how you'd like to create your resume and get started in seconds
+          Select how you&apos;d like to create your resume and get started in
+          seconds
         </p>
       </div>
 
@@ -61,7 +63,9 @@ export default function ResumeCreatePage() {
             </div>
             <div className="flex-1 space-y-1">
               <h4 className="font-semibold text-foreground">Professional</h4>
-              <p className="text-sm text-muted-foreground">Stand out from others</p>
+              <p className="text-sm text-muted-foreground">
+                Stand out from others
+              </p>
             </div>
           </CardContent>
         </Card>

@@ -1,16 +1,27 @@
 "use client";
 
-import { Certification, CertificationForm } from "@/components/resume-builder/CertificationForm";
+import { CertificationForm } from "@/components/resume-builder/CertificationForm";
 import { DynamicForm } from "@/components/resume-builder/DynamicForm";
-import { Education, EducationForm } from "@/components/resume-builder/EducationForm";
-import { Experience, ExperienceForm } from "@/components/resume-builder/ExperienceForm";
+import { EducationForm } from "@/components/resume-builder/EducationForm";
+import { ExperienceForm } from "@/components/resume-builder/ExperienceForm";
 import { FinalizeStep } from "@/components/resume-builder/FinalizeStep";
-import { Language, LanguageForm } from "@/components/resume-builder/LanguageForm";
-import { Project, ProjectForm } from "@/components/resume-builder/ProjectForm";
-import { Publication, PublicationForm } from "@/components/resume-builder/PublicationForm";
-import { Reference, ReferenceForm } from "@/components/resume-builder/ReferenceForm";
-import { Skill, SkillsForm } from "@/components/resume-builder/SkillsForm";
-import { Volunteer, VolunteerForm } from "@/components/resume-builder/VolunteerForm";
+import { LanguageForm } from "@/components/resume-builder/LanguageForm";
+import { ProjectForm } from "@/components/resume-builder/ProjectForm";
+import { PublicationForm } from "@/components/resume-builder/PublicationForm";
+import { ReferenceForm } from "@/components/resume-builder/ReferenceForm";
+import { SkillsForm } from "@/components/resume-builder/SkillsForm";
+import { VolunteerForm } from "@/components/resume-builder/VolunteerForm";
+import type {
+  Skill,
+  Experience,
+  Education,
+  Certification,
+  Project,
+  Reference,
+  Language,
+  Volunteer,
+  Publication,
+} from "@/lib/resume-format";
 import { stepsConfig } from "@/lib/resume-steps";
 import { RefObject } from "react";
 

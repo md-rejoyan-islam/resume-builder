@@ -15,6 +15,7 @@ import {
   RotateCcw,
   Underline,
 } from "lucide-react";
+import { useEffect, useRef } from "react";
 import "./text-editor.css";
 
 interface TextEditorProps {
@@ -23,6 +24,8 @@ interface TextEditorProps {
 }
 
 export function TextEditor({ value, onChange }: TextEditorProps) {
+  const isInternalUpdate = useRef(false);
+
   const editor = useEditor({
     extensions: [
       StarterKit.configure({
@@ -36,9 +39,22 @@ export function TextEditor({ value, onChange }: TextEditorProps) {
     content: value,
     immediatelyRender: false,
     onUpdate: ({ editor }) => {
+      isInternalUpdate.current = true;
       onChange(editor.getHTML());
     },
   });
+
+  // Update editor content when value prop changes from external source
+  useEffect(() => {
+    if (editor && !isInternalUpdate.current) {
+      const currentContent = editor.getHTML();
+      // Only update if the value is different to avoid cursor jumping
+      if (value !== currentContent) {
+        editor.commands.setContent(value, { emitUpdate: false });
+      }
+    }
+    isInternalUpdate.current = false;
+  }, [value, editor]);
 
   if (!editor) {
     return (

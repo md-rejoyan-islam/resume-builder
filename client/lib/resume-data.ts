@@ -1,73 +1,60 @@
 // Resume data types and default values
-// This file centralizes all resume-related types and default data
+// This file imports from resume-format.ts (single source of truth) and re-exports for backward compatibility
 
-import { Certification } from "@/components/resume-builder/CertificationForm";
-import { Education } from "@/components/resume-builder/EducationForm";
-import { Experience } from "@/components/resume-builder/ExperienceForm";
-import { Language } from "@/components/resume-builder/LanguageForm";
-import { Project } from "@/components/resume-builder/ProjectForm";
-import { Publication } from "@/components/resume-builder/PublicationForm";
-import { Reference } from "@/components/resume-builder/ReferenceForm";
-import { Skill } from "@/components/resume-builder/SkillsForm";
-import { Volunteer } from "@/components/resume-builder/VolunteerForm";
-
-// Re-export all types for convenience
-export type {
-  Certification,
-  Education,
-  Experience,
-  Language,
-  Project,
-  Publication,
-  Reference,
+import {
+  ResumeFormatData,
+  Contact,
   Skill,
+  Experience,
+  Education,
+  Certification,
+  Project,
+  Reference,
+  Language,
   Volunteer,
+  Publication,
+  SectionTitle,
+  SectionId,
+  defaultSectionTitles,
+  emptyResumeData,
+  isSectionCompleted,
+  getAllSectionCompletions,
+  calculateProgress,
+  getSectionTitle,
+} from "./resume-format";
+
+// Re-export all types for backward compatibility
+export type {
+  ResumeFormatData as ResumeData,
+  Contact as ContactData,
+  Skill,
+  Experience,
+  Education,
+  Certification,
+  Project,
+  Reference,
+  Language,
+  Volunteer,
+  Publication,
+  SectionTitle,
+  SectionId,
 };
 
-// Contact data type
-export interface ContactData {
-  firstName: string;
-  lastName: string;
-  jobTitle: string;
-  email: string;
-  phone: string;
-  country: string;
-  city: string;
-  state: string;
-  postalCode: string;
-  summary: string;
-}
-
-// Complete resume data structure
-export interface ResumeData {
-  contact: ContactData;
-  skills: Skill[];
-  experiences: Experience[];
-  educations: Education[];
-  certifications: Certification[];
-  projects: Project[];
-  references: Reference[];
-  languages: Language[];
-  volunteers: Volunteer[];
-  publications: Publication[];
-}
-
-// Section IDs for tracking completion
-export type SectionId =
-  | "contact"
-  | "skills"
-  | "experience"
-  | "education"
-  | "certifications"
-  | "projects"
-  | "references"
-  | "languages"
-  | "volunteer"
-  | "publications"
-  | "finalize";
+// Re-export helpers and constants
+export {
+  defaultSectionTitles,
+  getSectionTitle,
+  emptyResumeData,
+  isSectionCompleted,
+  getAllSectionCompletions,
+  calculateProgress,
+};
 
 // Default resume data with sample content
-export const defaultResumeData: ResumeData = {
+export const defaultResumeData: ResumeFormatData = {
+  // Section titles
+  sectionTitles: defaultSectionTitles,
+
   // Contact information
   contact: {
     firstName: "Md Rejoyan",
@@ -274,114 +261,3 @@ export const defaultResumeData: ResumeData = {
     },
   ],
 };
-
-// Empty resume data for clean starts
-export const emptyResumeData: ResumeData = {
-  contact: {
-    firstName: "",
-    lastName: "",
-    jobTitle: "",
-    email: "",
-    phone: "",
-    country: "",
-    city: "",
-    state: "",
-    postalCode: "",
-    summary: "",
-  },
-  skills: [],
-  experiences: [],
-  educations: [],
-  certifications: [],
-  projects: [],
-  references: [],
-  languages: [],
-  volunteers: [],
-  publications: [],
-};
-
-// Helper to check if a section is completed
-export function isSectionCompleted(
-  sectionId: SectionId,
-  data: ResumeData
-): boolean {
-  switch (sectionId) {
-    case "contact":
-      return !!(
-        data.contact.firstName &&
-        data.contact.lastName &&
-        data.contact.email
-      );
-    case "skills":
-      return data.skills.length > 0;
-    case "experience":
-      return data.experiences.length > 0;
-    case "education":
-      return data.educations.length > 0;
-    case "certifications":
-      return data.certifications.length > 0;
-    case "projects":
-      return data.projects.length > 0;
-    case "references":
-      return data.references.length > 0;
-    case "languages":
-      return data.languages.length > 0;
-    case "volunteer":
-      return data.volunteers.length > 0;
-    case "publications":
-      return data.publications.length > 0;
-    case "finalize":
-      return false; // Finalize is never "completed" as a section
-    default:
-      return false;
-  }
-}
-
-// Get all section completion statuses
-export function getAllSectionCompletions(
-  data: ResumeData
-): Record<SectionId, boolean> {
-  const sections: SectionId[] = [
-    "contact",
-    "skills",
-    "experience",
-    "education",
-    "certifications",
-    "projects",
-    "references",
-    "languages",
-    "volunteer",
-    "publications",
-    "finalize",
-  ];
-
-  return sections.reduce(
-    (acc, sectionId) => {
-      acc[sectionId] = isSectionCompleted(sectionId, data);
-      return acc;
-    },
-    {} as Record<SectionId, boolean>
-  );
-}
-
-// Calculate overall progress percentage
-export function calculateProgress(data: ResumeData): number {
-  const trackableSections: SectionId[] = [
-    "contact",
-    "skills",
-    "experience",
-    "education",
-    "certifications",
-    "projects",
-    "references",
-    "languages",
-    "volunteer",
-    "publications",
-  ];
-
-  const completedCount = trackableSections.filter((sectionId) =>
-    isSectionCompleted(sectionId, data)
-  ).length;
-
-  return Math.round((completedCount / trackableSections.length) * 100);
-}

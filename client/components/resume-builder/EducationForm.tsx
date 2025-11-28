@@ -14,19 +14,9 @@ import {
 } from "@/components/ui/draggable-list";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
+import type { Education } from "@/lib/resume-format";
 import { Edit2, GraduationCap, Plus, Trash2 } from "lucide-react";
 import { useRef, useState } from "react";
-
-export interface Education {
-  id: string;
-  school: string;
-  degree: string;
-  fieldOfStudy: string;
-  location: string;
-  startDate: string;
-  endDate: string;
-  currentlyStudying: boolean;
-}
 
 interface EducationFormProps {
   educations: Education[];

@@ -21,14 +21,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
+import type { Language } from "@/lib/resume-format";
 import { Edit2, Languages, Plus, Trash2 } from "lucide-react";
 import { useRef, useState } from "react";
-
-export interface Language {
-  id: string;
-  language: string;
-  proficiency: string;
-}
 
 interface LanguageFormProps {
   languages: Language[];

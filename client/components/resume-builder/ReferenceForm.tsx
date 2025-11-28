@@ -14,18 +14,9 @@ import {
 } from "@/components/ui/draggable-list";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
+import type { Reference } from "@/lib/resume-format";
 import { Edit2, Plus, Trash2, UserCheck } from "lucide-react";
 import { useRef, useState } from "react";
-
-export interface Reference {
-  id: string;
-  name: string;
-  company: string;
-  position: string;
-  email: string;
-  phone: string;
-  relationship: string;
-}
 
 interface ReferenceFormProps {
   references: Reference[];

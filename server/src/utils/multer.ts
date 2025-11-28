@@ -63,4 +63,19 @@ export const avatarUpload = multerUploader({
   fieldName: 'avatar',
 });
 
+// PDF upload using memory storage (for processing without saving to disk)
+export const pdfUpload = multer({
+  storage: multer.memoryStorage(),
+  limits: {
+    fileSize: 20 * 1024 * 1024, // 10MB max
+  },
+  fileFilter: (_req: Request, file, cb) => {
+    if (file.mimetype === 'application/pdf') {
+      cb(null, true);
+    } else {
+      cb(new Error('Only PDF files are allowed!'));
+    }
+  },
+}).single('pdf');
+
 export default multerUploader;

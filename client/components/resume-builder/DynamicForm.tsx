@@ -1,5 +1,6 @@
 "use client";
 
+import { TextEditor } from "@/components/dashboard/text-editor";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -8,7 +9,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { TextEditor } from "@/components/dashboard/text-editor";
 import { FieldConfig } from "@/lib/resume-steps";
 import { cn } from "@/lib/utils";
 import { ChevronDown, Plus, Trash2, Upload } from "lucide-react";
@@ -171,7 +171,15 @@ export function DynamicForm({
                 </div>
               )}
               <Input
-                type={field.type === "date" ? "date" : "text"}
+                type={
+                  field.type === "date"
+                    ? "date"
+                    : field.type === "url"
+                    ? "url"
+                    : field.type === "email"
+                    ? "email"
+                    : "text"
+                }
                 value={formData[field.name] || ""}
                 onChange={(e) => handleInputChange(field.name, e.target.value)}
                 className={cn(
@@ -223,7 +231,7 @@ export function DynamicForm({
 
       {/* Optional Fields Accordion */}
       {availableOptionalFields.length > 0 && (
-        <div className="border border-slate-200 dark:border-border rounded-xl bg-slate-50 dark:bg-card overflow-hidden">
+        <div className="border border-slate-200 dark:border-border rounded-xl bg-card dark:bg-card overflow-hidden">
           {/* Accordion Header */}
           <button
             type="button"
