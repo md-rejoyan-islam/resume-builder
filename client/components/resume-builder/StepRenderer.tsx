@@ -54,6 +54,12 @@ interface StepRendererProps {
   // Publication management
   publications?: Publication[];
   onPublicationsChange?: (publications: Publication[]) => void;
+  // Progress tracking (for FinalizeStep)
+  completedSteps?: Set<string>;
+  totalSteps?: number;
+  // Template management (for FinalizeStep)
+  selectedTemplate?: string;
+  onTemplateChange?: (templateId: string) => void;
 }
 
 export function StepRenderer({
@@ -86,6 +92,10 @@ export function StepRenderer({
   onVolunteersChange,
   publications = [],
   onPublicationsChange,
+  completedSteps = new Set(),
+  totalSteps = 11,
+  selectedTemplate = "classic",
+  onTemplateChange,
 }: StepRendererProps) {
   const stepConfig = stepsConfig.find((s) => s.id === stepId);
 
@@ -106,6 +116,10 @@ export function StepRenderer({
         languages={languages}
         volunteers={volunteers}
         publications={publications}
+        completedSteps={completedSteps}
+        totalSteps={totalSteps}
+        selectedTemplate={selectedTemplate}
+        onTemplateChange={onTemplateChange}
       />
     );
   }

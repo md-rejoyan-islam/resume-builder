@@ -89,14 +89,17 @@ async function handleProxyRequest(
       const tokenRefreshResponse = await fetchResource({
         url: `${API_URL}/api/v1/auth/refresh`,
         method: "POST",
+        headers: new Headers({
+          "Content-Type": "application/json",
+        }),
         body: JSON.stringify({
-          refreshToken: refreshToken,
+          refresh_token: refreshToken,
         }),
       });
 
       if (tokenRefreshResponse.ok) {
         const tokenData = await tokenRefreshResponse.json();
-        const newAccessToken = tokenData.data.accessToken;
+        const newAccessToken = tokenData.data.access_token;
 
         if (newAccessToken) {
           await setCookie("accessToken", newAccessToken);
@@ -114,10 +117,9 @@ async function handleProxyRequest(
       } else {
         await deleteCookie("accessToken");
         await deleteCookie("refreshToken");
-        const erroMsg =
-          tokenRefreshResponse.statusText ||
+        const errorMsg =
           "Session expired. Please log in again.";
-        return NextResponse.json({ message: erroMsg }, { status: 301 });
+        return NextResponse.json({ message: errorMsg }, { status: 401 });
       }
     } catch (error) {
       console.error("Error during token refresh:", error);

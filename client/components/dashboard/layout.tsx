@@ -1,23 +1,31 @@
 "use client";
 
 import { Sidebar } from "@/components/dashboard/sidebar";
+import { useGetMeQuery } from "@/lib/features/auth/auth-slice";
 import { usePathname } from "next/navigation";
 import { ReactNode } from "react";
+import { Spinner } from "../ui/shadcn-io/spinner";
 
 interface DashboardLayoutProps {
   children: ReactNode;
 }
 
 export function DashboardLayout({ children }: DashboardLayoutProps) {
+  const { isLoading } = useGetMeQuery("");
+
   const pathname = usePathname();
   const isResumeBuilder = pathname?.includes("/resumes/from-scratch/");
 
-  if (isResumeBuilder) {
+  if (isLoading) {
     return (
-      <div className="min-h-screen bg-background">
-        {children}
+      <div className="flex min-h-screen items-center justify-center">
+        <Spinner className="w-[30vw]  text-primary" size={80} />
       </div>
     );
+  }
+
+  if (isResumeBuilder) {
+    return <div className="min-h-screen bg-background">{children}</div>;
   }
 
   return (
@@ -31,4 +39,3 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
     </div>
   );
 }
-

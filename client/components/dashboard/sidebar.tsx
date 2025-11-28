@@ -31,7 +31,7 @@ import {
   Moon,
   Settings,
   Users,
-  X
+  X,
 } from "lucide-react";
 import { useTheme } from "next-themes";
 import Image from "next/image";
@@ -39,7 +39,6 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
-import { Skeleton } from "../ui/skeleton";
 
 interface SidebarItem {
   label: string;
@@ -54,35 +53,31 @@ const client_url = process.env.NEXT_PUBLIC_BASE_URL!;
 export function Sidebar() {
   const pathname = usePathname();
   const { setTheme, theme } = useTheme();
-  
-  // Collapsed state with localStorage persistence
-  const [isCollapsed, setIsCollapsed] = useState(false);
-  const [mounted, setMounted] = useState(false);
-  const [expandedMenus, setExpandedMenus] = useState<string[]>([]); // Track expanded accordion menus
 
-  // Handle client-side mounting for portal
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  // Load collapsed state from localStorage on mount
-  useEffect(() => {
-    const saved = localStorage.getItem("sidebarCollapsed");
-    if (saved !== null) {
-      setIsCollapsed(saved === "true");
+  // Collapsed state with localStorage persistence - initialize from localStorage
+  const [isCollapsed, setIsCollapsed] = useState(() => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("sidebarCollapsed");
+      return saved === "true";
     }
-  }, []);
+    return false;
+  });
+  // Use lazy initialization to avoid synchronous setState in useEffect
+  const [mounted] = useState(() => typeof window !== "undefined");
+  const [expandedMenus, setExpandedMenus] = useState<string[]>([]); // Track expanded accordion menus
 
   // Save collapsed state to localStorage when it changes
   const toggleCollapsed = () => {
     const newState = !isCollapsed;
     setIsCollapsed(newState);
     localStorage.setItem("sidebarCollapsed", String(newState));
-    
+
     // Dispatch custom event for same-window updates
-    window.dispatchEvent(new CustomEvent("sidebarToggle", { 
-      detail: { isCollapsed: newState }
-    }));
+    window.dispatchEvent(
+      new CustomEvent("sidebarToggle", {
+        detail: { isCollapsed: newState },
+      })
+    );
   };
 
   const { data, isLoading } = useGetMeQuery("");
@@ -105,52 +100,6 @@ export function Sidebar() {
     await clientLogout();
     router.push(client_url + "/signin");
   };
-
-  const userItems: SidebarItem[] = [
-    {
-      label: "Dashboard",
-      href: "/dashboard",
-      icon: <LayoutDashboard className="w-5 h-5" />,
-    },
-    {
-      label: "Resumes",
-      href: "/resumes",
-      icon: <FileText className="w-5 h-5" />,
-    },
-    {
-      label: "Cover Letters",
-      href: "/cover-letters",
-      icon: <FileText className="w-5 h-5" />,
-    },
-    {
-      label: "Disclosures",
-      href: "/disclosures",
-      icon: <FileText className="w-5 h-5" />,
-    },
-  ];
-
-  const adminItems: SidebarItem[] = [
-    {
-      label: "Overview",
-      href: "/dashboard/admin",
-      icon: <LayoutDashboard className="w-5 h-5" />,
-    },
-    {
-      label: "Users",
-      href: "/dashboard/admin/users",
-      icon: <Users className="w-5 h-5" />,
-    },
-    {
-      label: "Analytics",
-      href: "/dashboard/admin/analytics",
-      icon: <BarChart3 className="w-5 h-5" />,
-    },
-    {
-      label: "Settings",
-      href: "/dashboard/admin/settings",
-      icon: <Settings className="w-5 h-5" />,
-    },
-  ];
 
   const menuItems = [
     {
@@ -209,14 +158,6 @@ export function Sidebar() {
     },
   ];
 
-  const others = [
-    {
-      label: "Settings",
-      href: "/settings",
-      icon: <Settings className="w-5 h-5" />,
-    },
-  ];
-
   // const others = [
   //   {
   //     label: "Settings",
@@ -247,95 +188,102 @@ export function Sidebar() {
     }
   }, [data, router, isLoading]);
 
-  if (isLoading) {
-    return (
-      <>
-        {/* Mobile Header - Loading State */}
-        <div className="lg:hidden fixed top-0 left-0 right-0 h-16 border-b border-border bg-card flex items-center justify-between px-4 z-40">
-          {/* Logo and Name - Always Visible */}
-          <Link
-            href="/"
-            className="flex items-center gap-2 font-bold text-lg hover:opacity-80 transition"
-          >
-            <Image src={"/logo.png"} width={40} height={40} alt="logo" />
-            <span>DocBuilder</span>
-          </Link>
+  // if (isLoading) {
+  //   return (
+  //     <>
+  //       {/* Mobile Header - Loading State */}
+  //       <div className="lg:hidden fixed top-0 left-0 right-0 h-16 border-b border-border bg-card flex items-center justify-between px-4 z-40">
+  //         {/* Logo and Name - Always Visible */}
+  //         <Link
+  //           href="/"
+  //           className="flex items-center gap-2 font-bold text-lg hover:opacity-80 transition"
+  //         >
+  //           <Image src={"/logo.png"} width={40} height={40} alt="logo" />
+  //           <span>DocBuilder</span>
+  //         </Link>
 
-          {/* Skeleton Menu Button */}
-          <Skeleton className="w-10 h-10 rounded-lg" />
-        </div>
+  //         {/* Skeleton Menu Button */}
+  //         <Skeleton className="w-10 h-10 rounded-lg" />
+  //       </div>
 
-        {/* Add padding to main content on mobile */}
-        <div className="lg:hidden h-16" />
+  //       {/* Add padding to main content on mobile */}
+  //       <div className="lg:hidden h-16" />
 
-        {/* Desktop Sidebar - Loading State */}
-        <aside className="hidden lg:block left-0 top-0 h-screen border-r border-border bg-card dark:bg-card/40 z-40 w-56">
-          <div className="flex flex-col h-full relative overflow-y-auto">
-            {/* Header Section with App Name - Always Visible */}
-            <div className="mb-6 pt-4 border-b px-6">
-              <Link
-                href="/"
-                className="flex items-center gap-3 mb-4 hover:opacity-80 transition"
-              >
-                <div className="w-12 h-12 rounded-lg bg-linear-to-br from-blue-600 to-purple-600 flex items-center justify-center text-white font-bold text-lg shrink-0">
-                  DB
-                </div>
-                <div className="flex-1">
-                  <h1 className="font-bold text-lg leading-tight">DocBuilder</h1>
-                  <p className="text-xs text-muted-foreground">Resume Builder</p>
-                </div>
-              </Link>
-            </div>
+  //       {/* Desktop Sidebar - Loading State */}
+  //       <aside className="hidden lg:block left-0 top-0 h-screen border-r border-border bg-card dark:bg-card/40 z-40 w-56">
+  //         <div className="flex flex-col h-full relative overflow-y-auto">
+  //           {/* Header Section with App Name - Always Visible */}
+  //           <div className="mb-6 pt-4 border-b px-6">
+  //             <Link
+  //               href="/"
+  //               className="flex items-center gap-3 mb-4 hover:opacity-80 transition"
+  //             >
+  //               <div className="w-12 h-12 rounded-lg bg-linear-to-br from-blue-600 to-purple-600 flex items-center justify-center text-white font-bold text-lg shrink-0">
+  //                 DB
+  //               </div>
+  //               <div className="flex-1">
+  //                 <h1 className="font-bold text-lg leading-tight">
+  //                   DocBuilder
+  //                 </h1>
+  //                 <p className="text-xs text-muted-foreground">
+  //                   Resume Builder
+  //                 </p>
+  //               </div>
+  //             </Link>
+  //           </div>
 
-            {/* MAIN Section - Skeleton Loading */}
-            <div className="mb-8 pr-2">
-              <h3 className="text-xs font-semibold text-muted-foreground/80 uppercase tracking-wider mb-4 px-2 ml-5">
-                Main
-              </h3>
-              <nav className="space-y-1">
-                {[1, 2, 3, 4].map((i) => (
-                  <div key={i} className="flex justify-between items-center gap-2">
-                    <div className="w-1 h-7 rounded-r-2xl bg-transparent"></div>
-                    <div className="flex items-center w-full gap-3 px-3 py-2.5">
-                      <Skeleton className="w-5 h-5 rounded" />
-                      <Skeleton className="h-4 w-32" />
-                    </div>
-                  </div>
-                ))}
-              </nav>
-            </div>
+  //           {/* MAIN Section - Skeleton Loading */}
+  //           <div className="mb-8 pr-2">
+  //             <h3 className="text-xs font-semibold text-muted-foreground/80 uppercase tracking-wider mb-4 px-2 ml-5">
+  //               Main
+  //             </h3>
+  //             <nav className="space-y-1">
+  //               {[1, 2, 3, 4].map((i) => (
+  //                 <div
+  //                   key={i}
+  //                   className="flex justify-between items-center gap-2"
+  //                 >
+  //                   <div className="w-1 h-7 rounded-r-2xl bg-transparent"></div>
+  //                   <div className="flex items-center w-full gap-3 px-3 py-2.5">
+  //                     <Skeleton className="w-5 h-5 rounded" />
+  //                     <Skeleton className="h-4 w-32" />
+  //                   </div>
+  //                 </div>
+  //               ))}
+  //             </nav>
+  //           </div>
 
-            {/* OTHERS Section - Skeleton Loading */}
-            <div className="mb-8">
-              <h3 className="text-xs font-semibold text-muted-foreground/80 uppercase tracking-wider mb-4 px-2 ml-5">
-                Others
-              </h3>
-              <nav className="space-y-2">
-                <div className="flex justify-between pr-2 items-center gap-2">
-                  <div className="w-1 h-7 rounded-r-2xl bg-transparent"></div>
-                  <div className="flex items-center w-full gap-3 px-4 py-2.5">
-                    <Skeleton className="w-5 h-5 rounded" />
-                    <Skeleton className="h-4 w-32" />
-                  </div>
-                </div>
-              </nav>
-            </div>
+  //           {/* OTHERS Section - Skeleton Loading */}
+  //           <div className="mb-8">
+  //             <h3 className="text-xs font-semibold text-muted-foreground/80 uppercase tracking-wider mb-4 px-2 ml-5">
+  //               Others
+  //             </h3>
+  //             <nav className="space-y-2">
+  //               <div className="flex justify-between pr-2 items-center gap-2">
+  //                 <div className="w-1 h-7 rounded-r-2xl bg-transparent"></div>
+  //                 <div className="flex items-center w-full gap-3 px-4 py-2.5">
+  //                   <Skeleton className="w-5 h-5 rounded" />
+  //                   <Skeleton className="h-4 w-32" />
+  //                 </div>
+  //               </div>
+  //             </nav>
+  //           </div>
 
-            {/* User Profile Section - Skeleton Loading */}
-            <div className="mt-auto p-2 border-t border-border">
-              <div className="flex items-center gap-3 px-2 py-3 rounded-lg">
-                <Skeleton className="w-10 h-10 rounded-full" />
-                <div className="flex-1 space-y-2">
-                  <Skeleton className="h-4 w-32" />
-                  <Skeleton className="h-3 w-40" />
-                </div>
-              </div>
-            </div>
-          </div>
-        </aside>
-      </>
-    );
-  }
+  //           {/* User Profile Section - Skeleton Loading */}
+  //           <div className="mt-auto p-2 border-t border-border">
+  //             <div className="flex items-center gap-3 px-2 py-3 rounded-lg">
+  //               <Skeleton className="w-10 h-10 rounded-full" />
+  //               <div className="flex-1 space-y-2">
+  //                 <Skeleton className="h-4 w-32" />
+  //                 <Skeleton className="h-3 w-40" />
+  //               </div>
+  //             </div>
+  //           </div>
+  //         </div>
+  //       </aside>
+  //     </>
+  //   );
+  // }
 
   return (
     <>
@@ -453,7 +401,9 @@ export function Sidebar() {
       >
         <div className="flex flex-col h-full relative overflow-y-auto">
           {/* Header Section with App Name */}
-          <div className={`mb-6 pt-4 border-b ${isCollapsed ? "px-2" : "px-6"}`}>
+          <div
+            className={`mb-6 pt-4 border-b ${isCollapsed ? "px-2" : "px-6"}`}
+          >
             {!isCollapsed && (
               <Link
                 href="/"
@@ -463,12 +413,16 @@ export function Sidebar() {
                   DB
                 </div>
                 <div className="flex-1">
-                  <h1 className="font-bold text-lg leading-tight">DocBuilder</h1>
-                  <p className="text-xs text-muted-foreground">Resume Builder</p>
+                  <h1 className="font-bold text-lg leading-tight">
+                    DocBuilder
+                  </h1>
+                  <p className="text-xs text-muted-foreground">
+                    Resume Builder
+                  </p>
                 </div>
               </Link>
             )}
-            
+
             {/* Collapsed Logo */}
             {isCollapsed && (
               <Link
@@ -491,20 +445,19 @@ export function Sidebar() {
             )}
             <nav className="space-y-1">
               {items.map((item) => (
-                <li
-                  key={item.href}
-                  className="flex flex-col gap-1"
-                >
+                <li key={item.href} className="flex flex-col gap-1">
                   <div className="flex justify-between items-center gap-2">
                     {!isCollapsed && (
                       <div
                         className={clsx(
                           "w-1 h-7 rounded-r-2xl",
-                          isActive(item.href) ? "bg-primary  " : "bg-transparent"
+                          isActive(item.href)
+                            ? "bg-primary  "
+                            : "bg-transparent"
                         )}
                       ></div>
                     )}
-                    
+
                     {/* Main menu item - clickable if has sub-items, link if not */}
                     {item.subItems && !isCollapsed ? (
                       <button
@@ -524,10 +477,14 @@ export function Sidebar() {
                         >
                           {item.icon}
                         </span>
-                        <span className="font-medium text-sm flex-1 text-left">{item.label}</span>
+                        <span className="font-medium text-sm flex-1 text-left">
+                          {item.label}
+                        </span>
                         <ChevronRight
                           className={`w-4 h-4 transition-transform ${
-                            expandedMenus.includes(item.label) ? "rotate-90" : ""
+                            expandedMenus.includes(item.label)
+                              ? "rotate-90"
+                              : ""
                           }`}
                         />
                       </button>
@@ -554,7 +511,9 @@ export function Sidebar() {
                         </span>
                         {!isCollapsed && (
                           <>
-                            <span className="font-medium text-sm">{item.label}</span>
+                            <span className="font-medium text-sm">
+                              {item.label}
+                            </span>
                             {isActive(item.href) && !item.subItems && (
                               <ChevronRight className="w-4 h-4 ml-auto opacity-100 transition" />
                             )}
@@ -563,26 +522,28 @@ export function Sidebar() {
                       </Link>
                     )}
                   </div>
-                  
+
                   {/* Sub-menu items with accordion animation */}
-                  {item.subItems && !isCollapsed && expandedMenus.includes(item.label) && (
-                    <div className="ml-5 pl-4 border-l-2 border-border/50 space-y-1 animate-in slide-in-from-top-2">
-                      {item.subItems.map((subItem) => (
-                        <Link
-                          key={subItem.href}
-                          href={subItem.href}
-                          className={`flex items-center gap-2 px-3 py-2 rounded-md text-sm transition-colors ${
-                            pathname === subItem.href
-                              ? "bg-primary/10 text-primary font-medium"
-                              : "text-muted-foreground hover:text-foreground hover:bg-accent/10"
-                          }`}
-                        >
-                          <span className="w-1.5 h-1.5 rounded-full bg-current opacity-60"></span>
-                          {subItem.label}
-                        </Link>
-                      ))}
-                    </div>
-                  )}
+                  {item.subItems &&
+                    !isCollapsed &&
+                    expandedMenus.includes(item.label) && (
+                      <div className="ml-5 pl-4 border-l-2 border-border/50 space-y-1 animate-in slide-in-from-top-2">
+                        {item.subItems.map((subItem) => (
+                          <Link
+                            key={subItem.href}
+                            href={subItem.href}
+                            className={`flex items-center gap-2 px-3 py-2 rounded-md text-sm transition-colors ${
+                              pathname === subItem.href
+                                ? "bg-primary/10 text-primary font-medium"
+                                : "text-muted-foreground hover:text-foreground hover:bg-accent/10"
+                            }`}
+                          >
+                            <span className="w-1.5 h-1.5 rounded-full bg-current opacity-60"></span>
+                            {subItem.label}
+                          </Link>
+                        ))}
+                      </div>
+                    )}
                 </li>
               ))}
             </nav>
@@ -644,7 +605,11 @@ export function Sidebar() {
           </div>
 
           {/* User Profile Section */}
-          <div className={`mt-auto p-2 border-t border-border ${isCollapsed ? "px-1" : ""}`}>
+          <div
+            className={`mt-auto p-2 border-t border-border ${
+              isCollapsed ? "px-1" : ""
+            }`}
+          >
             <Popover>
               <PopoverTrigger asChild>
                 {isCollapsed ? (
@@ -723,23 +688,24 @@ export function Sidebar() {
       </aside>
 
       {/* Toggle Button using Portal - Rendered outside sidebar to avoid z-index issues */}
-      {mounted && createPortal(
-        <button
-          onClick={toggleCollapsed}
-          className="hidden lg:flex fixed top-6 items-center justify-center w-7 cursor-pointer h-7 rounded-md bg-card border-2 border-primary/40 hover:bg-primary/10 hover:border-primary transition-all shadow-lg z-[100]"
-          style={{
-            left: isCollapsed ? '48px' : '214px', // 14*4 - 10 = 44px collapsed, 56*4 - 10 = 214px expanded
-          }}
-          aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
-        >
-          {isCollapsed ? (
-            <ChevronRight className="w-4 h-4 text-primary" />
-          ) : (
-            <ChevronLeft className="w-4 h-4 text-primary" />
-          )}
-        </button>,
-        document.body
-      )}
+      {mounted &&
+        createPortal(
+          <button
+            onClick={toggleCollapsed}
+            className="hidden lg:flex fixed top-6 items-center justify-center w-7 cursor-pointer h-7 rounded-md bg-card border-2 border-primary/40 hover:bg-primary/10 hover:border-primary transition-all shadow-lg z-[100]"
+            style={{
+              left: isCollapsed ? "48px" : "214px", // 14*4 - 10 = 44px collapsed, 56*4 - 10 = 214px expanded
+            }}
+            aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+          >
+            {isCollapsed ? (
+              <ChevronRight className="w-4 h-4 text-primary" />
+            ) : (
+              <ChevronLeft className="w-4 h-4 text-primary" />
+            )}
+          </button>,
+          document.body
+        )}
     </>
   );
 }

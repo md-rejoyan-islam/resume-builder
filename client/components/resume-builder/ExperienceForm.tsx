@@ -1,5 +1,6 @@
 "use client";
 
+import { TextEditor } from "@/components/dashboard/text-editor";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -8,6 +9,11 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  DraggableList,
+  DragHandleWithIndex,
+} from "@/components/ui/draggable-list";
+import { HtmlContent } from "@/components/ui/html-content";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -16,10 +22,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { TextEditor } from "@/components/dashboard/text-editor";
 import { cn } from "@/lib/utils";
 import { Briefcase, Edit2, Plus, Trash2 } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 
 export interface Experience {
   id: string;
@@ -70,12 +75,18 @@ export function ExperienceForm({
   onExperiencesChange,
   countries,
 }: ExperienceFormProps) {
-  const [formData, setFormData] = useState<Omit<Experience, "id">>(emptyExperience);
-  const [editingExperience, setEditingExperience] = useState<Experience | null>(null);
+  const [formData, setFormData] =
+    useState<Omit<Experience, "id">>(emptyExperience);
+  const [editingExperience, setEditingExperience] = useState<Experience | null>(
+    null
+  );
   const [isModalOpen, setIsModalOpen] = useState(false);
   const firstInputRef = useRef<HTMLInputElement>(null);
 
-  const handleInputChange = (field: keyof Omit<Experience, "id">, value: string | boolean) => {
+  const handleInputChange = (
+    field: keyof Omit<Experience, "id">,
+    value: string | boolean
+  ) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
@@ -108,7 +119,10 @@ export function ExperienceForm({
     setIsModalOpen(true);
   };
 
-  const handleEditInputChange = (field: keyof Omit<Experience, "id">, value: string | boolean) => {
+  const handleEditInputChange = (
+    field: keyof Omit<Experience, "id">,
+    value: string | boolean
+  ) => {
     if (!editingExperience) return;
     setEditingExperience((prev) => (prev ? { ...prev, [field]: value } : null));
   };
@@ -130,7 +144,9 @@ export function ExperienceForm({
     if (!editingExperience) return;
 
     onExperiencesChange(
-      experiences.map((exp) => (exp.id === editingExperience.id ? editingExperience : exp))
+      experiences.map((exp) =>
+        exp.id === editingExperience.id ? editingExperience : exp
+      )
     );
     setIsModalOpen(false);
     setEditingExperience(null);
@@ -141,12 +157,13 @@ export function ExperienceForm({
     setEditingExperience(null);
   };
 
-  // Reset endDate when currentlyWorking is toggled
-  useEffect(() => {
-    if (formData.currentlyWorking) {
-      setFormData((prev) => ({ ...prev, endDate: "" }));
-    }
-  }, [formData.currentlyWorking]);
+  const handleAddAnother = () => {
+    setFormData(emptyExperience);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    setTimeout(() => {
+      firstInputRef.current?.focus();
+    }, 500);
+  };
 
   return (
     <div className="space-y-6">
@@ -263,7 +280,8 @@ export function ExperienceForm({
               disabled={formData.currentlyWorking}
               className={cn(
                 "h-12 bg-white dark:bg-card border-slate-200 dark:border-border focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all",
-                formData.currentlyWorking && "opacity-50 cursor-not-allowed bg-slate-100 dark:bg-slate-800"
+                formData.currentlyWorking &&
+                  "opacity-50 cursor-not-allowed bg-slate-100 dark:bg-slate-800"
               )}
             />
           </div>
@@ -314,97 +332,90 @@ export function ExperienceForm({
       </div>
 
       {/* Experience List */}
-      {experiences.length > 0 && (
-        <div className="space-y-3">
-          <h3 className="text-xs font-bold uppercase tracking-wide text-slate-700 dark:text-muted-foreground">
-            Added Experiences ({experiences.length})
-          </h3>
-          <div className="space-y-3">
-            {experiences.map((experience) => (
-              <div
-                key={experience.id}
-                className="bg-white dark:bg-card rounded-lg border border-border p-4 group hover:border-slate-300 dark:hover:border-slate-600 transition-colors"
-              >
-                <div className="flex items-start justify-between gap-4">
-                  <div className="flex items-start gap-3 flex-1 min-w-0">
-                    <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-                      <Briefcase className="w-5 h-5 text-primary" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <h4 className="font-semibold text-slate-900 dark:text-foreground truncate">
-                        {experience.jobTitle}
-                      </h4>
-                      <p className="text-sm text-slate-600 dark:text-muted-foreground truncate">
-                        {experience.employer}
-                        {experience.city && `, ${experience.city}`}
-                        {experience.country && `, ${experience.country}`}
-                      </p>
-                      <div className="flex flex-wrap items-center gap-2 mt-1">
-                        {experience.jobType && (
-                          <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400">
-                            {jobTypes.find((t) => t.value === experience.jobType)?.label ||
-                              experience.jobType}
-                          </span>
-                        )}
-                        <span className="text-xs text-slate-500 dark:text-muted-foreground">
-                          {experience.startDate &&
-                            new Date(experience.startDate).toLocaleDateString("en-US", {
-                              month: "short",
-                              year: "numeric",
-                            })}
-                          {" - "}
-                          {experience.currentlyWorking
-                            ? "Present"
-                            : experience.endDate &&
-                              new Date(experience.endDate).toLocaleDateString("en-US", {
-                                month: "short",
-                                year: "numeric",
-                              })}
-                        </span>
-                      </div>
-                      {experience.description && (
-                        <p className="text-sm text-slate-500 dark:text-muted-foreground mt-2 line-clamp-2">
-                          {experience.description}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-1 shrink-0">
-                    <button
-                      type="button"
-                      onClick={() => handleEditClick(experience)}
-                      className="p-2 text-slate-400 hover:text-primary hover:bg-primary/10 rounded transition-colors"
-                      title="Edit experience"
-                    >
-                      <Edit2 className="w-4 h-4" />
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => handleRemoveExperience(experience.id)}
-                      className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded transition-colors"
-                      title="Remove experience"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </div>
-                </div>
+      <DraggableList
+        items={experiences}
+        onReorder={onExperiencesChange}
+        title="Added Experiences"
+        renderItem={(experience, index) => (
+          <div className="flex items-start justify-between gap-4">
+            <div className="flex items-start gap-3 flex-1 min-w-0">
+              <DragHandleWithIndex index={index} />
+              <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                <Briefcase className="w-5 h-5 text-primary" />
               </div>
-            ))}
+              <div className="flex-1 min-w-0">
+                <h4 className="font-semibold text-slate-900 dark:text-foreground truncate">
+                  {experience.jobTitle}
+                </h4>
+                <p className="text-sm text-slate-600 dark:text-muted-foreground truncate">
+                  {experience.employer}
+                  {experience.city && `, ${experience.city}`}
+                  {experience.country && `, ${experience.country}`}
+                </p>
+                <div className="flex flex-wrap items-center gap-2 mt-1">
+                  {experience.jobType && (
+                    <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400">
+                      {jobTypes.find((t) => t.value === experience.jobType)
+                        ?.label || experience.jobType}
+                    </span>
+                  )}
+                  <span className="text-xs text-slate-500 dark:text-muted-foreground">
+                    {experience.startDate &&
+                      new Date(experience.startDate).toLocaleDateString(
+                        "en-US",
+                        {
+                          month: "short",
+                          year: "numeric",
+                        }
+                      )}
+                    {" - "}
+                    {experience.currentlyWorking
+                      ? "Present"
+                      : experience.endDate &&
+                        new Date(experience.endDate).toLocaleDateString(
+                          "en-US",
+                          {
+                            month: "short",
+                            year: "numeric",
+                          }
+                        )}
+                  </span>
+                </div>
+                {experience.description && (
+                  <HtmlContent
+                    html={experience.description}
+                    className="text-sm text-slate-500 dark:text-muted-foreground mt-2 line-clamp-2"
+                  />
+                )}
+              </div>
+            </div>
+            <div className="flex items-center gap-1 shrink-0">
+              <button
+                type="button"
+                onClick={() => handleEditClick(experience)}
+                className="p-2 text-slate-400 hover:text-primary hover:bg-primary/10 rounded transition-colors"
+                title="Edit experience"
+              >
+                <Edit2 className="w-4 h-4" />
+              </button>
+              <button
+                type="button"
+                onClick={() => handleRemoveExperience(experience.id)}
+                className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded transition-colors"
+                title="Remove experience"
+              >
+                <Trash2 className="w-4 h-4" />
+              </button>
+            </div>
           </div>
-        </div>
-      )}
+        )}
+      />
 
       {/* Add More Button when there are experiences */}
       {experiences.length > 0 && (
         <button
           type="button"
-          onClick={() => {
-            setFormData(emptyExperience);
-            window.scrollTo({ top: 0, behavior: "smooth" });
-            setTimeout(() => {
-              firstInputRef.current?.focus();
-            }, 500);
-          }}
+          onClick={handleAddAnother}
           className="w-full py-3 border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-lg text-slate-500 dark:text-muted-foreground hover:border-primary hover:text-primary transition-colors flex items-center justify-center gap-2"
         >
           <Plus className="w-4 h-4" />
@@ -417,7 +428,9 @@ export function ExperienceForm({
         <div className="text-center py-8 text-slate-500 dark:text-muted-foreground">
           <Briefcase className="w-12 h-12 mx-auto mb-3 text-slate-300 dark:text-slate-600" />
           <p className="text-sm">No work experience added yet.</p>
-          <p className="text-xs mt-1">Add your first job experience above to get started.</p>
+          <p className="text-xs mt-1">
+            Add your first job experience above to get started.
+          </p>
         </div>
       )}
 
@@ -438,7 +451,9 @@ export function ExperienceForm({
                 <Input
                   type="text"
                   value={editingExperience.jobTitle}
-                  onChange={(e) => handleEditInputChange("jobTitle", e.target.value)}
+                  onChange={(e) =>
+                    handleEditInputChange("jobTitle", e.target.value)
+                  }
                   placeholder="e.g. Software Engineer"
                   className="h-11"
                 />
@@ -452,7 +467,9 @@ export function ExperienceForm({
                 <Input
                   type="text"
                   value={editingExperience.employer}
-                  onChange={(e) => handleEditInputChange("employer", e.target.value)}
+                  onChange={(e) =>
+                    handleEditInputChange("employer", e.target.value)
+                  }
                   placeholder="e.g. Google"
                   className="h-11"
                 />
@@ -467,7 +484,9 @@ export function ExperienceForm({
                   <Input
                     type="text"
                     value={editingExperience.city}
-                    onChange={(e) => handleEditInputChange("city", e.target.value)}
+                    onChange={(e) =>
+                      handleEditInputChange("city", e.target.value)
+                    }
                     placeholder="e.g. Mountain View"
                     className="h-11"
                   />
@@ -478,7 +497,9 @@ export function ExperienceForm({
                   </label>
                   <Select
                     value={editingExperience.country}
-                    onValueChange={(value) => handleEditInputChange("country", value)}
+                    onValueChange={(value) =>
+                      handleEditInputChange("country", value)
+                    }
                   >
                     <SelectTrigger className="h-11 w-full">
                       <SelectValue placeholder="Select Country" />
@@ -501,7 +522,9 @@ export function ExperienceForm({
                 </label>
                 <Select
                   value={editingExperience.jobType}
-                  onValueChange={(value) => handleEditInputChange("jobType", value)}
+                  onValueChange={(value) =>
+                    handleEditInputChange("jobType", value)
+                  }
                 >
                   <SelectTrigger className="h-11 w-full">
                     <SelectValue placeholder="Select Job Type" />
@@ -525,7 +548,9 @@ export function ExperienceForm({
                   <Input
                     type="date"
                     value={editingExperience.startDate}
-                    onChange={(e) => handleEditInputChange("startDate", e.target.value)}
+                    onChange={(e) =>
+                      handleEditInputChange("startDate", e.target.value)
+                    }
                     className="h-11"
                   />
                 </div>
@@ -536,7 +561,9 @@ export function ExperienceForm({
                   <Input
                     type="date"
                     value={editingExperience.endDate}
-                    onChange={(e) => handleEditInputChange("endDate", e.target.value)}
+                    onChange={(e) =>
+                      handleEditInputChange("endDate", e.target.value)
+                    }
                     disabled={editingExperience.currentlyWorking}
                     className={cn(
                       "h-11",
@@ -553,7 +580,9 @@ export function ExperienceForm({
                   type="checkbox"
                   id="editCurrentlyWorking"
                   checked={editingExperience.currentlyWorking}
-                  onChange={(e) => handleEditCurrentlyWorkingChange(e.target.checked)}
+                  onChange={(e) =>
+                    handleEditCurrentlyWorkingChange(e.target.checked)
+                  }
                   className="w-4 h-4 text-primary border-slate-300 rounded focus:ring-primary"
                 />
                 <label
@@ -571,7 +600,9 @@ export function ExperienceForm({
                 </label>
                 <TextEditor
                   value={editingExperience.description}
-                  onChange={(value) => handleEditInputChange("description", value)}
+                  onChange={(value) =>
+                    handleEditInputChange("description", value)
+                  }
                 />
               </div>
             </div>
@@ -584,7 +615,8 @@ export function ExperienceForm({
             <Button
               onClick={handleSaveEdit}
               disabled={
-                !editingExperience?.jobTitle.trim() || !editingExperience?.employer.trim()
+                !editingExperience?.jobTitle.trim() ||
+                !editingExperience?.employer.trim()
               }
             >
               Save Changes

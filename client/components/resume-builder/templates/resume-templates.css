@@ -15,6 +15,24 @@
   position: relative;
 }
 
+/* showing bulltet points/numbers, now not showing for tailwindcss compatibility */
+.rt-container ul,
+.rt-container ol {
+  margin-left: 16px;
+  /* margin-bottom: 8px; */
+}
+.rt-container ul {
+  list-style-type: disc;
+}
+.rt-container ol {
+  list-style-type: decimal;
+}
+
+/* .rt-container ul li,
+.rt-container ol li {
+  margin-bottom: 4px;
+} */
+
 .rt-container-flex {
   margin-left: auto;
   margin-right: auto;
@@ -37,7 +55,8 @@
    At 600px width: height = 600 * 1.414 = 848.4px ≈ 848px */
 .rt-page {
   background-color: #ffffff;
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
+    0 4px 6px -4px rgba(0, 0, 0, 0.1);
   margin-left: auto;
   margin-right: auto;
   width: 600px;
@@ -426,7 +445,11 @@
 .rt-header-banner-overlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.4));
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.1),
+    rgba(0, 0, 0, 0.4)
+  );
 }
 
 .rt-header-banner-content {
@@ -525,13 +548,50 @@
    RICH TEXT CONTENT
    ============================================ */
 
+.rt-rich-text {
+  line-height: 1.4;
+}
+
+.rt-rich-text p {
+  margin: 0;
+}
+
+.rt-rich-text ul,
+.rt-rich-text ol {
+  padding-left: 16px;
+  margin: 2px 0;
+}
+
 .rt-rich-text ul {
   list-style-type: disc;
-  margin-left: 16px;
+}
+
+.rt-rich-text ol {
+  list-style-type: decimal;
 }
 
 .rt-rich-text li {
   margin-bottom: 2px;
+  display: list-item;
+}
+
+.rt-rich-text li p {
+  margin: 0;
+  display: inline;
+}
+
+.rt-rich-text strong,
+.rt-rich-text b {
+  font-weight: 600;
+}
+
+.rt-rich-text em,
+.rt-rich-text i {
+  font-style: italic;
+}
+
+.rt-rich-text u {
+  text-decoration: underline;
 }
 
 /* ============================================

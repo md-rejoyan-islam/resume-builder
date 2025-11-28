@@ -8,6 +8,10 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  DraggableList,
+  DragHandleWithIndex,
+} from "@/components/ui/draggable-list";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -188,62 +192,55 @@ export function LanguageForm({
       </div>
 
       {/* Language List */}
-      {languages.length > 0 && (
-        <div className="space-y-3">
-          <h3 className="text-xs font-bold uppercase tracking-wide text-slate-700 dark:text-muted-foreground">
-            Added Languages ({languages.length})
-          </h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            {languages.map((language) => (
-              <div
-                key={language.id}
-                className="bg-white dark:bg-card rounded-lg border border-border p-4 group hover:border-slate-300 dark:hover:border-slate-600 transition-colors"
-              >
-                <div className="flex items-center justify-between gap-3">
-                  <div className="flex items-center gap-3 flex-1 min-w-0">
-                    <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-                      <Languages className="w-5 h-5 text-primary" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <h4 className="font-semibold text-slate-900 dark:text-foreground truncate">
-                        {language.language}
-                      </h4>
-                      {language.proficiency && (
-                        <span
-                          className={cn(
-                            "inline-flex items-center px-2 py-0.5 mt-1 rounded text-xs font-medium",
-                            getProficiencyColor(language.proficiency)
-                          )}
-                        >
-                          {getProficiencyLabel(language.proficiency)}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-1 shrink-0">
-                    <button
-                      type="button"
-                      onClick={() => handleEditClick(language)}
-                      className="p-2 text-slate-400 hover:text-primary hover:bg-primary/10 rounded transition-colors"
-                      title="Edit language"
-                    >
-                      <Edit2 className="w-4 h-4" />
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => handleRemoveLanguage(language.id)}
-                      className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded transition-colors"
-                      title="Remove language"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </div>
-                </div>
+      <DraggableList
+        items={languages}
+        onReorder={onLanguagesChange}
+        title="Added Languages"
+        gridCols={2}
+        renderItem={(language, index) => (
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-3 flex-1 min-w-0">
+              <DragHandleWithIndex index={index} />
+              <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                <Languages className="w-5 h-5 text-primary" />
               </div>
-            ))}
+              <div className="flex-1 min-w-0">
+                <h4 className="font-semibold text-slate-900 dark:text-foreground truncate">
+                  {language.language}
+                </h4>
+                {language.proficiency && (
+                  <span
+                    className={cn(
+                      "inline-flex items-center px-2 py-0.5 mt-1 rounded text-xs font-medium",
+                      getProficiencyColor(language.proficiency)
+                    )}
+                  >
+                    {getProficiencyLabel(language.proficiency)}
+                  </span>
+                )}
+              </div>
+            </div>
+            <div className="flex items-center gap-1 shrink-0">
+              <button
+                type="button"
+                onClick={() => handleEditClick(language)}
+                className="p-2 text-slate-400 hover:text-primary hover:bg-primary/10 rounded transition-colors"
+                title="Edit language"
+              >
+                <Edit2 className="w-4 h-4" />
+              </button>
+              <button
+                type="button"
+                onClick={() => handleRemoveLanguage(language.id)}
+                className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded transition-colors"
+                title="Remove language"
+              >
+                <Trash2 className="w-4 h-4" />
+              </button>
+            </div>
           </div>
-        </div>
-      )}
+        )}
+      />
 
       {/* Add More Button when there are languages */}
       {languages.length > 0 && (

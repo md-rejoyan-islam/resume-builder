@@ -8,6 +8,10 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  DraggableList,
+  DragHandleWithIndex,
+} from "@/components/ui/draggable-list";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { Edit2, Plus, Trash2, UserCheck } from "lucide-react";
@@ -208,74 +212,66 @@ export function ReferenceForm({
       </div>
 
       {/* Reference List */}
-      {references.length > 0 && (
-        <div className="space-y-3">
-          <h3 className="text-xs font-bold uppercase tracking-wide text-slate-700 dark:text-muted-foreground">
-            Added References ({references.length})
-          </h3>
-          <div className="space-y-3">
-            {references.map((reference) => (
-              <div
-                key={reference.id}
-                className="bg-white dark:bg-card rounded-lg border border-border p-4 group hover:border-slate-300 dark:hover:border-slate-600 transition-colors"
-              >
-                <div className="flex items-start justify-between gap-4">
-                  <div className="flex items-start gap-3 flex-1 min-w-0">
-                    <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-                      <UserCheck className="w-5 h-5 text-primary" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <h4 className="font-semibold text-slate-900 dark:text-foreground truncate">
-                        {reference.name}
-                      </h4>
-                      <p className="text-sm text-slate-600 dark:text-muted-foreground truncate">
-                        {reference.position && reference.company
-                          ? `${reference.position} at ${reference.company}`
-                          : reference.position || reference.company}
-                      </p>
-                      <div className="flex flex-wrap items-center gap-2 mt-1">
-                        {reference.email && (
-                          <span className="text-xs text-slate-500 dark:text-muted-foreground">
-                            {reference.email}
-                          </span>
-                        )}
-                        {reference.phone && (
-                          <span className="text-xs text-slate-500 dark:text-muted-foreground">
-                            • {reference.phone}
-                          </span>
-                        )}
-                      </div>
-                      {reference.relationship && (
-                        <span className="inline-flex items-center px-2 py-0.5 mt-2 rounded text-xs font-medium bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400">
-                          {reference.relationship}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-1 shrink-0">
-                    <button
-                      type="button"
-                      onClick={() => handleEditClick(reference)}
-                      className="p-2 text-slate-400 hover:text-primary hover:bg-primary/10 rounded transition-colors"
-                      title="Edit reference"
-                    >
-                      <Edit2 className="w-4 h-4" />
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => handleRemoveReference(reference.id)}
-                      className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded transition-colors"
-                      title="Remove reference"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </div>
-                </div>
+      <DraggableList
+        items={references}
+        onReorder={onReferencesChange}
+        title="Added References"
+        renderItem={(reference, index) => (
+          <div className="flex items-start justify-between gap-4">
+            <div className="flex items-start gap-3 flex-1 min-w-0">
+              <DragHandleWithIndex index={index} />
+              <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                <UserCheck className="w-5 h-5 text-primary" />
               </div>
-            ))}
+              <div className="flex-1 min-w-0">
+                <h4 className="font-semibold text-slate-900 dark:text-foreground truncate">
+                  {reference.name}
+                </h4>
+                <p className="text-sm text-slate-600 dark:text-muted-foreground truncate">
+                  {reference.position && reference.company
+                    ? `${reference.position} at ${reference.company}`
+                    : reference.position || reference.company}
+                </p>
+                <div className="flex flex-wrap items-center gap-2 mt-1">
+                  {reference.email && (
+                    <span className="text-xs text-slate-500 dark:text-muted-foreground">
+                      {reference.email}
+                    </span>
+                  )}
+                  {reference.phone && (
+                    <span className="text-xs text-slate-500 dark:text-muted-foreground">
+                      • {reference.phone}
+                    </span>
+                  )}
+                </div>
+                {reference.relationship && (
+                  <span className="inline-flex items-center px-2 py-0.5 mt-2 rounded text-xs font-medium bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400">
+                    {reference.relationship}
+                  </span>
+                )}
+              </div>
+            </div>
+            <div className="flex items-center gap-1 shrink-0">
+              <button
+                type="button"
+                onClick={() => handleEditClick(reference)}
+                className="p-2 text-slate-400 hover:text-primary hover:bg-primary/10 rounded transition-colors"
+                title="Edit reference"
+              >
+                <Edit2 className="w-4 h-4" />
+              </button>
+              <button
+                type="button"
+                onClick={() => handleRemoveReference(reference.id)}
+                className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded transition-colors"
+                title="Remove reference"
+              >
+                <Trash2 className="w-4 h-4" />
+              </button>
+            </div>
           </div>
-        </div>
-      )}
+        )}
+      />
 
       {/* Add More Button when there are references */}
       {references.length > 0 && (

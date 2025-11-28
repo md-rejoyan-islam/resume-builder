@@ -114,7 +114,7 @@ export function ExecutiveTemplate({ data, styles }: ExecutiveTemplateProps) {
                   </p>
                   {proj.description && (
                     <div
-                      className="rt-text-slate-600 rt-mt-1 rt-ml-4"
+                      className="rt-text-slate-600 rt-mt-1 rt-ml-4 rt-rich-text"
                       style={{ fontSize: fontSize.small, lineHeight }}
                       dangerouslySetInnerHTML={{ __html: proj.description }}
                     />
@@ -236,7 +236,7 @@ export function ExecutiveTemplate({ data, styles }: ExecutiveTemplateProps) {
                   </p>
                   {vol.description && (
                     <div
-                      className="rt-text-slate-600 rt-mt-1 rt-ml-4"
+                      className="rt-text-slate-600 rt-mt-1 rt-ml-4 rt-rich-text"
                       style={{ fontSize: fontSize.small, lineHeight }}
                       dangerouslySetInnerHTML={{ __html: vol.description }}
                     />

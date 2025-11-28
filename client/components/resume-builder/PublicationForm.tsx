@@ -8,6 +8,11 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  DraggableList,
+  DragHandleWithIndex,
+} from "@/components/ui/draggable-list";
+import { HtmlContent } from "@/components/ui/html-content";
 import { Input } from "@/components/ui/input";
 import { TextEditor } from "@/components/dashboard/text-editor";
 import { cn } from "@/lib/utils";
@@ -211,76 +216,69 @@ export function PublicationForm({
       </div>
 
       {/* Publication List */}
-      {publications.length > 0 && (
-        <div className="space-y-3">
-          <h3 className="text-xs font-bold uppercase tracking-wide text-slate-700 dark:text-muted-foreground">
-            Added Publications ({publications.length})
-          </h3>
-          <div className="space-y-3">
-            {publications.map((publication) => (
-              <div
-                key={publication.id}
-                className="bg-white dark:bg-card rounded-lg border border-border p-4 group hover:border-slate-300 dark:hover:border-slate-600 transition-colors"
-              >
-                <div className="flex items-start justify-between gap-4">
-                  <div className="flex items-start gap-3 flex-1 min-w-0">
-                    <div className="w-10 h-10 rounded-full bg-amber-100 dark:bg-amber-500/20 flex items-center justify-center shrink-0">
-                      <BookOpen className="w-5 h-5 text-amber-600 dark:text-amber-400" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <h4 className="font-semibold text-slate-900 dark:text-foreground truncate">
-                        {publication.title}
-                      </h4>
-                      <p className="text-sm text-slate-600 dark:text-muted-foreground truncate">
-                        {publication.publisher && `${publication.publisher}`}
-                        {publication.publicationDate && ` • ${formatDate(publication.publicationDate)}`}
-                      </p>
-                      {publication.authors && (
-                        <p className="text-xs text-slate-500 dark:text-muted-foreground mt-1 truncate">
-                          By: {publication.authors}
-                        </p>
-                      )}
-                      {publication.description && (
-                        <p className="text-sm text-slate-500 dark:text-muted-foreground mt-2 line-clamp-2">
-                          {publication.description}
-                        </p>
-                      )}
-                      {publication.url && (
-                        <a
-                          href={publication.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-flex items-center px-2 py-0.5 mt-2 rounded text-xs font-medium bg-blue-100 dark:bg-blue-500/20 text-blue-700 dark:text-blue-400 hover:bg-blue-200 dark:hover:bg-blue-500/30"
-                        >
-                          View Publication
-                        </a>
-                      )}
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-1 shrink-0">
-                    <button
-                      type="button"
-                      onClick={() => handleEditClick(publication)}
-                      className="p-2 text-slate-400 hover:text-primary hover:bg-primary/10 rounded transition-colors"
-                      title="Edit publication"
-                    >
-                      <Edit2 className="w-4 h-4" />
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => handleRemovePublication(publication.id)}
-                      className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded transition-colors"
-                      title="Remove publication"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </div>
-                </div>
+      <DraggableList
+        items={publications}
+        onReorder={onPublicationsChange}
+        title="Added Publications"
+        renderItem={(publication, index) => (
+          <div className="flex items-start justify-between gap-4">
+            <div className="flex items-start gap-3 flex-1 min-w-0">
+              <DragHandleWithIndex index={index} />
+              <div className="w-10 h-10 rounded-full bg-amber-100 dark:bg-amber-500/20 flex items-center justify-center shrink-0">
+                <BookOpen className="w-5 h-5 text-amber-600 dark:text-amber-400" />
               </div>
-            ))}
+              <div className="flex-1 min-w-0">
+                <h4 className="font-semibold text-slate-900 dark:text-foreground truncate">
+                  {publication.title}
+                </h4>
+                <p className="text-sm text-slate-600 dark:text-muted-foreground truncate">
+                  {publication.publisher && `${publication.publisher}`}
+                  {publication.publicationDate && ` • ${formatDate(publication.publicationDate)}`}
+                </p>
+                {publication.authors && (
+                  <p className="text-xs text-slate-500 dark:text-muted-foreground mt-1 truncate">
+                    By: {publication.authors}
+                  </p>
+                )}
+                {publication.description && (
+                  <HtmlContent
+                    html={publication.description}
+                    className="text-sm text-slate-500 dark:text-muted-foreground mt-2 line-clamp-2"
+                  />
+                )}
+                {publication.url && (
+                  <a
+                    href={publication.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center px-2 py-0.5 mt-2 rounded text-xs font-medium bg-blue-100 dark:bg-blue-500/20 text-blue-700 dark:text-blue-400 hover:bg-blue-200 dark:hover:bg-blue-500/30"
+                  >
+                    View Publication
+                  </a>
+                )}
+              </div>
+            </div>
+            <div className="flex items-center gap-1 shrink-0">
+              <button
+                type="button"
+                onClick={() => handleEditClick(publication)}
+                className="p-2 text-slate-400 hover:text-primary hover:bg-primary/10 rounded transition-colors"
+                title="Edit publication"
+              >
+                <Edit2 className="w-4 h-4" />
+              </button>
+              <button
+                type="button"
+                onClick={() => handleRemovePublication(publication.id)}
+                className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded transition-colors"
+                title="Remove publication"
+              >
+                <Trash2 className="w-4 h-4" />
+              </button>
+            </div>
           </div>
-        </div>
-      )}
+        )}
+      />
 
       {/* Add More Button when there are publications */}
       {publications.length > 0 && (

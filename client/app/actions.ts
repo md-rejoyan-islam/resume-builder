@@ -12,12 +12,12 @@ export const logout = async () => {
   cookieStore.delete({
     name: "accessToken",
     path: "/",
-    domain: `.${process.env.ROOT_DOMAIN || "redpro.local"}`,
+    domain: `.${process.env.ROOT_DOMAIN}`,
   });
   cookieStore.delete({
     name: "refreshToken",
     path: "/",
-    domain: `.${process.env.ROOT_DOMAIN || "redpro.local"}`,
+    domain: `.${process.env.ROOT_DOMAIN}`,
   });
   cookieStore.delete("role");
   cookieStore.delete("tenantId");

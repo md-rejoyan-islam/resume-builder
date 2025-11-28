@@ -6,7 +6,6 @@ import {
 } from "@/lib/features/auth/auth-slice";
 import { ArrowRight, LayoutDashboard, LogOut } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Button } from "../ui/button";
 import {
@@ -19,16 +18,15 @@ import {
 } from "../ui/dropdown-menu";
 
 const AuthenticateBtns = () => {
-  const { data } = useGetMeQuery("");
+  const { data, error } = useGetMeQuery("");
 
-  const router = useRouter();
   const [clientLogout] = useLogoutMutation();
 
   const handleLogout = async () => {
     await logout();
-    // router.refresh();
     await clientLogout();
-    router.push("/signin");
+    // refresh the page to update the UI
+    window.location.href = window.location.href;
   };
 
   const getDashboardUrl = () => {
@@ -46,7 +44,7 @@ const AuthenticateBtns = () => {
 
   return (
     <>
-      {!data?.data?.tenant ? (
+      {!data?.data?.tenant || error ? (
         <>
           <Link href="/signin" className="hidden sm:inline-flex">
             <button className="border-border/50 cursor-pointer hover:border-primary/50 hover:bg-primary/5 text-foreground font-semibold rounded-lg transition-all">

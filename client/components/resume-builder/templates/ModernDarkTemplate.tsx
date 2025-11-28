@@ -156,7 +156,7 @@ export function ModernDarkTemplate({ data, styles }: ModernDarkTemplateProps) {
                     </p>
                     {exp.description && (
                       <div
-                        className="rt-text-slate-500 rt-mt-1"
+                        className="rt-text-slate-500 rt-mt-1 rt-rich-text"
                         style={{ fontSize: fontSize.small, lineHeight }}
                         dangerouslySetInnerHTML={{ __html: exp.description }}
                       />
@@ -454,7 +454,7 @@ export function ModernDarkTemplate({ data, styles }: ModernDarkTemplateProps) {
                     </p>
                     {proj.description && (
                       <div
-                        className="rt-text-slate-500"
+                        className="rt-text-slate-500 rt-rich-text"
                         style={{ fontSize: fontSize.small, lineHeight }}
                         dangerouslySetInnerHTML={{ __html: proj.description }}
                       />

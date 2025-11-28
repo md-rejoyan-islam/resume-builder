@@ -479,7 +479,7 @@ export function ProfessionalTemplate({
                   </p>
                   {proj.description && (
                     <div
-                      className="rt-text-slate-600 rt-mt-1"
+                      className="rt-text-slate-600 rt-mt-1 rt-rich-text"
                       style={{ fontSize: fontSize.small, lineHeight }}
                       dangerouslySetInnerHTML={{ __html: proj.description }}
                     />

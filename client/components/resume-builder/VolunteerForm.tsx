@@ -1,6 +1,8 @@
 "use client";
 
+import { TextEditor } from "@/components/dashboard/text-editor";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Dialog,
   DialogContent,
@@ -8,12 +10,15 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  DraggableList,
+  DragHandleWithIndex,
+} from "@/components/ui/draggable-list";
 import { Input } from "@/components/ui/input";
-import { Checkbox } from "@/components/ui/checkbox";
-import { TextEditor } from "@/components/dashboard/text-editor";
 import { cn } from "@/lib/utils";
+import { HtmlContent } from "@/components/ui/html-content";
 import { Edit2, Heart, Plus, Trash2 } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 
 export interface Volunteer {
   id: string;
@@ -49,12 +54,18 @@ export function VolunteerForm({
   volunteers,
   onVolunteersChange,
 }: VolunteerFormProps) {
-  const [formData, setFormData] = useState<Omit<Volunteer, "id">>(emptyVolunteer);
-  const [editingVolunteer, setEditingVolunteer] = useState<Volunteer | null>(null);
+  const [formData, setFormData] =
+    useState<Omit<Volunteer, "id">>(emptyVolunteer);
+  const [editingVolunteer, setEditingVolunteer] = useState<Volunteer | null>(
+    null
+  );
   const [isModalOpen, setIsModalOpen] = useState(false);
   const firstInputRef = useRef<HTMLInputElement>(null);
 
-  const handleInputChange = (field: keyof Omit<Volunteer, "id">, value: string | boolean) => {
+  const handleInputChange = (
+    field: keyof Omit<Volunteer, "id">,
+    value: string | boolean
+  ) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
@@ -66,18 +77,18 @@ export function VolunteerForm({
     }));
   };
 
-  useEffect(() => {
-    if (editingVolunteer) {
-      setEditingVolunteer((prev) =>
-        prev
-          ? {
-              ...prev,
-              endDate: prev.currentlyVolunteering ? "" : prev.endDate,
-            }
-          : null
-      );
-    }
-  }, [editingVolunteer?.currentlyVolunteering]);
+  const handleEditCurrentlyVolunteeringChange = (checked: boolean) => {
+    if (!editingVolunteer) return;
+    setEditingVolunteer((prev) =>
+      prev
+        ? {
+            ...prev,
+            currentlyVolunteering: checked,
+            endDate: checked ? "" : prev.endDate,
+          }
+        : null
+    );
+  };
 
   const handleAddVolunteer = () => {
     if (!formData.organization.trim()) return;
@@ -100,7 +111,10 @@ export function VolunteerForm({
     setIsModalOpen(true);
   };
 
-  const handleEditInputChange = (field: keyof Omit<Volunteer, "id">, value: string | boolean) => {
+  const handleEditInputChange = (
+    field: keyof Omit<Volunteer, "id">,
+    value: string | boolean
+  ) => {
     if (!editingVolunteer) return;
     setEditingVolunteer((prev) => (prev ? { ...prev, [field]: value } : null));
   };
@@ -109,7 +123,9 @@ export function VolunteerForm({
     if (!editingVolunteer) return;
 
     onVolunteersChange(
-      volunteers.map((vol) => (vol.id === editingVolunteer.id ? editingVolunteer : vol))
+      volunteers.map((vol) =>
+        vol.id === editingVolunteer.id ? editingVolunteer : vol
+      )
     );
     setIsModalOpen(false);
     setEditingVolunteer(null);
@@ -251,65 +267,60 @@ export function VolunteerForm({
       </div>
 
       {/* Volunteer List */}
-      {volunteers.length > 0 && (
-        <div className="space-y-3">
-          <h3 className="text-xs font-bold uppercase tracking-wide text-slate-700 dark:text-muted-foreground">
-            Added Volunteer Experiences ({volunteers.length})
-          </h3>
-          <div className="space-y-3">
-            {volunteers.map((volunteer) => (
-              <div
-                key={volunteer.id}
-                className="bg-white dark:bg-card rounded-lg border border-border p-4 group hover:border-slate-300 dark:hover:border-slate-600 transition-colors"
-              >
-                <div className="flex items-start justify-between gap-4">
-                  <div className="flex items-start gap-3 flex-1 min-w-0">
-                    <div className="w-10 h-10 rounded-full bg-pink-100 dark:bg-pink-500/20 flex items-center justify-center shrink-0">
-                      <Heart className="w-5 h-5 text-pink-600 dark:text-pink-400" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <h4 className="font-semibold text-slate-900 dark:text-foreground truncate">
-                        {volunteer.role || "Volunteer"}
-                      </h4>
-                      <p className="text-sm text-slate-600 dark:text-muted-foreground truncate">
-                        {volunteer.organization}
-                        {volunteer.location && ` • ${volunteer.location}`}
-                      </p>
-                      <p className="text-xs text-slate-500 dark:text-muted-foreground mt-1">
-                        {formatDate(volunteer.startDate)} -{" "}
-                        {volunteer.currentlyVolunteering ? "Present" : formatDate(volunteer.endDate)}
-                      </p>
-                      {volunteer.description && (
-                        <p className="text-sm text-slate-500 dark:text-muted-foreground mt-2 line-clamp-2">
-                          {volunteer.description}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-1 shrink-0">
-                    <button
-                      type="button"
-                      onClick={() => handleEditClick(volunteer)}
-                      className="p-2 text-slate-400 hover:text-primary hover:bg-primary/10 rounded transition-colors"
-                      title="Edit volunteer experience"
-                    >
-                      <Edit2 className="w-4 h-4" />
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => handleRemoveVolunteer(volunteer.id)}
-                      className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded transition-colors"
-                      title="Remove volunteer experience"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </div>
-                </div>
+      <DraggableList
+        items={volunteers}
+        onReorder={onVolunteersChange}
+        title="Added Volunteer Experiences"
+        renderItem={(volunteer, index) => (
+          <div className="flex items-start justify-between gap-4">
+            <div className="flex items-start gap-3 flex-1 min-w-0">
+              <DragHandleWithIndex index={index} />
+              <div className="w-10 h-10 rounded-full bg-pink-100 dark:bg-pink-500/20 flex items-center justify-center shrink-0">
+                <Heart className="w-5 h-5 text-pink-600 dark:text-pink-400" />
               </div>
-            ))}
+              <div className="flex-1 min-w-0">
+                <h4 className="font-semibold text-slate-900 dark:text-foreground truncate">
+                  {volunteer.role || "Volunteer"}
+                </h4>
+                <p className="text-sm text-slate-600 dark:text-muted-foreground truncate">
+                  {volunteer.organization}
+                  {volunteer.location && ` • ${volunteer.location}`}
+                </p>
+                <p className="text-xs text-slate-500 dark:text-muted-foreground mt-1">
+                  {formatDate(volunteer.startDate)} -{" "}
+                  {volunteer.currentlyVolunteering
+                    ? "Present"
+                    : formatDate(volunteer.endDate)}
+                </p>
+                {volunteer.description && (
+                  <HtmlContent
+                    html={volunteer.description}
+                    className="text-sm text-slate-500 dark:text-muted-foreground mt-2 line-clamp-2 html-content-compact"
+                  />
+                )}
+              </div>
+            </div>
+            <div className="flex items-center gap-1 shrink-0">
+              <button
+                type="button"
+                onClick={() => handleEditClick(volunteer)}
+                className="p-2 text-slate-400 hover:text-primary hover:bg-primary/10 rounded transition-colors"
+                title="Edit volunteer experience"
+              >
+                <Edit2 className="w-4 h-4" />
+              </button>
+              <button
+                type="button"
+                onClick={() => handleRemoveVolunteer(volunteer.id)}
+                className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded transition-colors"
+                title="Remove volunteer experience"
+              >
+                <Trash2 className="w-4 h-4" />
+              </button>
+            </div>
           </div>
-        </div>
-      )}
+        )}
+      />
 
       {/* Add More Button when there are volunteers */}
       {volunteers.length > 0 && (
@@ -328,7 +339,9 @@ export function VolunteerForm({
         <div className="text-center py-8 text-slate-500 dark:text-muted-foreground">
           <Heart className="w-12 h-12 mx-auto mb-3 text-slate-300 dark:text-slate-600" />
           <p className="text-sm">No volunteer experiences added yet.</p>
-          <p className="text-xs mt-1">Add your first volunteer experience above to get started.</p>
+          <p className="text-xs mt-1">
+            Add your first volunteer experience above to get started.
+          </p>
         </div>
       )}
 
@@ -349,7 +362,9 @@ export function VolunteerForm({
                 <Input
                   type="text"
                   value={editingVolunteer.organization}
-                  onChange={(e) => handleEditInputChange("organization", e.target.value)}
+                  onChange={(e) =>
+                    handleEditInputChange("organization", e.target.value)
+                  }
                   placeholder="e.g. Red Cross"
                   className="h-11"
                 />
@@ -364,7 +379,9 @@ export function VolunteerForm({
                   <Input
                     type="text"
                     value={editingVolunteer.role}
-                    onChange={(e) => handleEditInputChange("role", e.target.value)}
+                    onChange={(e) =>
+                      handleEditInputChange("role", e.target.value)
+                    }
                     placeholder="e.g. Volunteer Coordinator"
                     className="h-11"
                   />
@@ -376,7 +393,9 @@ export function VolunteerForm({
                   <Input
                     type="text"
                     value={editingVolunteer.location}
-                    onChange={(e) => handleEditInputChange("location", e.target.value)}
+                    onChange={(e) =>
+                      handleEditInputChange("location", e.target.value)
+                    }
                     placeholder="e.g. New York, NY"
                     className="h-11"
                   />
@@ -392,7 +411,9 @@ export function VolunteerForm({
                   <Input
                     type="text"
                     value={editingVolunteer.startDate}
-                    onChange={(e) => handleEditInputChange("startDate", e.target.value)}
+                    onChange={(e) =>
+                      handleEditInputChange("startDate", e.target.value)
+                    }
                     placeholder="e.g. Jan 2022 or 01/2022"
                     className="h-11"
                   />
@@ -404,7 +425,9 @@ export function VolunteerForm({
                   <Input
                     type="text"
                     value={editingVolunteer.endDate}
-                    onChange={(e) => handleEditInputChange("endDate", e.target.value)}
+                    onChange={(e) =>
+                      handleEditInputChange("endDate", e.target.value)
+                    }
                     disabled={editingVolunteer.currentlyVolunteering}
                     placeholder="e.g. Dec 2023 or 12/2023"
                     className="h-11 disabled:opacity-50"
@@ -418,7 +441,7 @@ export function VolunteerForm({
                   id="editCurrentlyVolunteering"
                   checked={editingVolunteer.currentlyVolunteering}
                   onCheckedChange={(checked) =>
-                    handleEditInputChange("currentlyVolunteering", checked as boolean)
+                    handleEditCurrentlyVolunteeringChange(checked as boolean)
                   }
                 />
                 <label
@@ -436,7 +459,9 @@ export function VolunteerForm({
                 </label>
                 <TextEditor
                   value={editingVolunteer.description}
-                  onChange={(value) => handleEditInputChange("description", value)}
+                  onChange={(value) =>
+                    handleEditInputChange("description", value)
+                  }
                 />
               </div>
             </div>

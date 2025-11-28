@@ -1,6 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { CircularProgress } from "@/components/ui/circular-progress";
 import { cn } from "@/lib/utils";
 import {
   Download,
@@ -30,13 +31,13 @@ import {
   ResumePageWrapper,
 } from "./templates";
 
-// Template thumbnails data - only templates with implemented components
-const templates = [
-  { id: "modern-dark", name: "Modern Dark", color: "bg-slate-800" },
-  { id: "professional", name: "Professional", color: "bg-slate-100" },
-  { id: "classic-white", name: "Classic White", color: "bg-white" },
-  { id: "executive", name: "Executive", color: "bg-slate-50" },
-  { id: "centered", name: "Centered", color: "bg-white" },
+// Template options for finalize step - maps to template registry
+const templateOptions = [
+  { id: "modern-dark", name: "Modern Dark" },
+  { id: "professional", name: "Professional" },
+  { id: "classic", name: "Classic" },
+  { id: "executive", name: "Executive" },
+  { id: "centered", name: "Centered" },
 ];
 
 // Color palette options
@@ -84,6 +85,7 @@ const fontSizeMultipliers = {
   large: 1.15,
 };
 
+
 interface FinalizeStepProps {
   // Contact form data
   formData: Record<string, string>;
@@ -105,6 +107,12 @@ interface FinalizeStepProps {
   volunteers: Volunteer[];
   // Publications
   publications: Publication[];
+  // Progress tracking
+  completedSteps?: Set<string>;
+  totalSteps?: number;
+  // Template management (synced with sidebar)
+  selectedTemplate?: string;
+  onTemplateChange?: (templateId: string) => void;
 }
 
 export function FinalizeStep({
@@ -118,6 +126,10 @@ export function FinalizeStep({
   languages,
   volunteers,
   publications,
+  completedSteps = new Set(),
+  totalSteps = 11,
+  selectedTemplate: externalTemplate = "classic",
+  onTemplateChange,
 }: FinalizeStepProps) {
   // Generate resume name from contact info
   const resumeName = `${formData.firstName || ""}${
@@ -126,7 +138,16 @@ export function FinalizeStep({
   const [activeTab, setActiveTab] = useState<"templates" | "formatting">(
     "templates"
   );
-  const [selectedTemplate, setSelectedTemplate] = useState("modern-dark");
+  // Use local state only if no external control is provided
+  const [localTemplate, setLocalTemplate] = useState(externalTemplate);
+  const selectedTemplate = onTemplateChange ? externalTemplate : localTemplate;
+  const setSelectedTemplate = (templateId: string) => {
+    if (onTemplateChange) {
+      onTemplateChange(templateId);
+    } else {
+      setLocalTemplate(templateId);
+    }
+  };
   const [selectedColor, setSelectedColor] = useState("#1e40af");
   const [selectedFontSize, setSelectedFontSize] = useState("default");
   const [selectedFont, setSelectedFont] = useState("roboto");
@@ -374,36 +395,79 @@ export function FinalizeStep({
     }
   };
 
+  // Calculate progress percentage
+  const progressPercent = Math.round((completedSteps.size / totalSteps) * 100);
+
   return (
     <div className="h-full flex flex-col pt-4 lg:pt-6 ">
-      {/* Sticky Action Bar */}
-      <div className="sticky top-0 z-10 ">
-        <div className="flex justify-center">
-          <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm" className="gap-2">
-              <Mail className="w-4 h-4" />
-              Email
-            </Button>
+      {/* Progress, ATS & Action Bar */}
+      <div className="z-10 px-4 lg:px-0">
+        <div className="bg-white dark:bg-card border border-border rounded-xl px-5 py-3 max-w-4xl mx-auto">
+          <div className="flex items-center justify-between gap-4 flex-wrap">
+            {/* Left: Progress Bar */}
+            <div className="flex-1 min-w-[150px] max-w-xs">
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-xs font-medium text-slate-600 dark:text-muted-foreground">
+                  Progress
+                </span>
+                <span className="text-xs font-semibold text-primary">
+                  {progressPercent}%
+                </span>
+              </div>
+              <div className="h-2 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-primary rounded-full transition-all duration-300"
+                  style={{ width: `${progressPercent}%` }}
+                />
+              </div>
+            </div>
 
-            <Button
-              variant="outline"
-              className="gap-2 h-9"
-              onClick={handleDownloadPDF}
-              disabled={isDownloading}
-            >
-              {isDownloading ? (
-                <Loader2 className="w-4 h-4 animate-spin" />
-              ) : (
-                <Download className="w-4 h-4" />
-              )}
-              {isDownloading ? "Downloading..." : "Download"}
-            </Button>
-            <Button
-              size="sm"
-              className="gap-2 bg-orange-500 hover:bg-orange-600 text-white h-9"
-            >
-              Save & Continue
-            </Button>
+            {/* Center: ATS Score */}
+            <div className="flex items-center gap-2 shrink-0">
+              <div className="flex items-center gap-2 bg-slate-50 dark:bg-accent/30 px-3 py-1.5 rounded-full">
+                <CircularProgress value={55} size={28} strokeWidth={3} />
+                <div className="hidden sm:block">
+                  <span className="text-[10px] text-muted-foreground block leading-tight">
+                    ATS Score
+                  </span>
+                  <span className="text-xs font-semibold text-primary leading-tight">
+                    Good
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Right: Action Buttons */}
+            <div className="flex items-center gap-2 shrink-0">
+              <Button variant="outline" size="sm" className="gap-2">
+                <Mail className="w-4 h-4" />
+                <span className="hidden sm:inline">Email</span>
+              </Button>
+
+              <Button
+                variant="outline"
+                size="sm"
+                className="gap-2"
+                onClick={handleDownloadPDF}
+                disabled={isDownloading}
+              >
+                {isDownloading ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <Download className="w-4 h-4" />
+                )}
+                <span className="hidden sm:inline">
+                  {isDownloading ? "Downloading..." : "Download"}
+                </span>
+              </Button>
+
+              <Button
+                size="sm"
+                className="gap-2 bg-orange-500 hover:bg-orange-600 text-white"
+              >
+                Save & Download
+              </Button>
+            </div>
           </div>
         </div>
       </div>
@@ -458,7 +522,7 @@ export function FinalizeStep({
                         accentColor: selectedColor,
                       }}
                     />
-                  ) : selectedTemplate === "classic-white" ? (
+                  ) : selectedTemplate === "classic" ? (
                     <ClassicTemplate
                       data={{
                         formData,
@@ -557,13 +621,13 @@ export function FinalizeStep({
           </div>
 
           {/* Right Sidebar - Templates & Formatting (Sticky on desktop) */}
-          <div className="w-full lg:w-80 lg:sticky lg:top-4 bg-card rounded-xl border border-border p-4 h-[650px] flex flex-col lg:shrink-0">
+          <div className="w-full lg:w-80 lg:sticky lg:top-4 bg-card rounded-xl border border-border p-4 h-[620px] flex flex-col lg:shrink-0">
             {/* Tabs */}
             <div className="flex border-b border-border mb-4">
               <button
                 onClick={() => setActiveTab("templates")}
                 className={cn(
-                  "flex-1 flex items-center justify-center gap-2 py-3 text-sm font-medium border-b-2 transition-colors",
+                  "flex-1 flex items-center cursor-pointer justify-center gap-2 py-3 text-sm font-medium border-b-2 transition-colors",
                   activeTab === "templates"
                     ? "border-primary text-primary"
                     : "border-transparent text-slate-500 hover:text-slate-700"
@@ -575,7 +639,7 @@ export function FinalizeStep({
               <button
                 onClick={() => setActiveTab("formatting")}
                 className={cn(
-                  "flex-1 flex items-center justify-center gap-2 py-3 text-sm font-medium border-b-2 transition-colors",
+                  "flex-1 flex items-center cursor-pointer justify-center gap-2 py-3 text-sm font-medium border-b-2 transition-colors",
                   activeTab === "formatting"
                     ? "border-primary text-primary"
                     : "border-transparent text-slate-500 hover:text-slate-700"
@@ -590,7 +654,7 @@ export function FinalizeStep({
             <div className="overflow-y-auto ">
               {activeTab === "templates" && (
                 <div className="grid grid-cols-2 gap-3">
-                  {templates.map((template) => {
+                  {templateOptions.map((template) => {
                     // Preview styles for thumbnails
                     const previewStyles = {
                       fontFamily: "'Roboto', sans-serif",
@@ -637,7 +701,7 @@ export function FinalizeStep({
                                 data={previewData}
                                 styles={previewStyles}
                               />
-                            ) : template.id === "classic-white" ? (
+                            ) : template.id === "classic" ? (
                               <ClassicTemplate
                                 data={previewData}
                                 styles={previewStyles}

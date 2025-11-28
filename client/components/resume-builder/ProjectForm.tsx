@@ -8,6 +8,11 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  DraggableList,
+  DragHandleWithIndex,
+} from "@/components/ui/draggable-list";
+import { HtmlContent } from "@/components/ui/html-content";
 import { Input } from "@/components/ui/input";
 import { TextEditor } from "@/components/dashboard/text-editor";
 import { cn } from "@/lib/utils";
@@ -40,16 +45,16 @@ const emptyProject: Omit<Project, "id"> = {
   otherUrl: "",
 };
 
-export function ProjectForm({
-  projects,
-  onProjectsChange,
-}: ProjectFormProps) {
+export function ProjectForm({ projects, onProjectsChange }: ProjectFormProps) {
   const [formData, setFormData] = useState<Omit<Project, "id">>(emptyProject);
   const [editingProject, setEditingProject] = useState<Project | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const firstInputRef = useRef<HTMLInputElement>(null);
 
-  const handleInputChange = (field: keyof Omit<Project, "id">, value: string) => {
+  const handleInputChange = (
+    field: keyof Omit<Project, "id">,
+    value: string
+  ) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
@@ -74,7 +79,10 @@ export function ProjectForm({
     setIsModalOpen(true);
   };
 
-  const handleEditInputChange = (field: keyof Omit<Project, "id">, value: string) => {
+  const handleEditInputChange = (
+    field: keyof Omit<Project, "id">,
+    value: string
+  ) => {
     if (!editingProject) return;
     setEditingProject((prev) => (prev ? { ...prev, [field]: value } : null));
   };
@@ -83,7 +91,9 @@ export function ProjectForm({
     if (!editingProject) return;
 
     onProjectsChange(
-      projects.map((proj) => (proj.id === editingProject.id ? editingProject : proj))
+      projects.map((proj) =>
+        proj.id === editingProject.id ? editingProject : proj
+      )
     );
     setIsModalOpen(false);
     setEditingProject(null);
@@ -190,89 +200,82 @@ export function ProjectForm({
       </div>
 
       {/* Project List */}
-      {projects.length > 0 && (
-        <div className="space-y-3">
-          <h3 className="text-xs font-bold uppercase tracking-wide text-slate-700 dark:text-muted-foreground">
-            Added Projects ({projects.length})
-          </h3>
-          <div className="space-y-3">
-            {projects.map((project) => (
-              <div
-                key={project.id}
-                className="bg-white dark:bg-card rounded-lg border border-border p-4 group hover:border-slate-300 dark:hover:border-slate-600 transition-colors"
-              >
-                <div className="flex items-start justify-between gap-4">
-                  <div className="flex items-start gap-3 flex-1 min-w-0">
-                    <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-                      <FolderGit2 className="w-5 h-5 text-primary" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <h4 className="font-semibold text-slate-900 dark:text-foreground truncate">
-                        {project.name}
-                      </h4>
-                      {project.description && (
-                        <p className="text-sm text-slate-500 dark:text-muted-foreground mt-1 line-clamp-2">
-                          {project.description}
-                        </p>
-                      )}
-                      <div className="flex flex-wrap items-center gap-2 mt-2">
-                        {project.githubUrl && (
-                          <a
-                            href={project.githubUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700"
-                          >
-                            GitHub
-                          </a>
-                        )}
-                        {project.liveUrl && (
-                          <a
-                            href={project.liveUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 dark:bg-green-500/20 text-green-700 dark:text-green-400 hover:bg-green-200 dark:hover:bg-green-500/30"
-                          >
-                            Live Demo
-                          </a>
-                        )}
-                        {project.otherUrl && (
-                          <a
-                            href={project.otherUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 dark:bg-blue-500/20 text-blue-700 dark:text-blue-400 hover:bg-blue-200 dark:hover:bg-blue-500/30"
-                          >
-                            Other
-                          </a>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-1 shrink-0">
-                    <button
-                      type="button"
-                      onClick={() => handleEditClick(project)}
-                      className="p-2 text-slate-400 hover:text-primary hover:bg-primary/10 rounded transition-colors"
-                      title="Edit project"
+      <DraggableList
+        items={projects}
+        onReorder={onProjectsChange}
+        title="Added Projects"
+        renderItem={(project, index) => (
+          <div className="flex items-start justify-between gap-4">
+            <div className="flex items-start gap-3 flex-1 min-w-0">
+              <DragHandleWithIndex index={index} />
+              <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                <FolderGit2 className="w-5 h-5 text-primary" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <h4 className="font-semibold text-slate-900 dark:text-foreground truncate">
+                  {project.name}
+                </h4>
+                {project.description && (
+                  <HtmlContent
+                    html={project.description}
+                    className="text-sm text-slate-500 dark:text-muted-foreground mt-1 line-clamp-2"
+                  />
+                )}
+                <div className="flex flex-wrap items-center gap-2 mt-2">
+                  {project.githubUrl && (
+                    <a
+                      href={project.githubUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700"
                     >
-                      <Edit2 className="w-4 h-4" />
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => handleRemoveProject(project.id)}
-                      className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded transition-colors"
-                      title="Remove project"
+                      GitHub
+                    </a>
+                  )}
+                  {project.liveUrl && (
+                    <a
+                      href={project.liveUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 dark:bg-green-500/20 text-green-700 dark:text-green-400 hover:bg-green-200 dark:hover:bg-green-500/30"
                     >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </div>
+                      Live Demo
+                    </a>
+                  )}
+                  {project.otherUrl && (
+                    <a
+                      href={project.otherUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 dark:bg-blue-500/20 text-blue-700 dark:text-blue-400 hover:bg-blue-200 dark:hover:bg-blue-500/30"
+                    >
+                      Other
+                    </a>
+                  )}
                 </div>
               </div>
-            ))}
+            </div>
+            <div className="flex items-center gap-1 shrink-0">
+              <button
+                type="button"
+                onClick={() => handleEditClick(project)}
+                className="p-2 text-slate-400 hover:text-primary hover:bg-primary/10 rounded transition-colors"
+                title="Edit project"
+              >
+                <Edit2 className="w-4 h-4" />
+              </button>
+              <button
+                type="button"
+                onClick={() => handleRemoveProject(project.id)}
+                className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded transition-colors"
+                title="Remove project"
+              >
+                <Trash2 className="w-4 h-4" />
+              </button>
+            </div>
           </div>
-        </div>
-      )}
+        )}
+      />
 
       {/* Add More Button when there are projects */}
       {projects.length > 0 && (
@@ -291,7 +294,9 @@ export function ProjectForm({
         <div className="text-center py-8 text-slate-500 dark:text-muted-foreground">
           <FolderGit2 className="w-12 h-12 mx-auto mb-3 text-slate-300 dark:text-slate-600" />
           <p className="text-sm">No projects added yet.</p>
-          <p className="text-xs mt-1">Add your first project above to get started.</p>
+          <p className="text-xs mt-1">
+            Add your first project above to get started.
+          </p>
         </div>
       )}
 
@@ -312,7 +317,9 @@ export function ProjectForm({
                 <Input
                   type="text"
                   value={editingProject.name}
-                  onChange={(e) => handleEditInputChange("name", e.target.value)}
+                  onChange={(e) =>
+                    handleEditInputChange("name", e.target.value)
+                  }
                   placeholder="e.g. E-commerce Platform"
                   className="h-11"
                 />
@@ -325,7 +332,9 @@ export function ProjectForm({
                 </label>
                 <TextEditor
                   value={editingProject.description}
-                  onChange={(value) => handleEditInputChange("description", value)}
+                  onChange={(value) =>
+                    handleEditInputChange("description", value)
+                  }
                 />
               </div>
 
@@ -337,7 +346,9 @@ export function ProjectForm({
                 <Input
                   type="url"
                   value={editingProject.githubUrl}
-                  onChange={(e) => handleEditInputChange("githubUrl", e.target.value)}
+                  onChange={(e) =>
+                    handleEditInputChange("githubUrl", e.target.value)
+                  }
                   placeholder="e.g. https://github.com/username/project"
                   className="h-11"
                 />
@@ -352,7 +363,9 @@ export function ProjectForm({
                   <Input
                     type="url"
                     value={editingProject.liveUrl}
-                    onChange={(e) => handleEditInputChange("liveUrl", e.target.value)}
+                    onChange={(e) =>
+                      handleEditInputChange("liveUrl", e.target.value)
+                    }
                     placeholder="e.g. https://myproject.com"
                     className="h-11"
                   />
@@ -364,7 +377,9 @@ export function ProjectForm({
                   <Input
                     type="url"
                     value={editingProject.otherUrl}
-                    onChange={(e) => handleEditInputChange("otherUrl", e.target.value)}
+                    onChange={(e) =>
+                      handleEditInputChange("otherUrl", e.target.value)
+                    }
                     placeholder="e.g. Documentation, Demo video, etc."
                     className="h-11"
                   />
