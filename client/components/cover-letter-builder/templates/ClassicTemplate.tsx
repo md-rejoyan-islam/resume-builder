@@ -1,5 +1,6 @@
 "use client";
 
+import { Mail, MapPin, Phone } from "lucide-react";
 import { CoverLetterTemplateProps } from "./types";
 
 export function ClassicCoverLetterTemplate({
@@ -28,8 +29,10 @@ export function ClassicCoverLetterTemplate({
       style={{
         fontFamily,
         padding: "48px",
-        minHeight: "100%",
+        height: "100%",
+        minHeight: "842px",
         backgroundColor: "white",
+        boxSizing: "border-box",
       }}
     >
       {/* Header - Centered Personal Info */}
@@ -74,9 +77,24 @@ export function ClassicCoverLetterTemplate({
             flexWrap: "wrap",
           }}
         >
-          {personalInfo.email && <span>{personalInfo.email}</span>}
-          {personalInfo.phone && <span>{personalInfo.phone}</span>}
-          {personalInfo.location && <span>{personalInfo.location}</span>}
+          {personalInfo.email && (
+            <span style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+              <Mail style={{ width: "12px", height: "12px" }} />
+              {personalInfo.email}
+            </span>
+          )}
+          {personalInfo.phone && (
+            <span style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+              <Phone style={{ width: "12px", height: "12px" }} />
+              {personalInfo.phone}
+            </span>
+          )}
+          {personalInfo.location && (
+            <span style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+              <MapPin style={{ width: "12px", height: "12px" }} />
+              {personalInfo.location}
+            </span>
+          )}
         </div>
       </div>
 

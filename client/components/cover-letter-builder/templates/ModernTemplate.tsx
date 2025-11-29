@@ -28,7 +28,7 @@ export function ModernCoverLetterTemplate({
       className="cl-template cl-modern"
       style={{
         fontFamily,
-        minHeight: "100%",
+        minHeight: "842px",
         backgroundColor: "white",
         display: "flex",
       }}
@@ -40,6 +40,9 @@ export function ModernCoverLetterTemplate({
           backgroundColor: accentColor,
           padding: "40px 24px",
           color: "white",
+          minHeight: "inherit",
+          boxSizing: "border-box",
+          flexShrink: 0,
         }}
       >
         {/* Name */}

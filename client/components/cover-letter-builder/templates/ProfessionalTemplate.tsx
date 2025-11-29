@@ -1,5 +1,6 @@
 "use client";
 
+import { Mail, MapPin, Phone } from "lucide-react";
 import { CoverLetterTemplateProps } from "./types";
 
 export function ProfessionalCoverLetterTemplate({
@@ -27,7 +28,8 @@ export function ProfessionalCoverLetterTemplate({
       className="cl-template cl-professional"
       style={{
         fontFamily,
-        minHeight: "100%",
+        height: "100%",
+        minHeight: "842px",
         backgroundColor: "white",
       }}
     >
@@ -37,6 +39,9 @@ export function ProfessionalCoverLetterTemplate({
           borderTop: `4px solid ${accentColor}`,
           padding: "36px 48px",
           backgroundColor: "#f8fafc",
+          margin: 0,
+          width: "100%",
+          boxSizing: "border-box",
         }}
       >
         <div
@@ -80,11 +85,29 @@ export function ProfessionalCoverLetterTemplate({
               color: "#64748b",
               textAlign: "right",
               lineHeight: 1.8,
+              display: "flex",
+              flexDirection: "column",
+              gap: "4px",
             }}
           >
-            {personalInfo.email && <p>{personalInfo.email}</p>}
-            {personalInfo.phone && <p>{personalInfo.phone}</p>}
-            {personalInfo.location && <p>{personalInfo.location}</p>}
+            {personalInfo.email && (
+              <p style={{ display: "flex", alignItems: "center", justifyContent: "flex-end", gap: "6px" }}>
+                <Mail style={{ width: "12px", height: "12px" }} />
+                {personalInfo.email}
+              </p>
+            )}
+            {personalInfo.phone && (
+              <p style={{ display: "flex", alignItems: "center", justifyContent: "flex-end", gap: "6px" }}>
+                <Phone style={{ width: "12px", height: "12px" }} />
+                {personalInfo.phone}
+              </p>
+            )}
+            {personalInfo.location && (
+              <p style={{ display: "flex", alignItems: "center", justifyContent: "flex-end", gap: "6px" }}>
+                <MapPin style={{ width: "12px", height: "12px" }} />
+                {personalInfo.location}
+              </p>
+            )}
           </div>
         </div>
       </div>

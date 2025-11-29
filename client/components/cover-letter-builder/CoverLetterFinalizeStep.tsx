@@ -16,9 +16,9 @@ import {
 import { useEffect, useRef, useState } from "react";
 import {
   ClassicCoverLetterTemplate,
+  ExecutiveCoverLetterTemplate,
   ModernCoverLetterTemplate,
   ProfessionalCoverLetterTemplate,
-  ExecutiveCoverLetterTemplate,
 } from "./templates";
 
 // Template options
@@ -85,7 +85,9 @@ export function CoverLetterFinalizeStep({
 }: CoverLetterFinalizeStepProps) {
   const { coverLetterData, progress } = useCoverLetterContext();
 
-  const [activeTab, setActiveTab] = useState<"templates" | "formatting">("templates");
+  const [activeTab, setActiveTab] = useState<"templates" | "formatting">(
+    "templates"
+  );
   const [selectedColor, setSelectedColor] = useState("#1e40af");
   const [selectedFontSize, setSelectedFontSize] = useState("default");
   const [selectedFont, setSelectedFont] = useState("roboto");
@@ -112,9 +114,11 @@ export function CoverLetterFinalizeStep({
 
   // Calculate dynamic styles
   const fontMultiplier =
-    fontSizeMultipliers[selectedFontSize as keyof typeof fontSizeMultipliers] || 1;
+    fontSizeMultipliers[selectedFontSize as keyof typeof fontSizeMultipliers] ||
+    1;
   const currentFontFamily =
-    fontFamilies.find((f) => f.id === selectedFont)?.css || "'Roboto', sans-serif";
+    fontFamilies.find((f) => f.id === selectedFont)?.css ||
+    "'Roboto', sans-serif";
 
   // Calculate spacing values
   const sectionGap = 8 + (sectionSpacing / 100) * 16;
@@ -164,10 +168,9 @@ export function CoverLetterFinalizeStep({
         return;
       }
 
-      const coverLetterName = `${coverLetterData.personalInfo.fullName || "Cover"}_Letter`.replace(
-        /\s+/g,
-        "_"
-      );
+      const coverLetterName = `${
+        coverLetterData.personalInfo.fullName || "Cover"
+      }_Letter`.replace(/\s+/g, "_");
 
       const styleSheets = Array.from(document.styleSheets)
         .map((sheet) => {
@@ -211,8 +214,26 @@ export function CoverLetterFinalizeStep({
 
               .print-page {
                 width: 210mm;
+                height: 297mm;
                 min-height: 297mm;
                 background: white;
+              }
+
+              /* Cover letter template styles for print */
+              .cl-template {
+                width: 100% !important;
+                height: 297mm !important;
+                min-height: 297mm !important;
+              }
+
+              /* Modern template sidebar - full height */
+              .cl-modern {
+                display: flex !important;
+              }
+
+              .cl-modern > div:first-child {
+                min-height: 297mm !important;
+                height: 297mm !important;
               }
 
               @media print {
@@ -409,7 +430,7 @@ export function CoverLetterFinalizeStep({
           </div>
 
           {/* Right Sidebar - Templates & Formatting */}
-          <div className="w-full lg:w-80 lg:sticky lg:top-4 bg-card rounded-xl border border-border p-4 h-[620px] flex flex-col lg:shrink-0">
+          <div className="w-full lg:w-80 lg:sticky lg:top-4 lg:self-start bg-card rounded-xl border border-border p-4 h-[620px] flex flex-col lg:shrink-0">
             {/* Tabs */}
             <div className="flex border-b border-border mb-4">
               <button
@@ -564,7 +585,9 @@ export function CoverLetterFinalizeStep({
                   {/* More Font Settings */}
                   <div className="border border-border rounded-lg">
                     <button
-                      onClick={() => setShowMoreFontSettings(!showMoreFontSettings)}
+                      onClick={() =>
+                        setShowMoreFontSettings(!showMoreFontSettings)
+                      }
                       className="w-full py-3 px-4 flex items-center justify-between text-sm font-medium"
                     >
                       More font settings
@@ -599,7 +622,9 @@ export function CoverLetterFinalizeStep({
                             min="0"
                             max="100"
                             value={sectionSpacing}
-                            onChange={(e) => setSectionSpacing(Number(e.target.value))}
+                            onChange={(e) =>
+                              setSectionSpacing(Number(e.target.value))
+                            }
                             className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-primary"
                           />
                         </div>
@@ -614,7 +639,9 @@ export function CoverLetterFinalizeStep({
                             min="0"
                             max="100"
                             value={paragraphSpacing}
-                            onChange={(e) => setParagraphSpacing(Number(e.target.value))}
+                            onChange={(e) =>
+                              setParagraphSpacing(Number(e.target.value))
+                            }
                             className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-primary"
                           />
                         </div>
@@ -629,7 +656,9 @@ export function CoverLetterFinalizeStep({
                             min="0"
                             max="100"
                             value={lineSpacing}
-                            onChange={(e) => setLineSpacing(Number(e.target.value))}
+                            onChange={(e) =>
+                              setLineSpacing(Number(e.target.value))
+                            }
                             className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-primary"
                           />
                         </div>

@@ -87,7 +87,7 @@ const RESUME_SCHEMA = `{
     {
       "id": "string (unique, format: proj-{timestamp}-{random})",
       "name": "string (required)",
-      "description": "string (HTML content with project details)",
+      "description": "string (HTML content with <p>, <ul>, <li> tags for responsibilities/achievements)"
       "githubUrl": "string",
       "liveUrl": "string",
       "otherUrl": "string",
@@ -202,6 +202,13 @@ IMPORTANT RULES:
 7. For language proficiency, infer from context or default to "intermediate" if unclear
 8. Always include the sectionTitles array with default values
 9. Return ONLY valid JSON, no markdown code blocks or explanations
+10. IMPORTANT - URLs: All URLs must be returned in their complete original format including the protocol (https:// or http://). For example:
+    - LinkedIn: "https://linkedin.com/in/username" (NOT just "linkedin.com/in/username" or "username")
+    - GitHub: "https://github.com/username" (NOT just "github.com/username" or "username")
+    - Twitter: "https://twitter.com/username" (NOT just "twitter.com/username" or "@username")
+    - Website: "https://example.com" (NOT just "example.com")
+    - Any other URL: preserve the full URL with protocol
+    If a URL in the resume doesn't have a protocol, add "https://" prefix.
 
 JSON Schema to follow:
 ${RESUME_SCHEMA}`,

@@ -476,9 +476,9 @@ export function FinalizeStep({
 
       {/* Scrollable Content */}
       <div className="flex-1 overflow-y-auto pt-4">
-        <div className="flex flex-col lg:flex-row gap-6 lg:items-start">
+        <div className="flex flex-col lg:flex-row gap-6 lg:items-start px-4 lg:px-0">
           {/* Resume Preview Card */}
-          <div className="flex-1 overflow-hidden">
+          <div className="flex-1 overflow-hidden lg:overflow-visible">
             <div className="h-full overflow-auto p-4">
               {/* Resume Preview Content with Multi-Page Support */}
               <div ref={resumeRef}>
@@ -623,7 +623,7 @@ export function FinalizeStep({
           </div>
 
           {/* Right Sidebar - Templates & Formatting (Sticky on desktop) */}
-          <div className="w-full lg:w-80 lg:sticky lg:top-4 bg-card rounded-xl border border-border p-4 h-[620px] flex flex-col lg:shrink-0">
+          <div className="w-full lg:w-80 lg:sticky lg:top-4 lg:self-start bg-card rounded-xl border border-border p-4 h-[620px] flex flex-col lg:shrink-0">
             {/* Tabs */}
             <div className="flex border-b border-border mb-4">
               <button

@@ -295,7 +295,6 @@ export function Sidebar() {
           className="flex items-center gap-2 font-bold text-lg hover:opacity-80 transition"
         >
           <Image src={"/logo.png"} width={40} height={40} alt="logo" />
-          <span>DocBuilder</span>
         </Link>
 
         {/* Menu Open Button (Hamburger) */}
@@ -314,14 +313,12 @@ export function Sidebar() {
             {/* Drawer Header - Logo, Name, and Close Button */}
             <div className="flex items-center justify-between px-6 py-4 border-b border-border bg-card shrink-0">
               {/* Logo and Name */}
+
               <Link
                 href="/"
                 className="flex items-center gap-2 font-bold text-lg hover:opacity-80 transition"
               >
-                <div className="w-8 h-8 rounded-lg bg-linear-to-br from-blue-600 to-purple-600 flex items-center justify-center text-white text-sm font-bold">
-                  DB
-                </div>
-                <span>DocBuilder</span>
+                <Image src={"/logo.png"} width={40} height={40} alt="logo" />
               </Link>
 
               {/* Close Button */}
@@ -336,54 +333,171 @@ export function Sidebar() {
             </div>
 
             {/* Drawer Content - Scrollable Body */}
-            <div className="flex-1 overflow-y-auto px-6 py-4 flex flex-col">
-              {/* Navigation Items */}
-              <nav className="flex-1 space-y-2">
+            <div className="flex-1 overflow-y-auto px-4 py-4 flex flex-col">
+              {/* MAIN Section Header */}
+              <h3 className="text-xs font-semibold text-muted-foreground/80 uppercase tracking-wider mb-3 px-2">
+                Main
+              </h3>
+
+              {/* Navigation Items with Sub-menus */}
+              <nav className="flex-1 space-y-1">
                 {items.map((item) => (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all group ${
-                      isActive(item.href)
-                        ? "bg-primary text-primary-foreground shadow-md"
-                        : "text-foreground hover:bg-accent/10 hover:text-foreground"
-                    }`}
-                  >
-                    <span
-                      className={`transition-transform group-hover:scale-110 ${
-                        isActive(item.href) ? "text-primary-foreground" : ""
-                      }`}
-                    >
-                      {item.icon}
-                    </span>
-                    <span className="font-medium">{item.label}</span>
-                    {/* {item.badge && (
-                      <span className="ml-auto text-xs bg-accent text-accent-foreground px-2 py-1 rounded">
-                        {item.badge}
-                      </span>
-                    )} */}
-                  </Link>
+                  <div key={item.href} className="flex flex-col">
+                    {/* Main menu item */}
+                    {item.subItems ? (
+                      <button
+                        onClick={() => toggleMenu(item.label)}
+                        className={`flex items-center w-full gap-3 px-4 py-3 rounded-lg transition-all group ${
+                          isActive(item.href)
+                            ? "bg-primary/15 text-primary"
+                            : "text-foreground hover:bg-accent/10 hover:text-foreground"
+                        }`}
+                      >
+                        <span
+                          className={`transition-transform group-hover:scale-110 ${
+                            isActive(item.href)
+                              ? "text-primary"
+                              : "text-foreground/60"
+                          }`}
+                        >
+                          {item.icon}
+                        </span>
+                        <span className="font-medium flex-1 text-left">
+                          {item.label}
+                        </span>
+                        <ChevronRight
+                          className={`w-4 h-4 transition-transform ${
+                            expandedMenus.includes(item.label)
+                              ? "rotate-90"
+                              : ""
+                          }`}
+                        />
+                      </button>
+                    ) : (
+                      <DrawerClose asChild>
+                        <Link
+                          href={item.href}
+                          className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all group ${
+                            isActive(item.href)
+                              ? "bg-primary text-primary-foreground shadow-md"
+                              : "text-foreground hover:bg-accent/10 hover:text-foreground"
+                          }`}
+                        >
+                          <span
+                            className={`transition-transform group-hover:scale-110 ${
+                              isActive(item.href)
+                                ? "text-primary-foreground"
+                                : ""
+                            }`}
+                          >
+                            {item.icon}
+                          </span>
+                          <span className="font-medium">{item.label}</span>
+                        </Link>
+                      </DrawerClose>
+                    )}
+
+                    {/* Sub-menu items */}
+                    {item.subItems && expandedMenus.includes(item.label) && (
+                      <div className="ml-6 pl-4 border-l-2 border-border/50 space-y-1 mt-1 animate-in slide-in-from-top-2">
+                        {item.subItems.map((subItem) => (
+                          <DrawerClose key={subItem.href} asChild>
+                            <Link
+                              href={subItem.href}
+                              className={`flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm transition-colors ${
+                                pathname === subItem.href
+                                  ? "bg-primary/10 text-primary font-medium"
+                                  : "text-muted-foreground hover:text-foreground hover:bg-accent/10"
+                              }`}
+                            >
+                              <span className="w-1.5 h-1.5 rounded-full bg-current opacity-60"></span>
+                              {subItem.label}
+                            </Link>
+                          </DrawerClose>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 ))}
               </nav>
 
-              {/* Bottom Section */}
-              <div className="space-y-3 pt-4 border-t border-border">
-                <Link href="/settings">
+              {/* OTHERS Section */}
+              <div className="mt-6 pt-4 border-t border-border">
+                <h3 className="text-xs font-semibold text-muted-foreground/80 uppercase tracking-wider mb-3 px-2">
+                  Others
+                </h3>
+                <nav className="space-y-1">
+                  <DrawerClose asChild>
+                    <Link
+                      href="/settings"
+                      className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${
+                        isActive("/settings")
+                          ? "bg-primary text-primary-foreground shadow-md"
+                          : "text-foreground hover:bg-accent/10"
+                      }`}
+                    >
+                      <Settings className="w-5 h-5" />
+                      <span className="font-medium">Settings</span>
+                    </Link>
+                  </DrawerClose>
+                </nav>
+              </div>
+
+              {/* Theme Toggle & Logout Section */}
+              <div className="mt-6 pt-4 border-t border-border space-y-3">
+                {/* Dark Mode Toggle */}
+                <div className="flex items-center justify-between px-4 py-3 rounded-lg bg-accent/5">
+                  <div className="flex items-center gap-3">
+                    <Moon className="w-5 h-5 text-muted-foreground" />
+                    <span className="text-sm font-medium">Dark Mode</span>
+                  </div>
+                  <Switch
+                    checked={theme === "dark"}
+                    className="cursor-pointer"
+                    onCheckedChange={(checked: boolean) =>
+                      setTheme(checked ? "dark" : "light")
+                    }
+                  />
+                </div>
+
+                {/* Logout Button */}
+                <DrawerClose asChild>
                   <Button
                     variant="outline"
-                    className="w-full justify-start gap-3"
+                    className="w-full justify-start gap-3 text-destructive hover:text-destructive hover:bg-destructive/10"
+                    onClick={handleLogout}
                   >
-                    <Settings className="w-5 h-5" />
-                    Settings
+                    <LogOut className="w-5 h-5" />
+                    Logout
                   </Button>
-                </Link>
-                <Button
-                  variant="outline"
-                  className="w-full justify-start gap-3 text-destructive hover:text-destructive"
-                >
-                  <LogOut className="w-5 h-5" />
-                  Logout
-                </Button>
+                </DrawerClose>
+              </div>
+
+              {/* User Profile Section */}
+              <div className="mt-6 pt-4 border-t border-border">
+                <div className="flex items-center gap-3 px-2 py-3 rounded-lg bg-accent/5">
+                  <div className="w-10 h-10 rounded-full bg-linear-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white font-semibold shrink-0">
+                    {getInitials()}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-semibold text-sm leading-tight truncate">
+                      {data?.data?.first_name} {data?.data?.last_name}
+                    </p>
+                    <p className="text-xs text-muted-foreground truncate">
+                      {data?.data?.email}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Footer */}
+                <div className="px-2 py-3 mt-2">
+                  <p className="text-xs text-muted-foreground">
+                    v1.5.69 ·{" "}
+                    <a href="#" className="hover:underline">
+                      Terms & Conditions
+                    </a>
+                  </p>
+                </div>
               </div>
             </div>
           </DrawerContent>

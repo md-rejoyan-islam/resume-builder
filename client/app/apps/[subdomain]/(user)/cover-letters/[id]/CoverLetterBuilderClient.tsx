@@ -13,11 +13,11 @@ import {
   CoverLetterSectionId,
   useCoverLetterContext,
 } from "@/context/CoverLetterContext";
+import { coverLetterStepsConfig } from "@/lib/cover-letter-steps";
 import {
   useGetCoverLetterQuery,
   useUpdateCoverLetterMutation,
 } from "@/lib/features/cover-letter/cover-letter-slice";
-import { coverLetterStepsConfig } from "@/lib/cover-letter-steps";
 import { cn } from "@/lib/utils";
 import { Lock, Menu, X } from "lucide-react";
 import Image from "next/image";
@@ -39,9 +39,10 @@ function CoverLetterBuilderContent({
   const {
     coverLetterData,
     setCoverLetterData,
+    setOriginalData,
     isSectionComplete,
     progress,
-    touchedFields,
+    hasUnsavedChanges,
     setTouchedFields,
   } = useCoverLetterContext();
 
@@ -85,9 +86,9 @@ function CoverLetterBuilderContent({
   useEffect(() => {
     if (coverLetterResponse?.data) {
       const data = coverLetterResponse.data;
-      setCoverLetterData({
+      const loadedData = {
         title: data.title || "Untitled Cover Letter",
-        status: data.status || "draft",
+        status: (data.status || "draft") as "draft" | "completed",
         personalInfo: {
           fullName: data.personalInfo?.fullName || "",
           jobTitle: data.personalInfo?.jobTitle || "",
@@ -97,8 +98,7 @@ function CoverLetterBuilderContent({
         },
         letterContent: {
           date:
-            data.letterContent?.date ||
-            new Date().toISOString().split("T")[0],
+            data.letterContent?.date || new Date().toISOString().split("T")[0],
           recipientName: data.letterContent?.recipientName || "",
           recipientTitle: data.letterContent?.recipientTitle || "",
           company: data.letterContent?.company || "",
@@ -111,9 +111,12 @@ function CoverLetterBuilderContent({
           closingParagraph: data.letterContent?.closingParagraph || "",
           closing: data.letterContent?.closing || "Sincerely",
         },
-      });
+      };
+      setCoverLetterData(loadedData);
+      // Set original data for change detection
+      setOriginalData(loadedData);
     }
-  }, [coverLetterResponse, setCoverLetterData]);
+  }, [coverLetterResponse, setCoverLetterData, setOriginalData]);
 
   // Compute completed steps
   const completedSteps = useMemo(() => {
@@ -155,6 +158,8 @@ function CoverLetterBuilderContent({
       }).unwrap();
 
       setTouchedFields(new Set());
+      // Update original data to current data after successful save
+      setOriginalData(coverLetterData);
 
       // Move to next step
       if (currentStepIndex < coverLetterStepsConfig.length - 1) {
@@ -173,6 +178,7 @@ function CoverLetterBuilderContent({
     coverLetterData,
     currentStepIndex,
     setTouchedFields,
+    setOriginalData,
     updateCoverLetter,
   ]);
 
@@ -180,6 +186,13 @@ function CoverLetterBuilderContent({
   const handleBack = useCallback(() => {
     if (currentStepIndex > 0) {
       setCurrentStep(coverLetterStepsConfig[currentStepIndex - 1].id);
+    }
+  }, [currentStepIndex]);
+
+  // Handle Next (no save, just move to next step)
+  const handleNext = useCallback(() => {
+    if (currentStepIndex < coverLetterStepsConfig.length - 1) {
+      setCurrentStep(coverLetterStepsConfig[currentStepIndex + 1].id);
     }
   }, [currentStepIndex]);
 
@@ -337,8 +350,8 @@ function CoverLetterBuilderContent({
       <main className="flex-1 flex flex-col h-full relative bg-[#f8f9fa] dark:bg-background">
         {currentStep === "finalize" ? (
           /* Finalize Step - Full Width */
-          <div className="flex-1 overflow-y-auto px-4 lg:px-6 py-8">
-            <div className="max-w-4xl mx-auto">
+          <div className="flex-1 overflow-y-auto px-4 lg:px-6 ">
+            <div className="">
               <CoverLetterStepRenderer
                 stepId={currentStep}
                 selectedTemplate={selectedTemplate}
@@ -349,9 +362,9 @@ function CoverLetterBuilderContent({
         ) : (
           /* Regular Steps Layout */
           <div className="flex-1 overflow-y-auto p-4 lg:p-12 pb-32 scroll-smooth">
-            <div className="max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8 lg:items-start">
+            <div className="max-w-5xl mx-auto flex flex-col lg:flex-row gap-8">
               {/* Form Section */}
-              <div className="lg:col-span-2 space-y-8">
+              <div className="flex-1 lg:flex-[2] space-y-8">
                 <CoverLetterStepHeader
                   title={currentStepConfig.title}
                   description={currentStepConfig.description}
@@ -364,17 +377,18 @@ function CoverLetterBuilderContent({
                 <CoverLetterNavigation
                   onBack={handleBack}
                   onSave={handleSaveAndContinue}
+                  onNext={handleNext}
                   isSaving={isSaving}
                   isFirstStep={currentStepIndex === 0}
                   isLastStep={
                     currentStepIndex === coverLetterStepsConfig.length - 1
                   }
-                  hasChanges={touchedFields.size > 0}
+                  hasChanges={hasUnsavedChanges}
                 />
               </div>
 
-              {/* Right Sidebar - Tips & Progress */}
-              <div className="lg:sticky lg:top-4 lg:self-start space-y-4">
+              {/* Right Sidebar - Tips & Progress - Sticky */}
+              <div className="lg:w-80 lg:flex-shrink-0 sticky top-4 space-y-4 h-fit">
                 {/* Progress Card */}
                 <div className="bg-white dark:bg-card border border-border rounded-xl px-5 py-3">
                   <div className="flex items-center justify-between gap-6">

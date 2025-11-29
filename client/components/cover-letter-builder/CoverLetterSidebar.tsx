@@ -7,9 +7,9 @@ import { Check, Eye, Lock, X } from "lucide-react";
 import { useState } from "react";
 import {
   ClassicCoverLetterTemplate,
+  ExecutiveCoverLetterTemplate,
   ModernCoverLetterTemplate,
   ProfessionalCoverLetterTemplate,
-  ExecutiveCoverLetterTemplate,
 } from "./templates";
 
 interface Step {
@@ -138,8 +138,6 @@ export function CoverLetterSidebar({
                     >
                       {isDisabled ? (
                         <Lock className="w-3 h-3" />
-                      ) : isCompleted && !isActive ? (
-                        <Check className="w-4 h-4" />
                       ) : (
                         <Icon className="w-4 h-4" />
                       )}
@@ -153,7 +151,7 @@ export function CoverLetterSidebar({
         </nav>
 
         {/* Mini Preview Section */}
-        <div className="rounded-md border bg-gray-50 mx-4 mb-4">
+        <div className=" border rounded-t-md bg-gray-50 mx-4">
           {/* Progress Display */}
           <div className="flex items-center justify-center gap-3 py-3">
             <CircularProgress
@@ -170,7 +168,7 @@ export function CoverLetterSidebar({
             {/* Preview Button Overlay */}
             <button
               onClick={() => setIsPreviewModalOpen(true)}
-              className="absolute bottom-6 left-0 right-0 z-10 flex items-center justify-center py-4 bg-gradient-to-t from-white via-white/95 to-transparent dark:from-slate-800 dark:via-slate-800/95 cursor-pointer transition-all duration-200"
+              className="absolute bottom-6 left-0 right-0 z-10 flex items-center justify-center cursor-pointer py-4 fcursor-pointer transition-all duration-200"
             >
               <div className="flex items-center gap-2 bg-white dark:bg-card px-4 py-2 rounded-full shadow-lg border border-slate-200 dark:border-border group-hover:bg-primary group-hover:border-primary transition-all duration-200">
                 <Eye className="w-4 h-4 text-primary group-hover:text-white transition-colors" />
@@ -181,7 +179,7 @@ export function CoverLetterSidebar({
             </button>
 
             {/* Mini Preview Container */}
-            <div className="border-border overflow-hidden rounded-b-md transition-all duration-200 group-hover:shadow-lg group-hover:ring-primary/30">
+            <div className="border-border overflow-hidden  transition-all duration-200 group-hover:shadow-lg group-hover:ring-primary/30">
               <div
                 className="overflow-hidden transition-transform duration-200 group-hover:scale-[1.02]"
                 style={{
@@ -197,7 +195,9 @@ export function CoverLetterSidebar({
                     transformOrigin: "top left",
                   }}
                 >
-                  <div className="pointer-events-none">{miniPreviewContent}</div>
+                  <div className="pointer-events-none">
+                    {miniPreviewContent}
+                  </div>
                 </div>
               </div>
             </div>
@@ -280,7 +280,11 @@ export function CoverLetterSidebar({
                 {/* Template Name Header */}
                 <div className="text-center mb-4">
                   <span className="inline-block px-4 py-1.5 bg-white dark:bg-card rounded-full text-sm font-medium text-slate-700 dark:text-slate-300 shadow-sm border border-border">
-                    {templateOptions.find(t => t.id === selectedTemplate)?.name} Template
+                    {
+                      templateOptions.find((t) => t.id === selectedTemplate)
+                        ?.name
+                    }{" "}
+                    Template
                   </span>
                 </div>
                 <div

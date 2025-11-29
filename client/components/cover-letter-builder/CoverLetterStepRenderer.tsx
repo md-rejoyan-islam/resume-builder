@@ -111,11 +111,14 @@ export function CoverLetterStepRenderer({
         {field.type === "select" ? (
           <Select
             value={value}
-            onValueChange={(val) => handleFieldChange(field, val)}
+            onValueChange={(val) => {
+              handleFieldChange(field, val);
+              markFieldTouched(field.name);
+            }}
           >
             <SelectTrigger
               className={cn(
-                "w-full",
+                "w-full h-12",
                 hasError && "border-destructive focus:ring-destructive"
               )}
             >
@@ -141,8 +144,10 @@ export function CoverLetterStepRenderer({
           <Textarea
             id={field.name}
             value={value}
-            onChange={(e) => handleFieldChange(field, e.target.value)}
-            onBlur={() => markFieldTouched(field.name)}
+            onChange={(e) => {
+              handleFieldChange(field, e.target.value);
+              markFieldTouched(field.name);
+            }}
             placeholder={field.placeholder}
             rows={field.rows || 4}
             className={cn(
@@ -155,10 +160,13 @@ export function CoverLetterStepRenderer({
             id={field.name}
             type={field.type === "email" ? "email" : field.type === "date" ? "date" : "text"}
             value={value}
-            onChange={(e) => handleFieldChange(field, e.target.value)}
-            onBlur={() => markFieldTouched(field.name)}
+            onChange={(e) => {
+              handleFieldChange(field, e.target.value);
+              markFieldTouched(field.name);
+            }}
             placeholder={field.placeholder}
             className={cn(
+              "h-12",
               hasError && "border-destructive focus:ring-destructive"
             )}
           />

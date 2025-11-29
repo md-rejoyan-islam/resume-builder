@@ -97,10 +97,9 @@ export function CoverLetterPdfUploadDialog({
         setUploadSuccess(true);
 
         // Navigate to the cover letter builder after a short delay
-        setTimeout(() => {
-          onOpenChange(false);
-          router.push(`/cover-letters/${result.data._id}/new`);
-        }, 1000);
+
+        onOpenChange(false);
+        router.push(`/cover-letters/${result.data._id}/new`);
       } catch (err) {
         console.error("PDF upload error:", err);
         const errorMessage =

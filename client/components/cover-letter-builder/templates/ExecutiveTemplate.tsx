@@ -1,5 +1,6 @@
 "use client";
 
+import { Mail, MapPin, Phone } from "lucide-react";
 import { CoverLetterTemplateProps } from "./types";
 
 export function ExecutiveCoverLetterTemplate({
@@ -27,9 +28,11 @@ export function ExecutiveCoverLetterTemplate({
       className="cl-template cl-executive"
       style={{
         fontFamily,
-        minHeight: "100%",
+        height: "100%",
+        minHeight: "842px",
         backgroundColor: "white",
         padding: "48px",
+        boxSizing: "border-box",
       }}
     >
       {/* Elegant Header */}
@@ -111,9 +114,24 @@ export function ExecutiveCoverLetterTemplate({
             flexWrap: "wrap",
           }}
         >
-          {personalInfo.email && <span>{personalInfo.email}</span>}
-          {personalInfo.phone && <span>{personalInfo.phone}</span>}
-          {personalInfo.location && <span>{personalInfo.location}</span>}
+          {personalInfo.email && (
+            <span style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+              <Mail style={{ width: "12px", height: "12px" }} />
+              {personalInfo.email}
+            </span>
+          )}
+          {personalInfo.phone && (
+            <span style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+              <Phone style={{ width: "12px", height: "12px" }} />
+              {personalInfo.phone}
+            </span>
+          )}
+          {personalInfo.location && (
+            <span style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+              <MapPin style={{ width: "12px", height: "12px" }} />
+              {personalInfo.location}
+            </span>
+          )}
         </div>
       </div>
 

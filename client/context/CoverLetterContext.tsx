@@ -130,6 +130,10 @@ interface CoverLetterContextValue {
   coverLetterData: CoverLetterData;
   setCoverLetterData: (data: CoverLetterData) => void;
 
+  // Original data from backend (for change detection)
+  originalData: CoverLetterData | null;
+  setOriginalData: (data: CoverLetterData) => void;
+
   // Form data as flat Record for easy access
   formData: Record<string, string>;
 
@@ -141,6 +145,9 @@ interface CoverLetterContextValue {
   // Completion tracking
   isSectionComplete: (sectionId: CoverLetterSectionId) => boolean;
   progress: number;
+
+  // Change detection
+  hasUnsavedChanges: boolean;
 
   // Touched fields for validation
   touchedFields: Set<string>;
@@ -180,7 +187,31 @@ export function CoverLetterProvider({
     })
   );
 
+  // Original data from backend for change detection
+  const [originalData, setOriginalData] = useState<CoverLetterData | null>(null);
+
   const [touchedFields, setTouchedFields] = useState<Set<string>>(new Set());
+
+  // Check if there are unsaved changes by comparing current data with original
+  const hasUnsavedChanges = useMemo(() => {
+    if (!originalData) return false;
+
+    // Compare personalInfo
+    const personalInfoChanged = Object.keys(coverLetterData.personalInfo).some(
+      (key) =>
+        coverLetterData.personalInfo[key as keyof PersonalInfo] !==
+        originalData.personalInfo[key as keyof PersonalInfo]
+    );
+
+    // Compare letterContent
+    const letterContentChanged = Object.keys(coverLetterData.letterContent).some(
+      (key) =>
+        coverLetterData.letterContent[key as keyof LetterContent] !==
+        originalData.letterContent[key as keyof LetterContent]
+    );
+
+    return personalInfoChanged || letterContentChanged;
+  }, [coverLetterData, originalData]);
 
   // Flat form data for easy field access
   const formData = useMemo(() => {
@@ -248,24 +279,29 @@ export function CoverLetterProvider({
     () => ({
       coverLetterData,
       setCoverLetterData,
+      originalData,
+      setOriginalData,
       formData,
       updatePersonalInfo,
       updateLetterContent,
       updateTitle,
       isSectionComplete,
       progress,
+      hasUnsavedChanges,
       touchedFields,
       setTouchedFields,
       markFieldTouched,
     }),
     [
       coverLetterData,
+      originalData,
       formData,
       updatePersonalInfo,
       updateLetterContent,
       updateTitle,
       isSectionComplete,
       progress,
+      hasUnsavedChanges,
       touchedFields,
       markFieldTouched,
     ]
