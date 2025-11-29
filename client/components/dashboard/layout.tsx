@@ -18,6 +18,8 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
   const isResumeBuilder = pathname?.match(/\/resumes\/[a-f0-9]{24}(\/new)?$/) !== null;
   // Match /cover-letters/[id] or /cover-letters/[id]/new but NOT /cover-letters/new
   const isCoverLetterBuilder = pathname?.match(/\/cover-letters\/[a-f0-9]{24}(\/new)?$/) !== null;
+  // Match /disclosure-letters/[id] or /disclosure-letters/[id]/new but NOT /disclosure-letters/new
+  const isDisclosureLetterBuilder = pathname?.match(/\/disclosure-letters\/[a-f0-9]{24}(\/new)?$/) !== null;
 
   if (isLoading) {
     return (
@@ -27,7 +29,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
     );
   }
 
-  if (isResumeBuilder || isCoverLetterBuilder) {
+  if (isResumeBuilder || isCoverLetterBuilder || isDisclosureLetterBuilder) {
     return <div className="min-h-screen bg-background">{children}</div>;
   }
 

@@ -129,13 +129,13 @@ export function Sidebar() {
       ],
     },
     {
-      label: "Disclosures",
-      href: "/disclosures",
+      label: "Disclosure Letters",
+      href: "/disclosure-letters",
       icon: <FileText className="w-5 h-5" />,
       role: ["user"],
       subItems: [
-        { label: "All Disclosures", href: "/disclosures" },
-        { label: "Create Disclosure", href: "/disclosures/new" },
+        { label: "All Disclosures", href: "/disclosure-letters" },
+        { label: "Create Disclosure", href: "/disclosure-letters/new" },
       ],
     },
     {

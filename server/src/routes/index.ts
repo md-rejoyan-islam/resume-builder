@@ -5,6 +5,7 @@ import errorHandler from '../middlewares/error-handler';
 import { register } from '../middlewares/matrics-middleware';
 import authRouter from '../modules/auth/auth.route';
 import coverLetterRouter from '../modules/cover-letter/cover-letter.route';
+import disclosureLetterRouter from '../modules/disclosure-letter/disclosure-letter.route';
 import resumeRouter from '../modules/resume/resume.route';
 import userRouter from '../modules/user/user.route';
 import { asyncHandler } from '../utils/async-handler';
@@ -50,6 +51,8 @@ router.use('/api/v1/users', userRouter);
 router.use('/api/v1/resumes', resumeRouter);
 // cover letter routes
 router.use('/api/v1/cover-letters', coverLetterRouter);
+// disclosure letter routes
+router.use('/api/v1/disclosure-letters', disclosureLetterRouter);
 
 // 404 route
 router.use('', (req: Request, _res: Response) => {

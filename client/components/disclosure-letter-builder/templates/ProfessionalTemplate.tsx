@@ -1,0 +1,273 @@
+"use client";
+
+import { Mail, MapPin, Phone } from "lucide-react";
+import { DisclosureLetterTemplateProps } from "./types";
+
+export function ProfessionalDisclosureLetterTemplate({
+  data,
+  styles,
+}: DisclosureLetterTemplateProps) {
+  const { personalInfo, disclosureContent } = data;
+  const { fontFamily, fontSize, lineHeight, accentColor, paragraphGap, sectionGap } = styles;
+
+  const formatDate = (dateStr: string) => {
+    if (!dateStr) return "";
+    try {
+      return new Date(dateStr).toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      });
+    } catch {
+      return dateStr;
+    }
+  };
+
+  return (
+    <div
+      className="dl-template dl-professional"
+      style={{
+        fontFamily,
+        height: "100%",
+        minHeight: "842px",
+        backgroundColor: "white",
+      }}
+    >
+      {/* Header with accent bar */}
+      <div
+        style={{
+          borderTop: `4px solid ${accentColor}`,
+          padding: "36px 48px",
+          backgroundColor: "#f8fafc",
+          margin: 0,
+          width: "100%",
+          boxSizing: "border-box",
+        }}
+      >
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "flex-start",
+            flexWrap: "wrap",
+            gap: "16px",
+          }}
+        >
+          {/* Name and Title */}
+          <div>
+            <h1
+              style={{
+                fontSize: fontSize.name,
+                fontWeight: 700,
+                color: accentColor,
+                marginBottom: "4px",
+              }}
+            >
+              {personalInfo.fullName || "Your Name"}
+            </h1>
+            {personalInfo.jobTitle && (
+              <p
+                style={{
+                  fontSize: fontSize.title,
+                  color: "#64748b",
+                  fontWeight: 500,
+                }}
+              >
+                {personalInfo.jobTitle}
+              </p>
+            )}
+          </div>
+
+          {/* Contact Info */}
+          <div
+            style={{
+              fontSize: fontSize.small,
+              color: "#64748b",
+              textAlign: "right",
+              lineHeight: 1.8,
+              display: "flex",
+              flexDirection: "column",
+              gap: "4px",
+            }}
+          >
+            {personalInfo.email && (
+              <p style={{ display: "flex", alignItems: "center", justifyContent: "flex-end", gap: "6px" }}>
+                <Mail style={{ width: "12px", height: "12px" }} />
+                {personalInfo.email}
+              </p>
+            )}
+            {personalInfo.phone && (
+              <p style={{ display: "flex", alignItems: "center", justifyContent: "flex-end", gap: "6px" }}>
+                <Phone style={{ width: "12px", height: "12px" }} />
+                {personalInfo.phone}
+              </p>
+            )}
+            {personalInfo.location && (
+              <p style={{ display: "flex", alignItems: "center", justifyContent: "flex-end", gap: "6px" }}>
+                <MapPin style={{ width: "12px", height: "12px" }} />
+                {personalInfo.location}
+              </p>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Main Content */}
+      <div style={{ padding: "32px 48px" }}>
+        {/* Date and Recipient */}
+        <div style={{ marginBottom: `${sectionGap}px` }}>
+          {disclosureContent.date && (
+            <p
+              style={{
+                fontSize: fontSize.body,
+                color: "#6b7280",
+                marginBottom: `${sectionGap}px`,
+              }}
+            >
+              {formatDate(disclosureContent.date)}
+            </p>
+          )}
+
+          <div
+            style={{
+              fontSize: fontSize.body,
+              color: "#374151",
+              lineHeight: 1.6,
+            }}
+          >
+            {disclosureContent.recipientName && <p>{disclosureContent.recipientName}</p>}
+            {disclosureContent.recipientTitle && <p>{disclosureContent.recipientTitle}</p>}
+            {disclosureContent.company && (
+              <p style={{ fontWeight: 600 }}>{disclosureContent.company}</p>
+            )}
+            {disclosureContent.address && <p>{disclosureContent.address}</p>}
+          </div>
+        </div>
+
+        {/* Subject Line */}
+        {disclosureContent.subject && (
+          <p
+            style={{
+              fontSize: fontSize.body,
+              fontWeight: 600,
+              color: accentColor,
+              marginBottom: `${sectionGap}px`,
+              paddingBottom: "8px",
+              borderBottom: `1px solid ${accentColor}20`,
+            }}
+          >
+            Re: {disclosureContent.subject}
+          </p>
+        )}
+
+        {/* Greeting */}
+        <p
+          style={{
+            marginBottom: `${sectionGap}px`,
+            fontSize: fontSize.body,
+            color: "#1f2937",
+          }}
+        >
+          {disclosureContent.salutation || "Dear"}{" "}
+          {disclosureContent.recipientName || "Hiring Manager"},
+        </p>
+
+        {/* Body Paragraphs */}
+        <div
+          style={{
+            marginBottom: `${sectionGap}px`,
+            display: "flex",
+            flexDirection: "column",
+            gap: `${paragraphGap}px`,
+          }}
+        >
+          {disclosureContent.introductionParagraph && (
+            <div
+              style={{
+                fontSize: fontSize.body,
+                color: "#374151",
+                lineHeight,
+              }}
+              dangerouslySetInnerHTML={{ __html: disclosureContent.introductionParagraph }}
+            />
+          )}
+          {disclosureContent.disclosureDetails && (
+            <div
+              style={{
+                fontSize: fontSize.body,
+                color: "#374151",
+                lineHeight,
+              }}
+              dangerouslySetInnerHTML={{ __html: disclosureContent.disclosureDetails }}
+            />
+          )}
+          {disclosureContent.relevantCircumstances && (
+            <div
+              style={{
+                fontSize: fontSize.body,
+                color: "#374151",
+                lineHeight,
+              }}
+              dangerouslySetInnerHTML={{ __html: disclosureContent.relevantCircumstances }}
+            />
+          )}
+          {disclosureContent.mitigatingFactors && (
+            <div
+              style={{
+                fontSize: fontSize.body,
+                color: "#374151",
+                lineHeight,
+              }}
+              dangerouslySetInnerHTML={{ __html: disclosureContent.mitigatingFactors }}
+            />
+          )}
+          {disclosureContent.supportingDocuments && (
+            <p style={{ fontSize: fontSize.small, color: "#6b7280" }}>
+              <strong>Attached Documents:</strong> {disclosureContent.supportingDocuments}
+            </p>
+          )}
+          {disclosureContent.closingStatement && (
+            <div
+              style={{
+                fontSize: fontSize.body,
+                color: "#374151",
+                lineHeight,
+              }}
+              dangerouslySetInnerHTML={{ __html: disclosureContent.closingStatement }}
+            />
+          )}
+        </div>
+
+        {/* Closing */}
+        <div style={{ marginTop: `${sectionGap}px` }}>
+          <p
+            style={{
+              fontSize: fontSize.body,
+              color: "#1f2937",
+              marginBottom: `${sectionGap}px`,
+            }}
+          >
+            {disclosureContent.closing || "Sincerely"},
+          </p>
+          <div
+            style={{
+              display: "inline-block",
+              borderTop: `2px solid ${accentColor}`,
+              paddingTop: "8px",
+            }}
+          >
+            <p
+              style={{
+                fontSize: fontSize.body,
+                fontWeight: 600,
+                color: "#1f2937",
+              }}
+            >
+              {personalInfo.fullName || "Your Name"}
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
