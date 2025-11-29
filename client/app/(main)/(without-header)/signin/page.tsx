@@ -36,7 +36,7 @@ const Page = () => {
               Don&apos;t have an account?{" "}
               <Link
                 href="/signup"
-                className="text-blue-600 dark:text-blue-400 hover:underline font-semibold"
+                className="text-blue-600  relative  dark:text-blue-400 hover:underline font-semibold"
               >
                 Sign up
               </Link>

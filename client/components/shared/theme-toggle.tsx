@@ -42,7 +42,7 @@ export function ThemeToggle() {
         <DropdownMenuItem
           onClick={() => setTheme("light")}
           className={clsx("cursor-pointer", {
-            "bg-accent/20": theme === "light",
+            "bg-primary/10 hover:bg-primary": theme === "light",
           })}
         >
           <Sun className="mr-2 h-4 w-4" />
@@ -51,7 +51,7 @@ export function ThemeToggle() {
         <DropdownMenuItem
           onClick={() => setTheme("dark")}
           className={clsx("cursor-pointer", {
-            "bg-accent/20": theme === "dark",
+            "bg-primary/10 hover:bg-primary": theme === "dark",
           })}
         >
           <Moon className="mr-2 h-4 w-4" />
@@ -60,7 +60,7 @@ export function ThemeToggle() {
         <DropdownMenuItem
           onClick={() => setTheme("system")}
           className={clsx("cursor-pointer", {
-            "bg-accent/20": theme === "system",
+            "bg-primary/10 hover:bg-primary": theme === "system",
           })}
         >
           <Monitor className="mr-2 h-4 w-4" />

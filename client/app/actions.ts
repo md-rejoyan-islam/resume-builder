@@ -71,27 +71,27 @@ export const deleteCookie = async (name: string) => {
   cookieStore.delete(name);
 };
 
-export const saveLoginCookies = async (data: {
-  accessToken: string;
-  refreshToken: string;
-  role: string;
-  tenantId: string;
-  tenantName: string;
-}) => {
-  await setCookie("accessToken", data.accessToken);
-  await setCookie("refreshToken", data.refreshToken);
-  await setCookie("role", data.role);
-  await setCookie("tenantId", data.tenantId);
-  await setCookie("tenantName", data.tenantName);
-};
+// export const saveLoginCookies = async (data: {
+//   accessToken: string;
+//   refreshToken: string;
+//   role: string;
+//   tenantId: string;
+//   tenantName: string;
+// }) => {
+//   await setCookie("accessToken", data.accessToken);
+//   await setCookie("refreshToken", data.refreshToken);
+//   await setCookie("role", data.role);
+//   await setCookie("tenantId", data.tenantId);
+//   await setCookie("tenantName", data.tenantName);
+// };
 
-export const getAllAuthCookies = async () => {
-  const cookieStore = await cookies();
-  return {
-    accessToken: cookieStore.get("accessToken")?.value,
-    refreshToken: cookieStore.get("refreshToken")?.value,
-    role: cookieStore.get("role")?.value,
-    tenantId: cookieStore.get("tenantId")?.value,
-    tenantName: cookieStore.get("tenantName")?.value,
-  };
-};
+// export const getAllAuthCookies = async () => {
+//   const cookieStore = await cookies();
+//   return {
+//     accessToken: cookieStore.get("accessToken")?.value,
+//     refreshToken: cookieStore.get("refreshToken")?.value,
+//     role: cookieStore.get("role")?.value,
+//     tenantId: cookieStore.get("tenantId")?.value,
+//     tenantName: cookieStore.get("tenantName")?.value,
+//   };
+// };

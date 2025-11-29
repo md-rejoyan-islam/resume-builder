@@ -47,7 +47,7 @@ export default function SignUpForm() {
     return (
       <div className="bg-background rounded-md border shadow-md p-6 sm:p-10">
         <main className="flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 ">
-          <div className="w-full max-w-md text-center">
+          <div className="w-full   max-w-md text-center">
             <div className="flex justify-center mb-6">
               <div className="rounded-full bg-green-100 dark:bg-green-900/20 p-6">
                 <CheckCircle className="h-12 w-12 text-green-600 dark:text-green-400" />
@@ -59,7 +59,7 @@ export default function SignUpForm() {
               and get started.
             </p>
             <Link href="/signin">
-              <Button className="bg-linear-to-r h-11 uppercase from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 w-full">
+              <Button className="bg-linear-to-r  relative  h-11 uppercase from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 w-full">
                 Go to Sign In
               </Button>
             </Link>
@@ -71,7 +71,6 @@ export default function SignUpForm() {
 
   return (
     <>
-      {" "}
       <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl p-8 border border-gray-200 dark:border-slate-800">
         {/* User Icon */}
         <div className="flex justify-center mb-6">
@@ -91,7 +90,10 @@ export default function SignUpForm() {
           </p>
         </div>
         {/* Form */}
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          className="space-y-5  relative "
+        >
           {/* First Name */}
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -170,7 +172,7 @@ export default function SignUpForm() {
           {/* Submit Button */}
           <Button
             type="submit"
-            className="w-full h-11 border-blue-800 border text-lg uppercase ring-offset-1 ring-ring bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700 text-white font-semibold py-2.5 rounded-lg transition-colors"
+            className="w-full  relative  h-11 border-blue-800 border text-lg uppercase ring-offset-1 ring-ring bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700 text-white font-semibold py-2.5 rounded-lg transition-colors"
             disabled={isLoading}
           >
             {isLoading ? "Creating account..." : "Sign Up"}
@@ -181,7 +183,7 @@ export default function SignUpForm() {
           Already have an account?{" "}
           <Link
             href="/signin"
-            className="text-blue-600 dark:text-blue-400 hover:underline font-semibold"
+            className="text-blue-600  relative  dark:text-blue-400 hover:underline font-semibold"
           >
             Sign in
           </Link>

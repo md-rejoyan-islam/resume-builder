@@ -64,7 +64,7 @@ export default function ForgotPasswordPage() {
 
             <Button
               type="submit"
-              className="w-full  h-11 bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700 text-white font-semibold py-2.5 rounded-lg transition-colors"
+              className="w-full  h-11  relative  bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700 text-white font-semibold py-2.5 rounded-lg transition-colors"
               disabled={isLoading}
             >
               {isLoading ? "Sending..." : "Send Reset Link"}
@@ -72,7 +72,7 @@ export default function ForgotPasswordPage() {
 
             <Link
               href="/signin"
-              className="flex items-center justify-center gap-2 text-sm text-blue-600 dark:text-blue-400 hover:underline font-medium"
+              className="flex items-center  relative  justify-center gap-2 text-sm text-blue-600 dark:text-blue-400 hover:underline font-medium"
             >
               <ArrowLeft className="h-4 w-4" />
               Back to sign in
@@ -108,7 +108,7 @@ export default function ForgotPasswordPage() {
 
             <Button
               onClick={() => setIsSubmitted(false)}
-              className="w-full h-11 bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700 text-white font-semibold py-2.5 rounded-lg transition-colors"
+              className="w-full h-11  relative  bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700 text-white font-semibold py-2.5 rounded-lg transition-colors"
             >
               Try another email
             </Button>
@@ -116,7 +116,7 @@ export default function ForgotPasswordPage() {
             <Link href="/signin">
               <Button
                 variant="outline"
-                className="w-full h-11  border-gray-300 dark:border-slate-600 text-gray-900 hover:text-gray-600 dark:text-white hover:bg-gray-50 dark:hover:bg-slate-800"
+                className="w-full h-11  relative  border-gray-300 dark:border-slate-600 text-gray-900 hover:text-gray-600 dark:text-white hover:bg-gray-50 dark:hover:bg-slate-800"
               >
                 Back to sign in
               </Button>

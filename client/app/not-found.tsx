@@ -38,7 +38,6 @@ export default function NotFound() {
           </Link>
         </div>
       </div>
-      {/* JavaScript for Dark Mode Toggle */}
     </div>
   );
 }

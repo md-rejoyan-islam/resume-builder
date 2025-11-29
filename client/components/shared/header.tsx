@@ -46,14 +46,6 @@ function Header() {
                 className="relative "
               />
             </div>
-            {/* <div className="flex flex-col">
-              <span className="text-lg font-bold bg-linear-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                DocBuilder
-              </span>
-              <span className="text-xs font-semibold text-primary/80 -mt-1">
-                Pro
-              </span>
-            </div> */}
           </Link>
 
           {/* Beta Badge */}
@@ -78,7 +70,7 @@ function Header() {
         {/* Right side buttons */}
         <div className="flex items-center gap-2 sm:gap-3">
           {/* Theme Toggle */}
-          <div className="flex items-center rounded-lg border border-border/40 bg-card/30 p-1">
+          <div className="flex items-center rounded-lg border border-primary/10 bg-card/30">
             <ThemeToggle />
           </div>
 

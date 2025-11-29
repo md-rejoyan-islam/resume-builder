@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-const URL = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+const URL = process.env.NEXT_PUBLIC_BASE_URL!;
 
 export const metadata: Metadata = {
   title: "ResumeBuilder - Build Your Perfect Career Documents in Minutes",
@@ -29,7 +29,7 @@ export const metadata: Metadata = {
     siteName: "ResumeBuilder",
     images: [
       {
-        url: "/logo.png",
+        url: URL + "/logo.png",
         width: 1200,
         height: 630,
         alt: "ResumeBuilder Open Graph Image",
@@ -43,7 +43,7 @@ export const metadata: Metadata = {
     title: "ResumeBuilder - Build Your Perfect Career Documents in Minutes",
     description:
       "Create professional resumes, cover letters, and disclosure letters with AI-powered assistance.",
-    images: ["/image.png"],
+    images: [`${URL}/logo.png`],
   },
 };
 

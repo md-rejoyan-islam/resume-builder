@@ -5,6 +5,8 @@ import Image from "next/image";
 export function HeroSection() {
   return (
     <section className="relative overflow-hidden px-4 py-10 sm:px-6 lg:px-8 lg:py-16 ">
+      <div className="absolute inset-0 bg-linear-to-br from-primary/5 via-transparent to-primary/5" />
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-primary/10 rounded-full blur-3xl -translate-y-1/2" />
       {/* Premium background elements */}
       <div className="absolute inset-0 pointer-events-none">
         {/* Animated gradient orbs */}
@@ -48,6 +50,7 @@ export function HeroSection() {
             <div className="flex flex-col sm:flex-row gap-4 pt-2">
               <Button
                 size="lg"
+                aria-label="Get Started"
                 className="h-13 px-8 bg-linear-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 flex items-center gap-2"
               >
                 <span>Start Creating</span>
@@ -55,6 +58,7 @@ export function HeroSection() {
               </Button>
               <Button
                 size="lg"
+                aria-label="Watch Demo"
                 className="h-13 px-8 border-2 border-primary/30 bg-primary/5 hover:bg-primary/10 text-primary font-bold rounded-lg backdrop-blur-sm transition-all duration-300 flex items-center gap-2"
               >
                 <span>Watch Demo</span>

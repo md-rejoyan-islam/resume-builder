@@ -93,7 +93,7 @@ function CheckoutContent() {
             </p>
             <Button
               onClick={() => (window.location.href = "/")}
-              className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 w-full"
+              className="bg-linear-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 w-full"
             >
               Back to Home
             </Button>
@@ -113,7 +113,7 @@ function CheckoutContent() {
 
             <div className="mb-6 pb-6 border-b border-border">
               <div className="flex items-start gap-4 mb-4">
-                <div className="flex-shrink-0 h-12 w-12 rounded-lg bg-gradient-to-br from-blue-600 to-purple-600 flex items-center justify-center">
+                <div className="shrink-0 h-12 w-12 rounded-lg bg-linear-to-br from-blue-600 to-purple-600 flex items-center justify-center">
                   <ShoppingCart className="h-6 w-6 text-white" />
                 </div>
                 <div className="flex-1">
@@ -198,7 +198,7 @@ function CheckoutContent() {
               {/* Submit */}
               <Button
                 type="submit"
-                className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 h-12"
+                className="w-full bg-linear-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 h-12"
                 disabled={isProcessing}
               >
                 <Lock className="h-4 w-4 mr-2" />

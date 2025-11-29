@@ -364,7 +364,7 @@ function CoverLetterBuilderContent({
           <div className="flex-1 overflow-y-auto p-4 lg:p-12 pb-32 scroll-smooth">
             <div className="max-w-5xl mx-auto flex flex-col lg:flex-row gap-8">
               {/* Form Section */}
-              <div className="flex-1 lg:flex-[2] space-y-8">
+              <div className="flex-1 lg:flex-2 space-y-8">
                 <CoverLetterStepHeader
                   title={currentStepConfig.title}
                   description={currentStepConfig.description}
@@ -388,7 +388,7 @@ function CoverLetterBuilderContent({
               </div>
 
               {/* Right Sidebar - Tips & Progress - Sticky */}
-              <div className="lg:w-80 lg:flex-shrink-0 sticky top-4 space-y-4 h-fit">
+              <div className="lg:w-80 lg:shrink-0 sticky top-4 space-y-4 h-fit">
                 {/* Progress Card */}
                 <div className="bg-white dark:bg-card border border-border rounded-xl px-5 py-3">
                   <div className="flex items-center justify-between gap-6">

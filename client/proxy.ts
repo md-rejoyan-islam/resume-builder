@@ -18,15 +18,9 @@ const ROOT_DOMAIN = process.env.ROOT_DOMAIN || "redpro.local";
 export default function proxy(req: NextRequest) {
   const url = req.nextUrl;
   const hostname = req.headers.get("host") || ""; // e.g., subdomain.redpro.local:3000, localhost:3000, etc.
-  const pathname = req.nextUrl.pathname;
 
   // Define the main domain (without www or https://)
   const rootDomain = ROOT_DOMAIN;
-
-  // // Only process API proxy requests
-  // if (!pathname.startsWith("/api/proxy")) {
-  //   return NextResponse.next();
-  // }
 
   // Extract hostname without port
   const hostWithoutPort = hostname.split(":")[0];

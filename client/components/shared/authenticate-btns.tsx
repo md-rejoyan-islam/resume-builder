@@ -61,7 +61,7 @@ const AuthenticateBtns = () => {
       ) : (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <button className="rounded-full hover:opacity-80 transition-opacity cursor-pointer">
+            <button className="rounded-full ring-2 ring-ring hover:opacity-80 transition-opacity cursor-pointer">
               <Avatar>
                 <AvatarImage
                   src={data?.data?.avatar}

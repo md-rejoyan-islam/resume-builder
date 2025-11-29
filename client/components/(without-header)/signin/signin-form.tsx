@@ -82,7 +82,7 @@ export default function SignInForm() {
 
       {/* Keep logged in & Forgot password */}
       <div className="flex items-center justify-between">
-        <div className="flex items-center">
+        <div className="flex items-center  relative ">
           <input
             id="remember-me"
             name="remember-me"
@@ -98,7 +98,7 @@ export default function SignInForm() {
         </div>
         <Link
           href="/forgot-password"
-          className="text-sm text-blue-600 dark:text-blue-400 hover:underline font-medium"
+          className="text-sm  relative  text-blue-600 dark:text-blue-400 hover:underline font-medium"
         >
           Forgot password?
         </Link>
@@ -107,7 +107,7 @@ export default function SignInForm() {
       {/* Submit Button */}
       <Button
         type="submit"
-        className="w-full h-11 border-blue-800 border text-lg uppercase ring-offset-1 ring-ring bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700 text-white font-semibold py-2.5 rounded-lg transition-colors"
+        className="w-full h-11  relative  border-blue-800 border text-lg uppercase ring-offset-1 ring-ring bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700 text-white font-semibold py-2.5 rounded-lg transition-colors"
         disabled={isLoading}
       >
         {isLoading ? "Signing in..." : "Login"}

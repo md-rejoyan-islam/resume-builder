@@ -89,7 +89,7 @@ export default function ResendActivationLinkPage() {
 
             <Link
               href="/signin"
-              className="flex items-center justify-center gap-2 text-sm text-blue-600 dark:text-blue-400 hover:underline font-medium"
+              className="flex items-center  relative  justify-center gap-2 text-sm text-blue-600 dark:text-blue-400 hover:underline font-medium"
             >
               <ArrowLeft className="h-4 w-4" />
               Back to sign in

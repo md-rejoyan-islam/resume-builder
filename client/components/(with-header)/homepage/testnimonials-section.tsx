@@ -1,3 +1,5 @@
+import Image from "next/image";
+
 const TestnimonialsSection = () => {
   const cardsData = [
     {
@@ -42,7 +44,9 @@ const TestnimonialsSection = () => {
   }) => (
     <div className="p-4 rounded-lg mx-4 shadow hover:shadow-lg transition-all duration-200 w-72 shrink-0 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800">
       <div className="flex gap-2">
-        <img
+        <Image
+          width={40}
+          height={40}
           className="size-11 rounded-full"
           src={card.image}
           alt="User Image"
@@ -80,6 +84,7 @@ const TestnimonialsSection = () => {
           <a
             href="https://x.com"
             target="_blank"
+            aria-label="Twitter"
             className="hover:text-sky-500 dark:hover:text-sky-400"
           >
             <svg
@@ -94,6 +99,7 @@ const TestnimonialsSection = () => {
                 fill="currentColor"
               />
             </svg>
+            <span className="hidden">Twitter</span>
           </a>
         </div>
         <p>{card.date}</p>
@@ -128,23 +134,23 @@ const TestnimonialsSection = () => {
       </div>
 
       <div className="marquee-row w-full mx-auto max-w-7xl  overflow-hidden relative">
-        <div className="absolute left-0 top-0 h-full w-20 z-10 pointer-events-none bg-gradient-to-r from-white dark:from-background to-transparent"></div>
+        <div className="absolute left-0 top-0 h-full w-20 z-10 pointer-events-none bg-linear-to-r from-white dark:from-background to-transparent"></div>
         <div className="marquee-inner flex transform-gpu min-w-[200%] pt-10 pb-5">
           {[...cardsData, ...cardsData].map((card, index) => (
             <CreateCard key={index} card={card} />
           ))}
         </div>
-        <div className="absolute right-0 top-0 h-full w-20 md:w-40 z-10 pointer-events-none bg-gradient-to-l from-white dark:from-background to-transparent"></div>
+        <div className="absolute right-0 top-0 h-full w-20 md:w-40 z-10 pointer-events-none bg-linear-to-l from-white dark:from-background to-transparent"></div>
       </div>
 
       <div className="marquee-row w-full mx-auto max-w-5xl overflow-hidden relative">
-        <div className="absolute left-0 top-0 h-full w-20 z-10 pointer-events-none bg-gradient-to-r from-white dark:from-background to-transparent"></div>
+        <div className="absolute left-0 top-0 h-full w-20 z-10 pointer-events-none bg-linear-to-r from-white dark:from-background to-transparent"></div>
         <div className="marquee-inner marquee-reverse flex transform-gpu min-w-[200%] pt-10 pb-5">
           {[...cardsData, ...cardsData].map((card, index) => (
             <CreateCard key={index} card={card} />
           ))}
         </div>
-        <div className="absolute right-0 top-0 h-full w-20 md:w-40 z-10 pointer-events-none bg-gradient-to-l from-white dark:from-background to-transparent"></div>
+        <div className="absolute right-0 top-0 h-full w-20 md:w-40 z-10 pointer-events-none bg-linear-to-l from-white dark:from-background to-transparent"></div>
       </div>
     </div>
   );
