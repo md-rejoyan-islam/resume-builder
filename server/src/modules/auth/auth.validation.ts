@@ -88,42 +88,41 @@ export const loginSchema = z.object({
 });
 
 export const updateMeSchema = z.object({
-  body: z
-    .object({
-      first_name: z
-        .string({
-          error: (iss) => {
-            if (iss?.input && iss?.code === 'invalid_type') {
-              return 'First name must be a string';
-            }
-          },
-        })
-        .min(1)
-        .optional(),
-      last_name: z
-        .string({
-          error: (iss) => {
-            if (iss?.input && iss?.code === 'invalid_type') {
-              return 'Last name must be a string';
-            }
-          },
-        })
-        .min(1)
-        .optional(),
-      phone: z
-        .string({
-          error: (iss) => {
-            if (iss?.input && iss?.code === 'invalid_type') {
-              return 'Phone must be a string';
-            }
-          },
-        })
-        .min(10)
-        .optional(),
-    })
-    .refine((data) => Object.keys(data).length > 0, {
-      message: 'At least one field must be provided',
-    }),
+  body: z.object({
+    first_name: z
+      .string({
+        error: (iss) => {
+          if (iss?.input && iss?.code === 'invalid_type') {
+            return 'First name must be a string';
+          }
+        },
+      })
+      .min(1)
+      .optional(),
+    last_name: z
+      .string({
+        error: (iss) => {
+          if (iss?.input && iss?.code === 'invalid_type') {
+            return 'Last name must be a string';
+          }
+        },
+      })
+      .min(1)
+      .optional(),
+    phone: z
+      .string({
+        error: (iss) => {
+          if (iss?.input && iss?.code === 'invalid_type') {
+            return 'Phone must be a string';
+          }
+        },
+      })
+      .min(10)
+      .optional(),
+  }),
+  // .refine((data) => Object.keys(data).length > 0, {
+  //   message: 'At least one field must be provided',
+  // }),
 });
 
 export const changeMyPasswordSchema = z.object({

@@ -47,7 +47,11 @@ async function handleProxyRequest(
   const accessToken = await getCookie("accessToken");
   const refreshToken = await getCookie("refreshToken");
 
+  // Remove headers that shouldn't be forwarded
   requestHeaders.delete("connection");
+  requestHeaders.delete("host");
+  requestHeaders.delete("transfer-encoding");
+  requestHeaders.delete("content-length"); // Let fetch calculate this
 
   if (accessToken) {
     requestHeaders.set("Authorization", `Bearer ${accessToken}`);
@@ -105,12 +109,14 @@ async function handleProxyRequest(
           await setCookie("accessToken", newAccessToken);
 
           // Retry the original request with the new access token
+          // Preserve original headers and update Authorization
+          const retryHeaders = new Headers(requestHeaders);
+          retryHeaders.set("Authorization", `Bearer ${newAccessToken}`);
+
           response = await fetchResource({
             url: targetUrl,
             method: request.method,
-            headers: new Headers({
-              Authorization: `Bearer ${newAccessToken}`,
-            }),
+            headers: retryHeaders,
             body: requestBody,
           });
         }
@@ -180,7 +186,11 @@ async function fetchResource({
   readonly body?: BodyInit | null;
 }) {
   const headers = new Headers(fetchHeaders);
-  // headers.set('Content-Type', 'application/json');
+
+  // Ensure Content-Type is set for requests with body
+  if (body && !headers.has("Content-Type")) {
+    headers.set("Content-Type", "application/json");
+  }
 
   return fetch(url, {
     method,

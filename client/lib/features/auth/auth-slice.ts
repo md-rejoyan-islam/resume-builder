@@ -28,6 +28,13 @@ export interface UpdateMePayload {
   phone?: string;
 }
 
+export interface UpdateMeWithAvatarPayload {
+  first_name?: string;
+  last_name?: string;
+  phone?: string;
+  avatar?: File;
+}
+
 export interface GetMeResponse {
   data: IUser & { tenant: { _id: string; name: string } };
 }
@@ -143,6 +150,23 @@ const authSlice = createApi({
       invalidatesTags: ["Auth"],
     }),
 
+    updateMeWithAvatar: builder.mutation<UpdateMeResponse, UpdateMeWithAvatarPayload>({
+      query: (payload) => {
+        const formData = new FormData();
+        if (payload.first_name) formData.append("first_name", payload.first_name);
+        if (payload.last_name) formData.append("last_name", payload.last_name);
+        if (payload.phone) formData.append("phone", payload.phone);
+        if (payload.avatar) formData.append("avatar", payload.avatar);
+
+        return {
+          url: "/auth/me",
+          method: "PUT",
+          body: formData,
+        };
+      },
+      invalidatesTags: ["Auth"],
+    }),
+
     changePassword: builder.mutation<
       ChangePasswordResponse,
       ChangePasswordPayload
@@ -186,6 +210,7 @@ export const {
   useLogoutMutation,
   useGetMeQuery,
   useUpdateMeMutation,
+  useUpdateMeWithAvatarMutation,
   useChangePasswordMutation,
   useActivateAccountMutation,
   useResendActivationLinkMutation,
