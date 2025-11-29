@@ -1,3 +1,5 @@
+"use client";
+
 import { Button } from "@/components/ui/button";
 import {
   Drawer,
@@ -6,14 +8,17 @@ import {
   DrawerHeader,
   DrawerTrigger,
 } from "@/components/ui/drawer";
-import { ArrowRight, Menu, X } from "lucide-react";
+import clsx from "clsx";
+import { ArrowRight, ChevronRight, Menu, X } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import AuthenticateBtns from "./authenticate-btns";
 import Navlink from "./navlink";
 import { ThemeToggle } from "./theme-toggle";
 
 function Header() {
+  const pathname = usePathname();
   const navigationLinks = [
     { href: "/", label: "Home" },
     { href: "/templates", label: "Templates" },
@@ -88,23 +93,20 @@ function Header() {
               </button>
             </DrawerTrigger>
 
-            <DrawerContent className="bg-linear-to-b from-background to-background/95 h-screen max-h-screen lg:hidden">
+            <DrawerContent className="bg-linear-to-b from-background to-background/95 h-[75vh] max-h-screen rounded-none lg:hidden">
               <DrawerHeader className="border-b border-border/30 pb-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <div className="relative">
-                      <div className="absolute inset-0 bg-linear-to-br from-blue-600 to-purple-600 rounded-lg blur-sm opacity-75" />
+                      <div className="absolute inset-0 rounded-lg blur-sm opacity-75" />
                       <Image
                         src={"/logo.png"}
                         alt="Logo"
                         width={32}
                         height={32}
-                        className="relative bg-white rounded-lg shadow-lg"
+                        className="relative "
                       />
                     </div>
-                    <span className="text-sm font-bold bg-linear-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                      DocBuilder
-                    </span>
                   </div>
                   <DrawerClose asChild>
                     <button className="p-2 hover:bg-card/50 rounded-lg transition">
@@ -115,17 +117,53 @@ function Header() {
               </DrawerHeader>
 
               {/* Drawer Menu Items */}
-              <div className="px-4 py-6 space-y-2 flex-1 overflow-y-auto">
-                {navigationLinks.map((link) => (
-                  <DrawerClose key={link.href} asChild>
-                    <Link
-                      href={link.href}
-                      className="flex items-center px-4 py-3 text-base font-semibold text-foreground/80 hover:text-foreground hover:bg-card/50 rounded-lg transition-all active:bg-card/70"
-                    >
-                      {link.label}
-                    </Link>
-                  </DrawerClose>
-                ))}
+              <div className="px-4 py-6 space-y-1.5 flex-1 overflow-y-auto">
+                {navigationLinks.map((link) => {
+                  const isActive = link.href === pathname;
+                  return (
+                    <DrawerClose key={link.href} asChild>
+                      <Link
+                        href={link.href}
+                        className={clsx(
+                          "group relative flex items-center justify-between px-4 py-3.5 rounded-xl transition-all duration-200",
+                          isActive
+                            ? "bg-linear-to-r from-blue-600/10 to-purple-600/10 border border-primary/20"
+                            : "hover:bg-card/60 border border-transparent hover:border-border/50"
+                        )}
+                      >
+                        <div className="flex items-center gap-3">
+                          {/* Active indicator bar */}
+                          <div
+                            className={clsx(
+                              "w-1 h-6 rounded-full transition-all duration-200",
+                              isActive
+                                ? "bg-linear-to-b from-blue-600 to-purple-600"
+                                : "bg-border/50 group-hover:bg-primary/30"
+                            )}
+                          />
+                          <span
+                            className={clsx(
+                              "text-base font-semibold transition-colors",
+                              isActive
+                                ? "bg-linear-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent"
+                                : "text-foreground/70 group-hover:text-foreground"
+                            )}
+                          >
+                            {link.label}
+                          </span>
+                        </div>
+                        <ChevronRight
+                          className={clsx(
+                            "h-4 w-4 transition-all duration-200",
+                            isActive
+                              ? "text-primary"
+                              : "text-foreground/30 group-hover:text-foreground/60 group-hover:translate-x-0.5"
+                          )}
+                        />
+                      </Link>
+                    </DrawerClose>
+                  );
+                })}
               </div>
 
               {/* Drawer Footer with Buttons */}
