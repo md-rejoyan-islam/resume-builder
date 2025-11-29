@@ -1,17 +1,7 @@
-import createError from 'http-errors';
-import OpenAI from 'openai';
-import { PDFParse } from 'pdf-parse';
-import secret from '../../app/secret';
+import { AIExtractionService, PDFService } from '../ai';
 import { CoverLetterService } from './cover-letter.service';
 
-// Initialize OpenAI client
-const openai = new OpenAI({
-  apiKey: secret.openai.api_key,
-});
-
-// =============================================================================
 // Cover Letter Format Schema for OpenAI
-// =============================================================================
 
 const COVER_LETTER_SCHEMA = `{
   "personalInfo": {
@@ -37,44 +27,7 @@ const COVER_LETTER_SCHEMA = `{
   }
 }`;
 
-// =============================================================================
-// PDF Extraction Service for Cover Letters
-// =============================================================================
-
-export class CoverLetterPdfService {
-  /**
-   * Extract text from PDF buffer
-   */
-  static async extractTextFromPdf(pdfBuffer: Buffer): Promise<string> {
-    try {
-      const parser = new PDFParse({ data: pdfBuffer });
-      const result = await parser.getText();
-      return result.text;
-    } catch (error) {
-      console.error('PDF parsing error:', error);
-      throw createError.BadRequest(
-        'Failed to parse PDF file. Please ensure it is a valid PDF.',
-      );
-    }
-  }
-
-  /**
-   * Use OpenAI to extract structured cover letter data from text
-   */
-  static async extractCoverLetterDataWithAI(
-    pdfText: string,
-  ): Promise<Record<string, unknown>> {
-    if (!secret.openai.api_key) {
-      throw createError.InternalServerError('OpenAI API key is not configured');
-    }
-
-    try {
-      const response = await openai.chat.completions.create({
-        model: 'gpt-4o-mini',
-        messages: [
-          {
-            role: 'system',
-            content: `You are an expert cover letter parser. Your task is to extract ALL information from the provided cover letter text and structure it according to the exact JSON schema provided.
+const COVER_LETTER_SYSTEM_PROMPT = `You are an expert cover letter parser. Your task is to extract ALL information from the provided cover letter text and structure it according to the exact JSON schema provided.
 
 IMPORTANT RULES:
 1. Extract EVERY piece of information from the cover letter - do not miss anything
@@ -84,39 +37,30 @@ IMPORTANT RULES:
 5. The greeting should be the opening sentence/line after the salutation
 6. Body paragraphs should be the main content paragraphs
 7. Closing paragraph is typically the thank you/call to action before the sign-off
-8. Return ONLY valid JSON, no markdown code blocks or explanations
+8. Return ONLY valid JSON, no markdown code blocks or explanations`;
 
-JSON Schema to follow:
-${COVER_LETTER_SCHEMA}`,
-          },
-          {
-            role: 'user',
-            content: `Please extract all information from this cover letter and return it as JSON:\n\n${pdfText}`,
-          },
-        ],
-        temperature: 0.1,
-        max_tokens: 2048,
-        response_format: { type: 'json_object' },
-      });
+export class CoverLetterPdfService {
+  /**
+   * Extract text from PDF buffer
+   */
+  static async extractTextFromPdf(pdfBuffer: Buffer): Promise<string> {
+    return PDFService.extractText(pdfBuffer);
+  }
 
-      const content = response.choices[0]?.message?.content;
-      if (!content) {
-        throw createError.InternalServerError('No response from OpenAI');
-      }
+  /**
+   * Use OpenAI to extract structured cover letter data from text
+   */
+  static async extractCoverLetterDataWithAI(
+    pdfText: string,
+  ): Promise<Record<string, unknown>> {
+    const parsedData = await AIExtractionService.extractStructuredData({
+      schema: COVER_LETTER_SCHEMA,
+      systemPrompt: COVER_LETTER_SYSTEM_PROMPT,
+      content: `Please extract all information from this cover letter and return it as JSON:\n\n${pdfText}`,
+      maxTokens: 2048,
+    });
 
-      const parsedData = JSON.parse(content);
-
-      // Validate and ensure required structure
-      return this.validateAndNormalizeData(parsedData);
-    } catch (error) {
-      if (error instanceof SyntaxError) {
-        throw createError.InternalServerError(
-          'Failed to parse AI response as JSON',
-        );
-      }
-      console.error('OpenAI extraction error:', error);
-      throw error;
-    }
+    return this.validateAndNormalizeData(parsedData);
   }
 
   /**
@@ -175,16 +119,17 @@ ${COVER_LETTER_SCHEMA}`,
     // Step 1: Extract text from PDF
     const pdfText = await this.extractTextFromPdf(pdfBuffer);
 
-    if (!pdfText || pdfText.trim().length < 30) {
-      throw createError.BadRequest(
-        'The PDF appears to be empty or contains too little text to extract cover letter data.',
-      );
-    }
+    // Step 2: Validate text content
+    PDFService.validateTextContent(
+      pdfText,
+      30,
+      'The PDF appears to be empty or contains too little text to extract cover letter data.',
+    );
 
-    // Step 2: Use AI to extract structured data
+    // Step 3: Use AI to extract structured data
     const coverLetterData = await this.extractCoverLetterDataWithAI(pdfText);
 
-    // Step 3: Generate title from extracted data
+    // Step 4: Generate title from extracted data
     const personalInfo = coverLetterData.personalInfo as Record<string, string>;
     const letterContent = coverLetterData.letterContent as Record<
       string,
@@ -195,14 +140,14 @@ ${COVER_LETTER_SCHEMA}`,
         ? `${personalInfo.fullName} - ${letterContent.company}`
         : originalFilename.replace(/\.pdf$/i, '') || 'Imported Cover Letter';
 
-    // Step 4: Determine status based on content
+    // Step 5: Determine status based on content
     const hasContent =
       letterContent.greeting &&
       letterContent.bodyParagraph1 &&
       letterContent.closingParagraph;
     const status = hasContent ? 'completed' : 'draft';
 
-    // Step 5: Save to database using existing CoverLetterService
+    // Step 6: Save to database using existing CoverLetterService
     const result = await CoverLetterService.create(userId, {
       title,
       status,

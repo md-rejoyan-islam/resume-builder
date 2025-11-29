@@ -42,11 +42,6 @@ router.get('/api-docs', (_: Request, res: Response) => {
   res.redirect('/docs/index.html');
 });
 
-// API documentation routes - Redoc
-router.get('/api-docs-redoc', (_: Request, res: Response) => {
-  res.redirect('/docs/redoc.html');
-});
-
 // auth routes
 router.use('/api/v1/auth', authRouter);
 // users routes

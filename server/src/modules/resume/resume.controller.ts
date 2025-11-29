@@ -1,5 +1,5 @@
-import createError from 'http-errors';
 import { Response } from 'express';
+import createError from 'http-errors';
 import { IRequestWithUser } from '../../app/types';
 import { asyncHandler } from '../../utils/async-handler';
 import { successResponse } from '../../utils/response-handler';
@@ -14,7 +14,10 @@ export const listResumes = asyncHandler(
   async (req: IRequestWithUser, res: Response) => {
     const userId = req.user?._id?.toString() as string;
 
-    const data = await ResumeService.list(userId, req.query as ListResumesQuery);
+    const data = await ResumeService.list(
+      userId,
+      req.query as ListResumesQuery,
+    );
 
     successResponse(res, {
       statusCode: 200,
@@ -52,7 +55,9 @@ export const getDefaultResume = asyncHandler(
 
     successResponse(res, {
       statusCode: 200,
-      message: data ? 'Default resume fetched successfully' : 'No default resume found',
+      message: data
+        ? 'Default resume fetched successfully'
+        : 'No default resume found',
       payload: { data },
     });
   },
@@ -116,7 +121,11 @@ export const duplicateResume = asyncHandler(
   async (req: IRequestWithUser, res: Response) => {
     const userId = req.user?._id?.toString() as string;
 
-    const data = await ResumeService.duplicate(userId, req.params.id, req.body?.title);
+    const data = await ResumeService.duplicate(
+      userId,
+      req.params.id,
+      req.body?.title,
+    );
 
     successResponse(res, {
       statusCode: 201,

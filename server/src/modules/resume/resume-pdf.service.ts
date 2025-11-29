@@ -1,17 +1,7 @@
-import createError from 'http-errors';
-import OpenAI from 'openai';
-import { PDFParse } from 'pdf-parse';
-import secret from '../../app/secret';
+import { AIExtractionService, PDFService } from '../ai';
 import { ResumeService } from './resume.service';
 
-// Initialize OpenAI client
-const openai = new OpenAI({
-  apiKey: secret.openai.api_key,
-});
-
-// =============================================================================
 // Resume Format Schema for OpenAI
-// =============================================================================
 
 const RESUME_SCHEMA = `{
   "contact": {
@@ -87,7 +77,7 @@ const RESUME_SCHEMA = `{
     {
       "id": "string (unique, format: proj-{timestamp}-{random})",
       "name": "string (required)",
-      "description": "string (HTML content with <p>, <ul>, <li> tags for responsibilities/achievements)"
+      "description": "string (HTML content with <p>, <ul>, <li> tags for responsibilities/achievements)",
       "githubUrl": "string",
       "liveUrl": "string",
       "otherUrl": "string",
@@ -153,44 +143,7 @@ const RESUME_SCHEMA = `{
   ]
 }`;
 
-// =============================================================================
-// PDF Extraction Service
-// =============================================================================
-
-export class ResumePdfService {
-  /**
-   * Extract text from PDF buffer
-   */
-  static async extractTextFromPdf(pdfBuffer: Buffer): Promise<string> {
-    try {
-      const parser = new PDFParse({ data: pdfBuffer });
-      const result = await parser.getText();
-      return result.text;
-    } catch (error) {
-      console.error('PDF parsing error:', error);
-      throw createError.BadRequest(
-        'Failed to parse PDF file. Please ensure it is a valid PDF.',
-      );
-    }
-  }
-
-  /**
-   * Use OpenAI to extract structured resume data from text
-   */
-  static async extractResumeDataWithAI(
-    pdfText: string,
-  ): Promise<Record<string, unknown>> {
-    if (!secret.openai.api_key) {
-      throw createError.InternalServerError('OpenAI API key is not configured');
-    }
-
-    try {
-      const response = await openai.chat.completions.create({
-        model: 'gpt-4o-mini',
-        messages: [
-          {
-            role: 'system',
-            content: `You are an expert resume parser. Your task is to extract ALL information from the provided resume text and structure it according to the exact JSON schema provided.
+const RESUME_SYSTEM_PROMPT = `You are an expert resume parser. Your task is to extract ALL information from the provided resume text and structure it according to the exact JSON schema provided.
 
 IMPORTANT RULES:
 1. Extract EVERY piece of information from the resume - do not miss anything
@@ -208,39 +161,30 @@ IMPORTANT RULES:
     - Twitter: "https://twitter.com/username" (NOT just "twitter.com/username" or "@username")
     - Website: "https://example.com" (NOT just "example.com")
     - Any other URL: preserve the full URL with protocol
-    If a URL in the resume doesn't have a protocol, add "https://" prefix.
+    If a URL in the resume doesn't have a protocol, add "https://" prefix.`;
 
-JSON Schema to follow:
-${RESUME_SCHEMA}`,
-          },
-          {
-            role: 'user',
-            content: `Please extract all information from this resume and return it as JSON:\n\n${pdfText}`,
-          },
-        ],
-        temperature: 0.1,
-        max_tokens: 4096,
-        response_format: { type: 'json_object' },
-      });
+export class ResumePdfService {
+  /**
+   * Extract text from PDF buffer
+   */
+  static async extractTextFromPdf(pdfBuffer: Buffer): Promise<string> {
+    return PDFService.extractText(pdfBuffer);
+  }
 
-      const content = response.choices[0]?.message?.content;
-      if (!content) {
-        throw createError.InternalServerError('No response from OpenAI');
-      }
+  /**
+   * Use OpenAI to extract structured resume data from text
+   */
+  static async extractResumeDataWithAI(
+    pdfText: string,
+  ): Promise<Record<string, unknown>> {
+    const parsedData = await AIExtractionService.extractStructuredData({
+      schema: RESUME_SCHEMA,
+      systemPrompt: RESUME_SYSTEM_PROMPT,
+      content: `Please extract all information from this resume and return it as JSON:\n\n${pdfText}`,
+      maxTokens: 4096,
+    });
 
-      const parsedData = JSON.parse(content);
-
-      // Validate and ensure required structure
-      return this.validateAndNormalizeData(parsedData);
-    } catch (error) {
-      if (error instanceof SyntaxError) {
-        throw createError.InternalServerError(
-          'Failed to parse AI response as JSON',
-        );
-      }
-      console.error('OpenAI extraction error:', error);
-      throw error;
-    }
+    return this.validateAndNormalizeData(parsedData);
   }
 
   /**
@@ -249,9 +193,6 @@ ${RESUME_SCHEMA}`,
   private static validateAndNormalizeData(
     data: Record<string, unknown>,
   ): Record<string, unknown> {
-    const timestamp = Date.now();
-    const randomId = () => Math.random().toString(36).substring(2, 8);
-
     // Ensure contact has required fields
     const contact = (data.contact as Record<string, unknown>) || {};
     const normalizedContact = {
@@ -274,19 +215,6 @@ ${RESUME_SCHEMA}`,
       drivingLicense: contact.drivingLicense || undefined,
     };
 
-    // Normalize arrays and ensure IDs
-    const normalizeArray = <T extends { id?: string; index?: number }>(
-      arr: T[] | undefined,
-      prefix: string,
-    ): T[] => {
-      if (!Array.isArray(arr)) return [];
-      return arr.map((item, index) => ({
-        ...item,
-        id: item.id || `${prefix}-${timestamp}-${randomId()}`,
-        index: item.index ?? index,
-      }));
-    };
-
     // Default section titles
     const defaultSectionTitles = [
       { id: 'summary', defaultTitle: 'Summary' },
@@ -303,39 +231,39 @@ ${RESUME_SCHEMA}`,
 
     return {
       contact: normalizedContact,
-      skills: normalizeArray(
+      skills: AIExtractionService.normalizeArrayWithIds(
         data.skills as { id?: string; index?: number }[],
         'skill',
       ),
-      experiences: normalizeArray(
+      experiences: AIExtractionService.normalizeArrayWithIds(
         data.experiences as { id?: string; index?: number }[],
         'exp',
       ),
-      educations: normalizeArray(
+      educations: AIExtractionService.normalizeArrayWithIds(
         data.educations as { id?: string; index?: number }[],
         'edu',
       ),
-      certifications: normalizeArray(
+      certifications: AIExtractionService.normalizeArrayWithIds(
         data.certifications as { id?: string; index?: number }[],
         'cert',
       ),
-      projects: normalizeArray(
+      projects: AIExtractionService.normalizeArrayWithIds(
         data.projects as { id?: string; index?: number }[],
         'proj',
       ),
-      references: normalizeArray(
+      references: AIExtractionService.normalizeArrayWithIds(
         data.references as { id?: string; index?: number }[],
         'ref',
       ),
-      languages: normalizeArray(
+      languages: AIExtractionService.normalizeArrayWithIds(
         data.languages as { id?: string; index?: number }[],
         'lang',
       ),
-      volunteers: normalizeArray(
+      volunteers: AIExtractionService.normalizeArrayWithIds(
         data.volunteers as { id?: string; index?: number }[],
         'vol',
       ),
-      publications: normalizeArray(
+      publications: AIExtractionService.normalizeArrayWithIds(
         data.publications as { id?: string; index?: number }[],
         'pub',
       ),
@@ -354,25 +282,24 @@ ${RESUME_SCHEMA}`,
     // Step 1: Extract text from PDF
     const pdfText = await this.extractTextFromPdf(pdfBuffer);
 
-    console.log('prd', pdfText);
+    // Step 2: Validate text content
+    PDFService.validateTextContent(
+      pdfText,
+      50,
+      'The PDF appears to be empty or contains too little text to extract resume data.',
+    );
 
-    if (!pdfText || pdfText.trim().length < 50) {
-      throw createError.BadRequest(
-        'The PDF appears to be empty or contains too little text to extract resume data.',
-      );
-    }
-
-    // Step 2: Use AI to extract structured data
+    // Step 3: Use AI to extract structured data
     const resumeData = await this.extractResumeDataWithAI(pdfText);
 
-    // Step 3: Generate title from extracted data
+    // Step 4: Generate title from extracted data
     const contact = resumeData.contact as Record<string, string>;
     const title =
       contact.firstName && contact.lastName
         ? `${contact.firstName} ${contact.lastName}'s Resume`
         : originalFilename.replace(/\.pdf$/i, '') || 'Imported Resume';
 
-    // Step 4: Save to database using existing ResumeService
+    // Step 5: Save to database using existing ResumeService
     const result = await ResumeService.create(userId, {
       title,
       ...resumeData,

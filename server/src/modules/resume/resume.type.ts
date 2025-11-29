@@ -1,18 +1,10 @@
 import { Types } from 'mongoose';
 
-// =============================================================================
-// Section Title Interface
-// =============================================================================
-
 export interface ISectionTitle {
   id: string;
   title?: string; // Custom title (e.g., "About Me")
   defaultTitle: string; // Default title (e.g., "Summary")
 }
-
-// =============================================================================
-// Contact Interface
-// =============================================================================
 
 export interface IContact {
   firstName: string;
@@ -35,10 +27,6 @@ export interface IContact {
   drivingLicense?: string;
 }
 
-// =============================================================================
-// Skill Interface
-// =============================================================================
-
 export interface ISkill {
   id: string;
   name: string;
@@ -46,27 +34,25 @@ export interface ISkill {
   index?: number;
 }
 
-// =============================================================================
-// Experience Interface
-// =============================================================================
-
 export interface IExperience {
   id: string;
   jobTitle: string;
   employer: string;
   city?: string;
   country?: string;
-  jobType?: 'full-time' | 'part-time' | 'contract' | 'freelance' | 'internship' | 'remote';
+  jobType?:
+    | 'full-time'
+    | 'part-time'
+    | 'contract'
+    | 'freelance'
+    | 'internship'
+    | 'remote';
   startDate: string;
   endDate?: string;
   currentlyWorking?: boolean;
   description?: string; // HTML content
   index?: number;
 }
-
-// =============================================================================
-// Education Interface
-// =============================================================================
 
 export interface IEducation {
   id: string;
@@ -79,10 +65,6 @@ export interface IEducation {
   currentlyStudying?: boolean;
   index?: number;
 }
-
-// =============================================================================
-// Certification Interface
-// =============================================================================
 
 export interface ICertification {
   id: string;
@@ -97,10 +79,6 @@ export interface ICertification {
   index?: number;
 }
 
-// =============================================================================
-// Project Interface
-// =============================================================================
-
 export interface IProject {
   id: string;
   name: string;
@@ -110,10 +88,6 @@ export interface IProject {
   otherUrl?: string;
   index?: number;
 }
-
-// =============================================================================
-// Reference Interface
-// =============================================================================
 
 export interface IReference {
   id: string;
@@ -126,20 +100,12 @@ export interface IReference {
   index?: number;
 }
 
-// =============================================================================
-// Language Interface
-// =============================================================================
-
 export interface ILanguage {
   id: string;
   language: string;
   proficiency?: 'native' | 'fluent' | 'advanced' | 'intermediate' | 'basic';
   index?: number;
 }
-
-// =============================================================================
-// Volunteer Interface
-// =============================================================================
 
 export interface IVolunteer {
   id: string;
@@ -153,10 +119,6 @@ export interface IVolunteer {
   index?: number;
 }
 
-// =============================================================================
-// Publication Interface
-// =============================================================================
-
 export interface IPublication {
   id: string;
   title: string;
@@ -167,10 +129,6 @@ export interface IPublication {
   description?: string; // HTML content
   index?: number;
 }
-
-// =============================================================================
-// Template Settings Interface
-// =============================================================================
 
 export interface ITemplateSettings {
   templateId: string; // e.g., "classic", "professional", "executive"
@@ -187,10 +145,6 @@ export interface ITemplateSettings {
   lineHeight?: number;
   accentColor?: string;
 }
-
-// =============================================================================
-// Main Resume Interface
-// =============================================================================
 
 export interface IResume {
   userId: Types.ObjectId;
@@ -215,10 +169,6 @@ export interface IResume {
   volunteers?: IVolunteer[];
   publications?: IPublication[];
 }
-
-// =============================================================================
-// Resume Document Type (with MongoDB fields)
-// =============================================================================
 
 export interface IResumeDocument extends IResume {
   _id: Types.ObjectId;

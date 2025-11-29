@@ -30,21 +30,6 @@ export const isLoggedIn = asyncHandler(
       );
     }
 
-    // check user if login from another device or not
-    // if (user.refresh_token) {
-    //   const refreshDecoded = jwt.verify(
-    //     user.refresh_token,
-    //     secret.jwt.refreshTokenSecret
-    //   ) as IJwtPayload;
-
-    //   const isValidLoginCode = refreshDecoded.loginCode === decoded.loginCode;
-
-    //   if (!isValidLoginCode) {
-    //     // emitInvalidateOtherSessions(user._id.toString());
-    //     throw createError.Unauthorized("Can't login in multiple device.");
-    //   }
-    // }
-
     req.user = {
       _id: user._id,
       email: user.email,

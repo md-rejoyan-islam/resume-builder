@@ -333,7 +333,9 @@ export class CoverLetterService {
     );
 
     // Set this one as default
-    await CoverLetterModel.findByIdAndUpdate(coverLetterId, { isDefault: true });
+    await CoverLetterModel.findByIdAndUpdate(coverLetterId, {
+      isDefault: true,
+    });
 
     // Invalidate caches
     await this.invalidateCoverLetterCache(userId, coverLetterId);

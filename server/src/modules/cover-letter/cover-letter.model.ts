@@ -1,10 +1,6 @@
 import mongoose, { Schema } from 'mongoose';
 import { ICoverLetter } from './cover-letter.type';
 
-// =============================================================================
-// Sub-Schemas
-// =============================================================================
-
 const FieldStyleSchema = new Schema(
   {
     fontFamily: { type: String, default: 'Arial' },
@@ -79,10 +75,6 @@ const LetterContentSchema = new Schema(
   { _id: false },
 );
 
-// =============================================================================
-// Main Cover Letter Schema
-// =============================================================================
-
 const CoverLetterSchema = new Schema<ICoverLetter>(
   {
     userId: {
@@ -121,17 +113,9 @@ const CoverLetterSchema = new Schema<ICoverLetter>(
   },
 );
 
-// =============================================================================
-// Indexes
-// =============================================================================
-
 CoverLetterSchema.index({ userId: 1, isDefault: 1 });
 CoverLetterSchema.index({ userId: 1, createdAt: -1 });
 CoverLetterSchema.index({ userId: 1, status: 1 });
-
-// =============================================================================
-// Pre-save Hook: Ensure only one default cover letter per user
-// =============================================================================
 
 CoverLetterSchema.pre('save', async function (next) {
   if (this.isDefault && this.isModified('isDefault')) {

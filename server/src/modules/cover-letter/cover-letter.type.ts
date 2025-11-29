@@ -1,19 +1,11 @@
 import { Types } from 'mongoose';
 
-// =============================================================================
-// Field Style Interface
-// =============================================================================
-
 export interface IFieldStyle {
   fontFamily: string;
   fontSize: number;
   color: string;
   align: 'left' | 'center' | 'right';
 }
-
-// =============================================================================
-// Theme Interface
-// =============================================================================
 
 export interface ITheme {
   colors: {
@@ -34,10 +26,6 @@ export interface ITheme {
   fontFamily: string;
 }
 
-// =============================================================================
-// Personal Info Interface
-// =============================================================================
-
 export interface IPersonalInfo {
   fullName: string;
   jobTitle?: string;
@@ -48,10 +36,6 @@ export interface IPersonalInfo {
   nameStyle?: IFieldStyle;
   contactStyle?: IFieldStyle;
 }
-
-// =============================================================================
-// Letter Content Interface
-// =============================================================================
 
 export interface ILetterContent {
   date: string;
@@ -71,10 +55,6 @@ export interface ILetterContent {
   closingStyle?: IFieldStyle;
 }
 
-// =============================================================================
-// Main Cover Letter Interface
-// =============================================================================
-
 export interface ICoverLetter {
   userId: Types.ObjectId;
   title: string;
@@ -84,10 +64,6 @@ export interface ICoverLetter {
   personalInfo: IPersonalInfo;
   letterContent: ILetterContent;
 }
-
-// =============================================================================
-// Cover Letter Document Type (with MongoDB fields)
-// =============================================================================
 
 export interface ICoverLetterDocument extends ICoverLetter {
   _id: Types.ObjectId;

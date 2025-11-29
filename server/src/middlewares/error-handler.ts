@@ -27,7 +27,7 @@ const errorHandler = (
     error.message = 'Invalid token. Please log in again!';
     errors = [{ path: '', message: 'Invalid token. Please log in again!' }];
   }
-  // 2. Handle JWT expired errors
+  // Handle JWT expired errors
   if (error.name === 'TokenExpiredError') {
     statusCode = Unauthorized().statusCode;
     error.message = 'Your token has expired! Please log in again.';
@@ -36,7 +36,7 @@ const errorHandler = (
     ];
   }
 
-  // 1. Handle Zod validation errors
+  // Handle Zod validation errors
   if (error instanceof ZodError) {
     statusCode = UnprocessableEntity().statusCode;
     message = error.issues[0].message;
@@ -47,13 +47,13 @@ const errorHandler = (
     }));
   }
 
-  // 3. Handle errors from the http-errors library
+  // Handle errors from the http-errors library
   else if (isHttpError(error)) {
     statusCode = error.statusCode;
     message = error.message;
     errors = error.message ? [{ path: '', message: error.message }] : [];
   }
-  // 4. Handle generic Error
+  // Handle generic Error
   else if (error instanceof Error) {
     message = error.message;
     errors = error.message ? [{ path: '', message: error.message }] : [];

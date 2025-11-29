@@ -1,10 +1,6 @@
 import mongoose, { Schema } from 'mongoose';
 import { IResume } from './resume.type';
 
-// =============================================================================
-// Sub-Schemas
-// =============================================================================
-
 const SectionTitleSchema = new Schema(
   {
     id: { type: String, required: true },
@@ -57,7 +53,14 @@ const ExperienceSchema = new Schema(
     country: { type: String, trim: true },
     jobType: {
       type: String,
-      enum: ['full-time', 'part-time', 'contract', 'freelance', 'internship', 'remote'],
+      enum: [
+        'full-time',
+        'part-time',
+        'contract',
+        'freelance',
+        'internship',
+        'remote',
+      ],
     },
     startDate: { type: String, required: true },
     endDate: { type: String },
@@ -187,10 +190,6 @@ const TemplateSettingsSchema = new Schema(
   { _id: false },
 );
 
-// =============================================================================
-// Main Resume Schema
-// =============================================================================
-
 const ResumeSchema = new Schema<IResume>(
   {
     userId: {
@@ -236,16 +235,8 @@ const ResumeSchema = new Schema<IResume>(
   },
 );
 
-// =============================================================================
-// Indexes
-// =============================================================================
-
 ResumeSchema.index({ userId: 1, isDefault: 1 });
 ResumeSchema.index({ userId: 1, createdAt: -1 });
-
-// =============================================================================
-// Pre-save Hook: Ensure only one default resume per user
-// =============================================================================
 
 ResumeSchema.pre('save', async function (next) {
   if (this.isDefault && this.isModified('isDefault')) {

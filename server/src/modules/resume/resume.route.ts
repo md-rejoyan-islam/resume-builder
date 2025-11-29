@@ -26,7 +26,7 @@ import {
 
 const resumeRouter = Router();
 
-// All resume routes require authentication
+// Authentication
 resumeRouter.use(isLoggedIn);
 
 // List all resumes for the authenticated user
@@ -54,9 +54,17 @@ resumeRouter.put('/:id', validate(updateResumeSchema), updateResume);
 resumeRouter.delete('/:id', validate(deleteResumeSchema), deleteResume);
 
 // Duplicate a resume
-resumeRouter.post('/:id/duplicate', validate(duplicateResumeSchema), duplicateResume);
+resumeRouter.post(
+  '/:id/duplicate',
+  validate(duplicateResumeSchema),
+  duplicateResume,
+);
 
 // Set a resume as default
-resumeRouter.patch('/:id/default', validate(setDefaultResumeSchema), setDefaultResume);
+resumeRouter.patch(
+  '/:id/default',
+  validate(setDefaultResumeSchema),
+  setDefaultResume,
+);
 
 export default resumeRouter;

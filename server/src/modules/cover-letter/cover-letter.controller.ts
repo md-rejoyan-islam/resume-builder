@@ -1,5 +1,5 @@
-import createError from 'http-errors';
 import { Response } from 'express';
+import createError from 'http-errors';
 import { IRequestWithUser } from '../../app/types';
 import { asyncHandler } from '../../utils/async-handler';
 import { successResponse } from '../../utils/response-handler';
