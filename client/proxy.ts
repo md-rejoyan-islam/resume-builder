@@ -19,11 +19,16 @@ export default function proxy(req: NextRequest) {
   const url = req.nextUrl;
   const hostname = req.headers.get("host") || ""; // e.g., subdomain.redpro.local:3000, localhost:3000, etc.
 
+  // Get tenant info from cookies
+  const tenantName = req.cookies.get("tenantName")?.value;
+  const accessToken = req.cookies.get("accessToken")?.value;
+
   // Define the main domain (without www or https://)
   const rootDomain = ROOT_DOMAIN;
 
   // Extract hostname without port
   const hostWithoutPort = hostname.split(":")[0];
+  const port = hostname.split(":")[1];
   const isMainDomain =
     hostWithoutPort === rootDomain ||
     hostWithoutPort === "localhost" ||
@@ -38,6 +43,23 @@ export default function proxy(req: NextRequest) {
     hostWithoutPort.endsWith(`.${rootDomain}`)
   ) {
     subdomain = hostWithoutPort.replace(`.${rootDomain}`, "").split(".")[0]; // Extract subdomain
+  }
+
+  // If user is logged in and on a subdomain that doesn't match their tenant, redirect them
+  if (
+    subdomain &&
+    subdomain !== "www" &&
+    !isMainDomain &&
+    accessToken &&
+    tenantName &&
+    subdomain !== tenantName
+  ) {
+    // Build the correct URL with user's actual tenant subdomain
+    const protocol = req.headers.get("x-forwarded-proto") || "http";
+    const portSuffix = port ? `:${port}` : "";
+    const correctUrl = `${protocol}://${tenantName}.${rootDomain}${portSuffix}${url.pathname}${url.search}`;
+
+    return NextResponse.redirect(new URL(correctUrl));
   }
 
   // Handle main domain routing - only rewrite the root path

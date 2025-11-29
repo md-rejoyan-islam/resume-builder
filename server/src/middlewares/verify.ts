@@ -4,6 +4,7 @@ import jwt from 'jsonwebtoken';
 import secret from '../app/secret';
 import { IJwtPayload, IRequestWithUser } from '../app/types';
 
+import TenantModel from '../modules/tenant/tenant.model';
 import UserModel from '../modules/user/user.model';
 import { asyncHandler } from '../utils/async-handler';
 
@@ -28,6 +29,29 @@ export const isLoggedIn = asyncHandler(
       throw createError.Unauthorized(
         'Login User not found or no longer exists!',
       );
+    }
+
+    // Check subdomain matches user's tenant if subdomain header is present
+    const subdomain = req.headers['x-subdomain'] as string | undefined;
+
+    if (subdomain) {
+      // Get the tenant for this user
+      const userTenant = await TenantModel.findOne({ userId: user._id })
+        .select('name')
+        .lean();
+
+      if (!userTenant) {
+        throw createError.Unauthorized(
+          'No tenant associated with this user account.',
+        );
+      }
+
+      // Verify subdomain matches user's tenant name
+      if (userTenant.name !== subdomain) {
+        throw createError.Unauthorized(
+          'You do not have access to this subdomain.',
+        );
+      }
     }
 
     req.user = {

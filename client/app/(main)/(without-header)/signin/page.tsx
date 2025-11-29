@@ -2,6 +2,12 @@ import SignInForm from "@/components/(without-header)/signin/signin-form";
 import { User } from "lucide-react";
 import Link from "next/link";
 
+export const metadata = {
+  title: "Sign In - Access Your ResumeBuilder Account",
+  description:
+    "Sign in to your ResumeBuilder account to create, edit, and manage your professional resumes and cover letters with ease.",
+};
+
 const Page = () => {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-linear-to-br from-gray-50 to-gray-100 dark:from-slate-950 dark:to-slate-900 p-4">

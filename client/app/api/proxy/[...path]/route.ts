@@ -2,6 +2,30 @@ import { deleteCookie, getCookie, setCookie } from "@/app/actions";
 import { NextRequest, NextResponse } from "next/server";
 
 const API_URL = process.env.API_URL;
+const ROOT_DOMAIN = process.env.ROOT_DOMAIN || "redpro.local";
+
+/**
+ * Extract subdomain from the request hostname
+ */
+function getSubdomainFromRequest(request: NextRequest): string | null {
+  const hostname = request.headers.get("host") || "";
+  const hostWithoutPort = hostname.split(":")[0];
+
+  const isMainDomain =
+    hostWithoutPort === ROOT_DOMAIN ||
+    hostWithoutPort === "localhost" ||
+    hostWithoutPort === `www.${ROOT_DOMAIN}`;
+
+  if (
+    !isMainDomain &&
+    hostWithoutPort !== "localhost" &&
+    hostWithoutPort.endsWith(`.${ROOT_DOMAIN}`)
+  ) {
+    return hostWithoutPort.replace(`.${ROOT_DOMAIN}`, "").split(".")[0];
+  }
+
+  return null;
+}
 
 export async function GET(
   request: NextRequest,
@@ -46,6 +70,25 @@ async function handleProxyRequest(
 
   const accessToken = await getCookie("accessToken");
   const refreshToken = await getCookie("refreshToken");
+  const tenantName = await getCookie("tenantName");
+
+  // Extract subdomain from request
+  const subdomain = getSubdomainFromRequest(request);
+
+  // Check if user is on wrong subdomain - redirect to their correct subdomain
+  if (subdomain && tenantName && subdomain !== tenantName && accessToken) {
+    const protocol = request.headers.get("x-forwarded-proto") || "http";
+    const correctUrl = `${protocol}://${tenantName}.${ROOT_DOMAIN}${request.nextUrl.pathname}${request.nextUrl.search}`;
+
+    return NextResponse.json(
+      {
+        success: false,
+        message: "Redirecting to your subdomain",
+        redirect: correctUrl,
+      },
+      { status: 403 }
+    );
+  }
 
   // Remove headers that shouldn't be forwarded
   requestHeaders.delete("connection");
@@ -55,6 +98,11 @@ async function handleProxyRequest(
 
   if (accessToken) {
     requestHeaders.set("Authorization", `Bearer ${accessToken}`);
+  }
+
+  // Send subdomain to backend for tenant verification
+  if (subdomain) {
+    requestHeaders.set("X-Subdomain", subdomain);
   }
 
   const urlPath = pathSegments.join("/");
@@ -123,8 +171,7 @@ async function handleProxyRequest(
       } else {
         await deleteCookie("accessToken");
         await deleteCookie("refreshToken");
-        const errorMsg =
-          "Session expired. Please log in again.";
+        const errorMsg = "Session expired. Please log in again.";
         return NextResponse.json({ message: errorMsg }, { status: 401 });
       }
     } catch (error) {
